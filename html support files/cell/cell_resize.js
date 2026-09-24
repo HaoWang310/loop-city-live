@@ -1,144 +1,213 @@
 (function () {
   "use strict";
-  if (window.__LC_CELL_RESIZE_V2__) return;
-  window.__LC_CELL_RESIZE_V2__ = true;
 
-  var bar = document.getElementById("bar");
-  var top = document.getElementById("barTop");
-  var bottom = document.getElementById("barBottom");
-  var outerHandle = document.getElementById("barResizer");
-  var innerHandle = document.getElementById("barInnerResizer");
-  if (!bar || !top || !bottom || !outerHandle || !innerHandle) return;
+  if (window.__LC_CELL_MAIN_PANEL_RESIZE__) return;
+  window.__LC_CELL_MAIN_PANEL_RESIZE__ = true;
 
-  var BAR_KEY = "loopCity.cell.topBarHeight";
-  var TOP_KEY = "loopCity.cell.topRowHeight";
-  var MIN_BAR = 110;
-  var MIN_TOP = 46;
-  var MIN_BOTTOM = 44;
-  var MIN_VIEW = 260;
-  var HANDLE_H = 8;
+  var panel = document.getElementById("bar");
+  var stage = document.getElementById("wrap");
+  var handle = document.getElementById("barResizer");
 
-  var defaultBar = bar.getBoundingClientRect().height || 190;
-  var defaultTop = top.getBoundingClientRect().height || 82;
+  if (!panel || !stage || !handle) return;
 
-  function n(v, fallback) {
-    v = parseFloat(v);
-    return isFinite(v) ? v : fallback;
+  var STORAGE_KEY = "loopCity.cell.mainPanelWidth";
+  var DEFAULT_WIDTH = 420;
+  var MIN_WIDTH = 300;
+  var MAX_WIDTH = 720;
+  var MIN_STAGE_WIDTH = 420;
+  var HANDLE_WIDTH = 8;
+
+  var dragging = false;
+  var pointerId = null;
+  var startX = 0;
+  var startWidth = 0;
+  var raf = 0;
+
+  function number(value, fallback) {
+    value = parseFloat(value);
+    return Number.isFinite(value) ? value : fallback;
   }
-  function clamp(v, lo, hi) {
-    return Math.max(lo, Math.min(hi, v));
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
   }
-  function maxBar() {
-    return Math.max(MIN_BAR, window.innerHeight - MIN_VIEW);
+
+  function availableMaximum() {
+    var viewportWidth =
+      document.documentElement.clientWidth ||
+      window.innerWidth ||
+      1200;
+
+    return Math.max(
+      MIN_WIDTH,
+      Math.min(
+        MAX_WIDTH,
+        viewportWidth - MIN_STAGE_WIDTH - HANDLE_WIDTH
+      )
+    );
   }
-  function maxTop() {
-    return Math.max(MIN_TOP, bar.getBoundingClientRect().height - MIN_BOTTOM - HANDLE_H);
-  }
+
   function notifyResize() {
-    window.dispatchEvent(new Event("resize"));
-  }
-
-  function applyBar(h, persist) {
-    h = Math.round(clamp(h, MIN_BAR, maxBar()));
-    bar.style.flex = "0 0 " + h + "px";
-    bar.style.height = h + "px";
-    var th = top.getBoundingClientRect().height;
-    if (th > maxTop()) applyTop(maxTop(), false);
-    if (persist) {
-      try { localStorage.setItem(BAR_KEY, String(h)); } catch (_) {}
-    }
-    notifyResize();
-  }
-
-  function applyTop(h, persist) {
-    h = Math.round(clamp(h, MIN_TOP, maxTop()));
-    top.style.flex = "0 0 " + h + "px";
-    top.style.height = h + "px";
-    if (persist) {
-      try { localStorage.setItem(TOP_KEY, String(h)); } catch (_) {}
-    }
-    notifyResize();
-  }
-
-  function bindVertical(handle, bodyClass, readStart, apply, onEnd) {
-    handle.addEventListener("pointerdown", function (ev) {
-      if (ev.button !== 0) return;
-      ev.preventDefault();
-      handle.setPointerCapture(ev.pointerId);
-      handle.classList.add("dragging");
-      document.body.classList.add(bodyClass);
-      var startY = ev.clientY;
-      var startValue = readStart();
-
-      function move(e) {
-        apply(startValue + (e.clientY - startY), false);
-      }
-      function end(e) {
-        try {
-          if (handle.hasPointerCapture(e.pointerId)) handle.releasePointerCapture(e.pointerId);
-        } catch (_) {}
-        handle.removeEventListener("pointermove", move);
-        handle.removeEventListener("pointerup", end);
-        handle.removeEventListener("pointercancel", end);
-        handle.classList.remove("dragging");
-        document.body.classList.remove(bodyClass);
-        onEnd();
-      }
-
-      handle.addEventListener("pointermove", move);
-      handle.addEventListener("pointerup", end);
-      handle.addEventListener("pointercancel", end);
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function () {
+      raf = 0;
+      window.dispatchEvent(new Event("resize"));
     });
   }
 
-  bindVertical(
-    outerHandle,
-    "cell-bar-resizing",
-    function () { return bar.getBoundingClientRect().height; },
-    applyBar,
-    function () { applyBar(bar.getBoundingClientRect().height, true); }
-  );
+  function setWidth(width, persist) {
+    width = clamp(
+      number(width, DEFAULT_WIDTH),
+      MIN_WIDTH,
+      availableMaximum()
+    );
 
-  bindVertical(
-    innerHandle,
-    "cell-inner-resizing",
-    function () { return top.getBoundingClientRect().height; },
-    applyTop,
-    function () { applyTop(top.getBoundingClientRect().height, true); }
-  );
+    width = Math.round(width);
 
-  outerHandle.addEventListener("dblclick", function (ev) {
-    ev.preventDefault();
-    bar.style.flex = "";
-    bar.style.height = "";
-    try { localStorage.removeItem(BAR_KEY); } catch (_) {}
-    requestAnimationFrame(function () {
-      var savedTop = null;
-      try { savedTop = localStorage.getItem(TOP_KEY); } catch (_) {}
-      if (savedTop !== null && savedTop !== "") applyTop(n(savedTop, defaultTop), false);
-      notifyResize();
-    });
-  });
+    panel.style.width = width + "px";
+    panel.style.flexBasis = width + "px";
+    panel.style.flexGrow = "0";
+    panel.style.flexShrink = "0";
 
-  innerHandle.addEventListener("dblclick", function (ev) {
-    ev.preventDefault();
-    top.style.flex = "0 0 " + Math.round(defaultTop) + "px";
-    top.style.height = Math.round(defaultTop) + "px";
-    try { localStorage.removeItem(TOP_KEY); } catch (_) {}
+    if (persist) {
+      try {
+        localStorage.setItem(STORAGE_KEY, String(width));
+      } catch (_) {}
+    }
+
     notifyResize();
+    return width;
+  }
+
+  function restoreWidth() {
+    var saved = null;
+
+    try {
+      saved = localStorage.getItem(STORAGE_KEY);
+    } catch (_) {}
+
+    if (saved !== null && saved !== "") {
+      setWidth(number(saved, DEFAULT_WIDTH), false);
+    } else {
+      setWidth(DEFAULT_WIDTH, false);
+    }
+  }
+
+  function beginDrag(event) {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    dragging = true;
+    pointerId = event.pointerId;
+    startX = event.clientX;
+    startWidth = panel.getBoundingClientRect().width;
+
+    handle.classList.add("dragging");
+    document.body.classList.add("cell-main-panel-resizing");
+
+    try {
+      handle.setPointerCapture(pointerId);
+    } catch (_) {}
+  }
+
+  function moveDrag(event) {
+    if (!dragging) return;
+    if (pointerId !== null && event.pointerId !== pointerId) return;
+
+    event.preventDefault();
+
+    // Right-side panel:
+    // drag left = wider, drag right = narrower.
+    var delta = event.clientX - startX;
+    setWidth(startWidth - delta, false);
+  }
+
+  function endDrag(event) {
+    if (!dragging) return;
+
+    if (
+      event &&
+      pointerId !== null &&
+      event.pointerId !== pointerId
+    ) return;
+
+    dragging = false;
+
+    try {
+      if (
+        pointerId !== null &&
+        handle.hasPointerCapture(pointerId)
+      ) {
+        handle.releasePointerCapture(pointerId);
+      }
+    } catch (_) {}
+
+    pointerId = null;
+
+    handle.classList.remove("dragging");
+    document.body.classList.remove("cell-main-panel-resizing");
+
+    setWidth(
+      panel.getBoundingClientRect().width,
+      true
+    );
+  }
+
+  function resetWidth(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (_) {}
+
+    setWidth(DEFAULT_WIDTH, false);
+  }
+
+  handle.addEventListener("pointerdown", beginDrag);
+  handle.addEventListener("pointermove", moveDrag);
+  handle.addEventListener("pointerup", endDrag);
+  handle.addEventListener("pointercancel", endDrag);
+
+  handle.addEventListener("lostpointercapture", function () {
+    if (dragging) endDrag();
   });
 
-  var savedBar = null, savedTop = null;
-  try {
-    savedBar = localStorage.getItem(BAR_KEY);
-    savedTop = localStorage.getItem(TOP_KEY);
-  } catch (_) {}
+  handle.addEventListener("dblclick", resetWidth);
 
-  if (savedBar !== null && savedBar !== "") applyBar(n(savedBar, defaultBar), false);
-  if (savedTop !== null && savedTop !== "") applyTop(n(savedTop, defaultTop), false);
+  handle.tabIndex = 0;
+
+  handle.addEventListener("keydown", function (event) {
+    var current = panel.getBoundingClientRect().width;
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      setWidth(current + 20, true);
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      setWidth(current - 20, true);
+    }
+
+    if (event.key === "Home") {
+      event.preventDefault();
+      resetWidth();
+    }
+  });
 
   window.addEventListener("resize", function () {
-    if (bar.style.height) applyBar(bar.getBoundingClientRect().height, false);
-    if (top.style.height) applyTop(top.getBoundingClientRect().height, false);
+    var current = panel.getBoundingClientRect().width;
+    var maximum = availableMaximum();
+
+    if (current > maximum) {
+      setWidth(maximum, false);
+    }
   });
+
+  restoreWidth();
 })();
