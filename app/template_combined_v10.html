@@ -373,9 +373,58 @@ input[type=range]::-webkit-slider-thumb{
   box-shadow:0 0 0 1px #c9b79c!important;
 }
 
+
+/* ===== UNIFIED_WORKSPACE_LAYOUT_20260924_2 · annealing-style header ===== */
+.mode-shell-header{
+  flex:0 0 64px;height:64px;min-height:64px;width:100%;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px 0 12px;background:#fff;border-bottom:1px solid var(--line,#e2ded6);
+  color:var(--ink,#2b2925);z-index:100;position:relative
+}
+.mode-shell-brand{display:flex;align-items:center;gap:12px;min-width:0}
+.mode-shell-logo{
+  width:34px;height:34px;display:grid;place-items:center;flex:0 0 34px;
+  border:1px solid #d4c5b5;border-radius:9px;background:#f5eee6;
+  color:#8f5f38;font-weight:800;font-size:15px
+}
+.mode-shell-title{
+  margin:0;font-size:15px;line-height:1.15;font-weight:650;letter-spacing:.02em;
+  color:#2b2925;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.mode-shell-actions{display:flex;align-items:center;gap:8px;margin-left:16px}
+.mode-shell-pill{
+  display:inline-flex;align-items:center;gap:7px;padding:7px 10px;
+  border:1px solid #e2ded6;border-radius:999px;background:#fbfaf8;
+  color:#6f6a62;font-size:11px;white-space:nowrap
+}
+.mode-shell-dot{width:7px;height:7px;border-radius:50%;background:#8f5f38;display:inline-block}
+
+body{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#quadrantMain{
+  flex:1 1 auto;min-height:0;min-width:0;width:100%;
+  display:flex;position:relative;overflow:hidden
+}
+#quadrantMain>#panelL,#quadrantMain>#stage,#quadrantMain>#panel,#quadrantMain>#panelW{height:100%!important;min-height:0}
+#quadrantMain>#stage{min-width:0}
+#quadrantMain>#toggleTab,#quadrantMain>#toggleW{position:absolute}
+#toggleTab{right:330px!important}
+#toggleTab.closed{right:0!important}
+#toggleW.open{right:330px!important}
 </style>
 </head>
 <body>
+<header class="mode-shell-header" aria-label="Quadrant workspace">
+  <div class="mode-shell-brand">
+    <div class="mode-shell-logo">U</div>
+    <h1 class="mode-shell-title">Quadrant network and parcel design lab</h1>
+  </div>
+  <div class="mode-shell-actions">
+    <span class="mode-shell-pill"><i class="mode-shell-dot"></i>Current quadrant scheme</span>
+  </div>
+</header>
+
+<div id="quadrantMain">
+
 
 <div id="panelL"><div id="panelScrollL">
   <div class="panelHead">The two models</div>
@@ -1245,6 +1294,8 @@ input[type=range]::-webkit-slider-thumb{
 
 <!--__MODULES__-->
 
+
+</div><!-- /#quadrantMain -->
 <script>
 "use strict";
 /* ------------------------------------------------------------------ config */
