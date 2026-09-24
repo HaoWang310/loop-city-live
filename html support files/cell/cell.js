@@ -235,6 +235,18 @@
     else note("<b>cell/anneal/anneal_app.js is missing</b> -- run build/build_anneal.py.");
     return fr;
   }
+  function workflowStepUI(stage) {
+    var root = document.getElementById("cellWorkflowSteps");
+    if (!root) return;
+    var order = { wool: 1, parcel: 2, anneal: 3 };
+    var at = order[stage] || 1;
+    Array.prototype.forEach.call(root.querySelectorAll(".wf-step"), function (el) {
+      var n = order[el.getAttribute("data-wf")] || 1;
+      el.classList.toggle("on", n === at);
+      el.classList.toggle("done", n < at);
+    });
+  }
+
   function annealShow(on) {
     ANN.on = !!on;
     if (ANN.frame) ANN.frame.classList.toggle("on", ANN.on);
@@ -364,6 +376,7 @@
       placedNote(t);
       if (window.LoopCity) LoopCity.label(t.pack.label || t.pack.id);
     }
+    if (!ANN.on) workflowStepUI("wool");
     buttonsUI(t);
     if (t && t !== "all" && t.pack && !t.built && t.why) note("<b>Cell " + t.pack.id + " cannot be threaded:</b> " + t.why + ".");
     refresh(true);
