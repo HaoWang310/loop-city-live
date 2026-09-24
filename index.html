@@ -80,7 +80,7 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
   var LV = {
     loop:     { src: "html support files/loop/index.html",  el: null, ready: false, queue: [] },
     quadrant: { src: "html support files/combined_v10.html", el: null, ready: false, queue: [] },
-    cell:     { src: "html support files/cell/cell.html?v=top-anneal-20260924-2",   el: null, ready: false, queue: [] }
+    cell:     { src: "html support files/cell/cell.html?v=enter-demo-20260924-1",   el: null, ready: false, queue: [] }
   };
   var current = null;
   var $ = function (id) { return document.getElementById(id); };
@@ -199,7 +199,7 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
   });  function openAnnealingFromTop() {
     if (!LV.cell.el) frame("cell");
     show("cell");
-    send("cell", { type: "openAnnealing" });
+    send("cell", { type: "openAnnealingDemo" });
     var ac = $("annealCrumb");
     var cc = document.querySelector('.crumb[data-level="cell"]');
     if (ac) ac.classList.add("on");
