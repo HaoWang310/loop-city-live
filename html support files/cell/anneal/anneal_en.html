@@ -3216,8 +3216,8 @@ async function workflowImportParcelsFromWool(input){
   resetViewState(false);
   updateRhinoSelectionStatus();
   draw();
-  if($('rhinoStatus'))$('rhinoStatus').textContent=`Received ${candidates.length} parcels from the wool thread workflow, total area about ${totalA.toFixed(1)} m². All are preselected; click to select one, Shift+click to add/remove, drag a box to select, press Enter to start annealing.`;
-  return {ok:true,count:candidates.length,totalArea:totalA,selectionReady:true,selectedCount:selectedRhinoIds.size};
+  if($('rhinoStatus'))$('rhinoStatus').textContent=`Received ${candidates.length} parcels from Wool, total area about ${totalA.toFixed(1)} m². All selected parcels from the previous level are here. They are preselected now, but you can click one, Shift+click to add/remove, or drag a box to choose the final subset. Press Enter only after this second selection to start annealing.`;
+  return {ok:true,count:candidates.length,totalArea:totalA,selectionReady:true,selectedCount:selectedRhinoIds.size,allTransferred:true,requiresSecondSelection:true};
 }
 function workflowShowBuiltInDemo(){
   haltComputation();
