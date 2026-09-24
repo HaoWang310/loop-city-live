@@ -261,6 +261,19 @@
     if (Date.now() - (t0 || Date.now()) > 20000) { note("<b>The annealing lab did not start.</b>"); ANN.busy = false; return; }
     setTimeout(function () { annealReady(cb, t0 || Date.now()); }, 150);
   }
+
+  function annealPreviewOpen() {
+    annealMake();
+    annealShow(true);
+    ANN.busy = false;
+    note("<b>Annealing lab opened.</b> You can inspect and adjust all annealing parameters now. When a Cell has generated parcels, select parcels in Wool and press <b>Annealing →</b> again to send them into the lab.");
+    annealReady(function (w) {
+      try {
+        if (w && w.dispatchEvent) w.dispatchEvent(new Event("resize"));
+      } catch (_) {}
+    });
+  }
+
   /* His lab is set up for a 160 x 110 m plot, and it gives EVERY site the same number of buildings
      (generateInitialRegionLayout reads one params.number). Our parcels are hectares and they differ, so:
        the count    each parcel's area times "Buildings / ha" -- about 2 a hectare is a plot ratio near 2 at
@@ -386,7 +399,7 @@
     var all = t === "all";
     ["bPng", "bDxf", "bRoadsNow"].forEach(function (id) { $(id).disabled = !(all ? live().length : (t && t.built)); });
     $("bSaveCell").disabled = !(all ? live().length : (t && t.pack));
-    $("bAnneal").disabled = all || !(t && t.built);          // parcels come from one cell's wool thread
+    $("bAnneal").disabled = false;                           // Annealing is always directly accessible; parcels transfer when available
   }
 
   /* ================================================================== the cells arriving */
@@ -825,6 +838,50 @@
   };
   $("bAnneal").onclick = annealSend;
   $("bAnnealBack").onclick = function () { annealShow(false); };
+
+  function bindWorkflowStepNavigation() {
+    var root = document.getElementById("cellWorkflowSteps");
+    if (!root || root.__lcBound) return;
+    root.__lcBound = true;
+
+    Array.prototype.forEach.call(root.querySelectorAll(".wf-step"), function (el) {
+      el.setAttribute("role", "button");
+      el.tabIndex = 0;
+
+      function openStep() {
+        var step = el.getAttribute("data-wf");
+
+        if (step === "anneal") {
+          annealSend();
+          return;
+        }
+
+        annealShow(false);
+
+        var vm = $("vMode");
+        if (vm) {
+          vm.value = step === "parcel" ? "parcels" : "wool";
+          try {
+            vm.dispatchEvent(new Event("change", { bubbles: true }));
+          } catch (_) {
+            if (typeof vm.onchange === "function") vm.onchange();
+          }
+        }
+
+        workflowStepUI(step === "parcel" ? "parcel" : "wool");
+      }
+
+      el.addEventListener("click", openStep);
+      el.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openStep();
+        }
+      });
+    });
+  }
+
+  bindWorkflowStepNavigation();
   $("bAnchors").onclick = function () {
     if (!ACT || ACT === "all" || !ACT.pack) return;
     var o = { corridorM: PAGE.corridorM, corridorSpineM: PAGE.corridorSpineM, spinePts: +$("oSpine").value, edgePairs: +$("oEdge").value,
