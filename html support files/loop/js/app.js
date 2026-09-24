@@ -624,11 +624,11 @@
   }
   function jumpDown(t) {
     var ctx = { from: "loop", quad: "NW", zones: [5, 6], label: t.label, focus: t.focus,
-                params: JSON.parse(JSON.stringify(params)), year: year, loopRan: !!out };
+                params: JSON.parse(JSON.stringify(params)) };
     var how = window.LoopCity ? LoopCity.jump("quadrant", ctx, "../combined_v10.html", true) : null;
     if (!how) $("jump").querySelector(".jn").innerHTML =
       "<span style='color:#9a5f4a'>The browser blocked the new tab. Allow pop-ups for this page, or open " +
-      "<b>Loop City.html</b>, which keeps all three scales in one window.</span>";
+      "<b>Loop City.html</b>, which keeps the full workflow in one window.</span>";
   }
 
   // ---------------------------------------------------------------- drawing
