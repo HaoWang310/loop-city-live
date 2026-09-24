@@ -527,9 +527,9 @@ input[type=range]::-webkit-slider-thumb{
       <div class="f"><div class="lab"><span>Momentum</span><span id="vMom"></span></div><input type="range" id="sMom" min="0" max="0.99" step="0.01"></div>
       <label class="check"><input type="checkbox" id="cInside"> Keep threads inside the outline</label>
       <label class="check"><input type="checkbox" id="cMagAll"> Magnet across groups (single solve)</label>
-      <div class="row"><button class="btn sm" id="bDefRange" title="Mean segment length × 1.84386, as in the original definition">Range from segments</button><button class="btn sm" id="bDefaults">Definition defaults</button></div>
+      <div class="row"><button class="btn sm" id="bDefRange" title="Mean segment length × a scale-adaptive factor for Loop City cells; original definition = 1.84386">Range from segments</button><button class="btn sm" id="bDefaults">Definition defaults</button></div>
     </details>
-    <p class="hint">Defaults from the original definition: anchor 1,000,000 · length 409,847 · angle 20,995 · MagnetSnap 350, range = mean segment × 1.84. Click a value to type it in.</p>
+    <p class="hint">Loop City cells automatically rebalance wet-wool slack, length, angle, magnet strength and magnet range to the real cell scale. Original reference: anchor 1,000,000 · length 409,847 · angle 20,995 · MagnetSnap 350 · range ×1.84. Click a value to type it in.</p>
   </section>
 
   <section>
@@ -3420,6 +3420,8 @@ var siteAreaTargetM2 = 49794;
 var siteAreaCalibrationManual = false;
 var siteAreaInputPending = false; // 输入框改动后，必须按 Enter 确认，再允许点击运行
 var siteAreaAwaitingRun = false; // Enter 确认面积后，求解器已重置，等待用户主动点击运行
+var scaleAdaptiveMechanics = false;
+var lastAutoMechanics = null;
 function siteUnitScaleToMeters(u){
   u=String(u||'m').trim().toLowerCase().replace(/μ/g,'µ');
   var map={
@@ -3466,6 +3468,49 @@ function ensureRangeContains(id,value){
   if(Number.isFinite(mn)&&v<mn)el.min=String(Math.max(0,v-st*2));
   if(Number.isFinite(mx)&&v>mx)el.max=String(Math.max(v*1.25,v+st*10));
 }
+function scaleAdaptiveMechanicalProfile(areaM2){
+  var refArea=49794;
+  var scale=Math.sqrt(Math.max(1,Number(areaM2)||refArea)/refArea);
+  var lg=Math.max(0,Math.min(6,Math.log(scale)/Math.LN2));
+  var len=Math.round(120000/(1+0.10*lg));
+  var ang=Math.round(len*(0.085-0.004*Math.min(lg,5)));
+  var mag=Math.round(len*(0.065+0.018*lg));
+  var over=Math.round(Math.min(12,5+1.2*lg)*10)/10;
+  var rangeK=Math.min(3.25,2.20+0.16*lg);
+  return {scale:scale,log2Scale:lg,lenS:len,angS:ang,magS:mag,over:over,rangeK:rangeK};
+}
+function meanThreadSegmentLength(){
+  try{
+    var tp=buildTopology();
+    if(!tp||!tp.T)return 0;
+    var segs=Math.max(1,Number(tp.S||params.segs||80));
+    var sum=0;
+    for(var t=0;t<tp.T;t++){
+      var a=tp.threads[3*t],b=tp.threads[3*t+1];
+      sum+=Math.hypot(tp.anchors[2*b]-tp.anchors[2*a],tp.anchors[2*b+1]-tp.anchors[2*a+1])/segs;
+    }
+    return sum/tp.T;
+  }catch(_e){return 0;}
+}
+function applyScaleAdaptiveMechanics(){
+  if(!scaleAdaptiveMechanics||!params)return null;
+  var area=rawSiteAreaModelUnits2();
+  if(!(area>0))return null;
+  var p=scaleAdaptiveMechanicalProfile(area);
+  var meanSeg=meanThreadSegmentLength();
+  params.lenS=p.lenS;
+  params.angS=p.angS;
+  params.magS=p.magS;
+  params.over=p.over;
+  params.magAll=true;
+  params.tension=false;
+  if(meanSeg>0)params.magR=Math.max(0.01,meanSeg*p.rangeK);
+  ensureRangeContains('sMag',params.magS);
+  ensureRangeContains('sRange',params.magR);
+  lastAutoMechanics={areaM2:area,scale:p.scale,lenS:params.lenS,angS:params.angS,magS:params.magS,over:params.over,magR:params.magR,rangeK:p.rangeK};
+  return lastAutoMechanics;
+}
+
 function scaleWoolGeometryAndMetricParams(f){
   if(!Number.isFinite(f)||!(f>0)||Math.abs(f-1)<1e-12)return;
   var B=model&&model.boundary||[],cx=0,cy=0;
@@ -3511,7 +3556,7 @@ function syncSiteAreaControl(force){
   lab.textContent=Math.round(siteAreaTargetM2).toLocaleString('en-GB')+' m²';
   if(st){
     var a=currentSiteAreaM2();
-    st.textContent='Units: metres (m) · 1 model unit = 1.000 m · current outline '+(a>0?Math.round(a).toLocaleString('en-GB')+' m²':'—');
+    st.textContent='Units: metres (m) · 1 model unit = 1.000 m · current outline '+(a>0?Math.round(a).toLocaleString('en-GB')+' m²':'—')+(scaleAdaptiveMechanics?' · scale-adaptive mechanics on':'');
   }
 }
 function resetSiteAreaCalibrationFromGeometry(){
@@ -3542,6 +3587,7 @@ function applySiteAreaTarget(){
   scaleWoolGeometryAndMetricParams(f);
   model.units='m';
   siteAreaTargetM2=target;
+  applyScaleAdaptiveMechanics();
   siteAreaCalibrationManual=true;
   siteAreaInputPending=false;
   siteAreaAwaitingRun=true;
@@ -5595,11 +5641,17 @@ $('cTension').onchange = function () { params.tension = this.checked; sendParams
 $('cInside').onchange = function () { params.inside = this.checked; sendParams(); };
 $('cMagAll').onchange = function () { params.magAll = this.checked; sendParams(); };
 $('bDefaults').onclick = function () { var r = params.magR; params = JSON.parse(JSON.stringify(DEFINITION)); params.magR = r; refreshSliders(); rebuild(); };
-$('bDefRange').onclick = function () { params.magR = Math.round(rangeFromSegments() * 1000) / 1000; refreshSliders(); sendParams(); };
+$('bDefRange').onclick = function () { params.magR = Math.round(rangeFromSegments() * 1000) / 1000; ensureRangeContains('sRange',params.magR); refreshSliders(); sendParams(); };
 function rangeFromSegments() {
-  var tp = buildTopology(), sum = 0;
-  for (var t = 0; t < tp.T; t++) { var a = tp.threads[3 * t], b = tp.threads[3 * t + 1]; sum += Math.hypot(tp.anchors[2 * b] - tp.anchors[2 * a], tp.anchors[2 * b + 1] - tp.anchors[2 * a + 1]) / 80; }
-  return tp.T ? sum / tp.T * 1.84386 : params.magR;
+  var tp = buildTopology(), sum = 0, segs=Math.max(1,Number(tp.S||params.segs||80));
+  for (var t = 0; t < tp.T; t++) { var a = tp.threads[3 * t], b = tp.threads[3 * t + 1]; sum += Math.hypot(tp.anchors[2 * b] - tp.anchors[2 * a], tp.anchors[2 * b + 1] - tp.anchors[2 * a + 1]) / segs; }
+  if(!tp.T)return params.magR;
+  var factor=1.84386;
+  if(scaleAdaptiveMechanics){
+    var p=scaleAdaptiveMechanicalProfile(rawSiteAreaModelUnits2());
+    factor=p.rangeK;
+  }
+  return sum / tp.T * factor;
 }
 
 function displayGroupName(name) {
@@ -6352,13 +6404,18 @@ function loadSettings(d) {
   ensureParcelLevelNames();
   if (d.roadParams) { for (var rk in roadP) if (d.roadParams[rk] !== undefined) roadP[rk] = d.roadParams[rk]; }
   var savedTarget=(Number.isFinite(Number(d.siteAreaTargetM2))&&Number(d.siteAreaTargetM2)>0)?Number(d.siteAreaTargetM2):null;
+  scaleAdaptiveMechanics=!!d.loopCity&&d.loopCity.autoMechanics!==false;
   normalizeCurrentWoolModelToMeters();
   var loadedArea=rawSiteAreaModelUnits2();
   if(savedTarget&&loadedArea>0){var lf=Math.sqrt(savedTarget/loadedArea);scaleWoolGeometryAndMetricParams(lf);}
   model.units='m';siteAreaTargetM2=savedTarget||rawSiteAreaModelUnits2();
+  var autoMech=applyScaleAdaptiveMechanics();
   siteAreaCalibrationManual=!!d.siteAreaCalibrationManual; siteAreaInputPending=false; siteAreaAwaitingRun=false; syncSiteAreaControl(true);
   model.groups.forEach(function (g) { if (g.aOnOutline === undefined) g.aOnOutline = g.A.length > 0 && g.A.every(function (id) { return model.anchors[id] && onOutline(model.anchors[id]); }); });
-  setStatus('Settings loaded.'); refreshParcelControls(); refreshRoadControls(); refreshSliders(); rebuild(); fit();
+  setStatus(autoMech
+    ? 'Settings loaded · scale-adaptive mechanics: '+autoMech.over+'% wet-wool slack · magnet '+Math.round(autoMech.magS).toLocaleString('en-GB')+' · range '+fmtNum(autoMech.magR)+' m.'
+    : 'Settings loaded.');
+  refreshParcelControls(); refreshRoadControls(); refreshSliders(); rebuild(); fit();
 }
 
 // ---------------- start ----------------
