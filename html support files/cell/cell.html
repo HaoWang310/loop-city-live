@@ -199,7 +199,7 @@ body{
   color:var(--ink3)
 }
 .cell-workflow>i{font-style:normal;color:#c5beb5;font-size:13px}
-.wf-step{
+.wf-step{cursor:pointer;
   min-width:0;
   display:grid;
   grid-template-columns:18px 1fr;
@@ -219,6 +219,7 @@ body{
 }
 .wf-step>span{font-size:10.5px;font-weight:600;line-height:1.05;white-space:nowrap}
 .wf-step>small{font-size:8px;line-height:1.05;color:#aaa39a;white-space:nowrap}
+.wf-step:hover{color:#7b5a40}
 .wf-step.on{color:var(--accent)}
 .wf-step.on>b{background:var(--accent);border-color:var(--accent);color:#fff}
 .wf-step.done{color:#6f6a62}
@@ -259,7 +260,7 @@ body{
     <button class="btn" id="bDxf" disabled title="Outline, anchors, threads and parcels in British National Grid metres">Export DXF · BNG</button>
     <button class="btn" id="bSaveCell" disabled title="The cell as handed down, to open here again">Cell file</button>
     <label title="How many buildings each parcel gets: its area times this. About 2 a hectare gives a plot ratio near 2 at his building sizes. His lab uses one count for every site, so parcels are sent in groups of a like size.">Buildings / ha <input type="number" id="oAnnealDens" min="0.2" max="20" step="0.1" value="2"></label>
-    <button class="btn primary" id="bAnneal" disabled title="Take the parcels selected in the wool thread into the annealing lab: buildings placed by simulated annealing, with daylight, wind and plot ratio">Annealing &rarr;</button>
+    <button class="btn primary" id="bAnneal" title="Open the Annealing workspace now; when parcels are selected in Wool they will be transferred automatically">Annealing &rarr;</button>
     <button class="btn" id="bAnnealBack" style="display:none" title="Back to this cell's parcels, to pick others">&larr; Back to the wool thread</button>
     <button class="btn" id="bOpenCell" title="One or more cell files; each opens as a cell of its own">Open cell file…</button>
     <input type="file" id="fileCell" accept=".json" multiple hidden>
@@ -339,7 +340,7 @@ body{
 <script src="woolroads.js"></script>
 <script src="measure.js"></script>
 <script src="overview.js"></script>
-<script src="cell.js"></script>
+<script src="cell.js?v=anneal-visible-20260924-1"></script>
 <script src="cell_resize.js?v=swap-sides-20260924-1"></script>
 </body>
 </html>
