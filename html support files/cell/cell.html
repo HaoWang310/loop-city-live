@@ -158,6 +158,34 @@ iframe.anneal.on{display:block}
 .kind.node{background:#8f5f38}
 .kind.spine{background:#6f9a58}
 body.isSpine .forNode, body.isNode .forSpine, body.isAll .forNode, body.isAll .forSpine{display:none}
+/* FINAL CELL LAYOUT LOCK */
+body{
+  display:flex!important;
+  flex-direction:row!important;
+}
+#wrap{
+  order:1!important;
+  flex:1 1 auto!important;
+  min-width:420px!important;
+  min-height:0!important;
+}
+#barResizer{
+  order:2!important;
+  flex:0 0 8px!important;
+  width:8px!important;
+  height:100%!important;
+  display:block!important;
+}
+#bar{
+  order:3!important;
+  flex-grow:0!important;
+  flex-shrink:0!important;
+  height:100%!important;
+  min-height:0!important;
+  border-left:1px solid var(--line)!important;
+  border-bottom:none!important;
+}
+#barInnerResizer{display:none!important}
 </style>
 </head>
 <body>
@@ -268,6 +296,6 @@ body.isSpine .forNode, body.isNode .forSpine, body.isAll .forNode, body.isAll .f
 <script src="measure.js"></script>
 <script src="overview.js"></script>
 <script src="cell.js"></script>
-<script src="cell_resize.js?v=main-right-20260924-1"></script>
+<script src="cell_resize.js?v=stable-drag-20260924-2"></script>
 </body>
 </html>
