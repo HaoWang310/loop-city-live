@@ -111,6 +111,7 @@ body{
   border-left:1px solid var(--line);
 }
 #panelW.hidden{display:none}
+#panelW:not(.hidden){margin-left:34px}
 #panelScrollW{overflow-y:auto; padding:18px 18px 40px; flex:1}
 #panelScrollW::-webkit-scrollbar{width:9px}
 #panelScrollW::-webkit-scrollbar-thumb{background:#dcd8d0;border-radius:5px;border:3px solid #fff}
@@ -118,7 +119,7 @@ body{
    a second one a few pixels away is a thing you do not find -- which is exactly what happened.
    This one says what it opens, reads vertically down the edge, and sits well below the other. */
 #toggleW{
-  position:absolute; right:0; top:96px; width:26px; padding:12px 0;
+  position:absolute; right:0; top:96px; width:28px; padding:12px 0;
   display:flex; align-items:center; justify-content:center; gap:6px;
   writing-mode:vertical-rl; text-orientation:mixed;
   background:var(--card); border:1px solid var(--line); border-right:0;
@@ -127,7 +128,12 @@ body{
   color:var(--ink2);
 }
 #toggleW:hover{color:var(--ink); background:#fff}
-#toggleW.open{right:306px}
+#toggleW.open{
+  right:330px;
+  border-right:1px solid var(--line);
+  border-radius:7px;
+  background:#faf8f4;
+}
 #panelL{ flex-basis:300px; border-right:1px solid var(--line) }
 #panel.hidden, #panelL.hidden{display:none}
 #panelScroll, #panelScrollL{overflow-y:auto; padding:18px 18px 40px; flex:1}
@@ -15238,18 +15244,20 @@ function initSliders(){
      from the drawing: the left is what changes a RUN, and you are not changing the run while you
      are threading a cell. Below 1,500 px it closes the left panel; above that all three fit. */
   const MIN_MAP = 430;
+  const WOOL_UI_RAIL = 34;
   window.woolPanel = (open) => {
     const p = $("panelW"), pl = $("panelL"), tl = $("toggleTab");
     const want = (open === undefined) ? p.classList.contains("hidden") : open;
     p.classList.toggle("hidden", !want);
     if(want){
-      const room = window.innerWidth - $("panel").offsetWidth - p.offsetWidth - MIN_MAP;
+      const room = window.innerWidth - $("panel").offsetWidth - p.offsetWidth - WOOL_UI_RAIL - MIN_MAP;
       if(room < pl.offsetWidth && !pl.classList.contains("hidden")){
         pl.classList.add("hidden");
         if(tl){ tl.classList.add("closed"); tl.innerHTML = "&rsaquo;"; }
       }
     }
     tw.classList.toggle("open", want);
+    tw.style.right = want ? Math.round(p.offsetWidth) + "px" : "0px";
     tw.title = want ? "Hide the wool thread panel" : "Show the wool thread panel";
     resize();
   };
