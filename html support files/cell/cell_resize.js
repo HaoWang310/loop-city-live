@@ -11,8 +11,8 @@
   if (!panel || !stage || !handle) return;
 
   var STORAGE_KEY = "loopCity.cell.mainPanelWidth";
-  var DEFAULT_WIDTH = 420;
-  var MIN_WIDTH = 300;
+  var DEFAULT_WIDTH = 330;
+  var MIN_WIDTH = 260;
   var MAX_WIDTH = 720;
   var MIN_STAGE_WIDTH = 420;
   var HANDLE_WIDTH = 8;
