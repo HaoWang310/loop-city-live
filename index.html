@@ -37,6 +37,9 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
 .crumb:hover{border-color:var(--line);background:#fbfaf8;color:var(--ink)}
 .crumb.on{background:#efe7dc;border-color:#e2d3bf;color:#6b4a2c;font-weight:600}
 .crumb.on .lv{color:#a07a55}
+.anneal-crumb{max-width:230px}
+.anneal-crumb.on{background:#efe7dc;border-color:#e2d3bf;color:#6b4a2c;font-weight:600}
+.anneal-crumb.on .lv{color:#a07a55}
 .sep{color:#c4bfb6;font-size:13px;padding:0 1px;user-select:none}
 .aside{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--ink3);white-space:nowrap}
 .aside a{color:var(--ink2);text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:3px 8px}
@@ -58,6 +61,10 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
     <button class="crumb" data-level="quadrant"><span class="lv">Quadrant</span><span class="nm" id="nm_quadrant">choose one on the key plan</span></button>
     <span class="sep">›</span>
     <button class="crumb" data-level="cell"><span class="lv">Cell</span><span class="nm" id="nm_cell">choose one in the quadrant</span></button>
+    <span class="sep">›</span>
+    <button class="crumb anneal-crumb" id="annealCrumb" type="button" title="Open the Annealing workspace">
+      <span class="lv">Annealing</span><span class="nm">form optimisation</span>
+    </button>
   </div>
   <div class="aside">
     <span id="keep" title="Moving between scales hides a scale, it does not close it">each scale stays as you left it</span>
@@ -73,7 +80,7 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
   var LV = {
     loop:     { src: "html support files/loop/index.html",  el: null, ready: false, queue: [] },
     quadrant: { src: "html support files/combined_v10.html", el: null, ready: false, queue: [] },
-    cell:     { src: "html support files/cell/cell.html?v=anneal-visible-20260924-1",   el: null, ready: false, queue: [] }
+    cell:     { src: "html support files/cell/cell.html?v=top-anneal-20260924-2",   el: null, ready: false, queue: [] }
   };
   var current = null;
   var $ = function (id) { return document.getElementById(id); };
@@ -113,9 +120,11 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
     if (!LV[level] || !LV[level].el) level = "loop";
     current = level;
     ORDER.forEach(function (k) { if (LV[k].el) LV[k].el.classList.toggle("on", k === level); });
-    document.querySelectorAll(".crumb").forEach(function (b) {
+    document.querySelectorAll(".crumb[data-level]").forEach(function (b) {
       b.classList.toggle("on", b.dataset.level === level);
     });
+    var ac = $("annealCrumb");
+    if (ac && level !== "cell") ac.classList.remove("on");
     $("alone").style.display = level === "cell" ? "none" : "";
     $("alone").href = LV[level].src;
     try { LV[level].el.contentWindow.focus(); } catch (e) {}
@@ -143,6 +152,13 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
       return;
     }
     if (d.type === "label") { setName(from, d.text); return; }
+    if (d.type === "annealState" && from === "cell") {
+      var ac = $("annealCrumb");
+      var cc = document.querySelector('.crumb[data-level="cell"]');
+      if (ac) ac.classList.toggle("on", !!d.on);
+      if (cc) cc.classList.toggle("on", !d.on && current === "cell");
+      return;
+    }
     if (d.type !== "jump") return;
 
     var ctx = d.ctx || {};
@@ -168,7 +184,7 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
     }
   });
 
-  document.querySelectorAll(".crumb").forEach(function (b) {
+  document.querySelectorAll(".crumb[data-level]").forEach(function (b) {
     b.disabled = false;
     function go(ev) {
       ev.preventDefault();
@@ -180,7 +196,31 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
     }
     b.addEventListener("click", go);
     b.addEventListener("dblclick", go);
-  });
+  });  function openAnnealingFromTop() {
+    if (!LV.cell.el) frame("cell");
+    show("cell");
+    send("cell", { type: "openAnnealing" });
+    var ac = $("annealCrumb");
+    var cc = document.querySelector('.crumb[data-level="cell"]');
+    if (ac) ac.classList.add("on");
+    if (cc) cc.classList.remove("on");
+  }
+
+  var annealCrumb = $("annealCrumb");
+  if (annealCrumb) {
+    annealCrumb.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      openAnnealingFromTop();
+    });
+    annealCrumb.addEventListener("dblclick", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      openAnnealingFromTop();
+    });
+  }
+
+
   window.addEventListener("hashchange", function () {
     var h = location.hash.slice(1);
     if (!LV[h] || h === current) return;
