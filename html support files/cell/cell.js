@@ -271,9 +271,13 @@
     annealMake();
     annealShow(true);
     ANN.busy = false;
-    note("<b>Annealing lab opened.</b> You can inspect and adjust all annealing parameters now. When a Cell has generated parcels, select parcels in Wool and press <b>Annealing →</b> again to send them into the lab.");
+    note("<b>Annealing demo opened.</b> This is the built-in example site. You can adjust parameters and run it immediately. In Wool, select parcels and press <b>Enter</b> to replace the demo with the selected parcel(s).");
     annealReady(function (w) {
       try {
+        var A = w && w.AnnealWorkflowBridge;
+        if (A && typeof A.showDemo === "function") {
+          Promise.resolve(A.showDemo()).catch(function () {});
+        }
         if (w && w.dispatchEvent) w.dispatchEvent(new Event("resize"));
       } catch (_) {}
     });
@@ -927,10 +931,36 @@
   CellOverview.init(ov, function () { return SLOTS; }, function () { return SHOW; }, function (s) { activate(s); });
 
   // the demonstration copy, until a cell arrives
-  activate(makeSlot(null));  // Global top navigation can open the Annealing workspace directly.
+  activate(makeSlot(null));  // Wool sends this when one or more parcels are selected and the user presses Enter.
   window.addEventListener("message", function (e) {
     var d = e.data || {};
-    if (d.lc !== 1 || d.type !== "openAnnealing") return;
+    if (d.channel !== "WOOL_ANNEAL_HTML_BRIDGE_V1" ||
+        d.source !== "wool" ||
+        d.type !== "event" ||
+        d.event !== "enterSelectedParcel") return;
+
+    var slot = null;
+    for (var i = 0; i < SLOTS.length; i++) {
+      try {
+        if (SLOTS[i].win && SLOTS[i].win() === e.source) {
+          slot = SLOTS[i];
+          break;
+        }
+      } catch (_) {}
+    }
+
+    if (!slot) return;
+    if (slot !== ACT) activate(slot);
+
+    // Use the exact same transfer path as the Annealing button:
+    // selected Wool parcels -> AnnealWorkflowBridge.importParcels -> applySelection.
+    annealSend();
+  });
+
+  // Global top navigation can open the Annealing workspace directly.
+  window.addEventListener("message", function (e) {
+    var d = e.data || {};
+    if (d.lc !== 1 || (d.type !== "openAnnealing" && d.type !== "openAnnealingDemo")) return;
     try {
       if (window.parent && window.parent !== window && e.source !== window.parent) return;
     } catch (_) {}
