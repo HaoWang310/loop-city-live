@@ -565,6 +565,79 @@ input[type=range]::-moz-range-thumb{
 
 /* Keep WebGL/canvas output untouched by CSS; only the surrounding chrome is unified. */
 
+
+/* ===== PERFORMANCE MONITOR GRID FIX ===== */
+#floatingInfo .monitor-body{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:0!important;
+  min-width:0!important;
+}
+#floatingInfo .monitor-row{
+  display:grid!important;
+  grid-template-columns:132px minmax(92px,1fr) 92px!important;
+  align-items:center!important;
+  column-gap:10px!important;
+  min-width:0!important;
+  min-height:28px!important;
+  margin:0!important;
+  padding:2px 0!important;
+}
+#floatingInfo .monitor-row .label{
+  min-width:0!important;
+  width:auto!important;
+  display:block!important;
+  overflow:visible!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:anywhere!important;
+  line-height:1.18!important;
+  font-size:11px!important;
+  letter-spacing:.01em!important;
+}
+#floatingInfo .monitor-row .label .metric-unit{
+  display:inline!important;
+  white-space:nowrap!important;
+  font-size:9px!important;
+  line-height:1!important;
+  margin-left:3px!important;
+}
+#floatingInfo .monitor-bar{
+  min-width:0!important;
+  width:100%!important;
+  margin:0!important;
+}
+#floatingInfo .monitor-value{
+  min-width:0!important;
+  width:auto!important;
+  text-align:right!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  line-height:1.15!important;
+  font-size:11px!important;
+}
+#floatingInfo h4{
+  max-width:100%!important;
+  line-height:1.08!important;
+  margin-bottom:5px!important;
+}
+#floatingInfo .float-sub{
+  max-width:100%!important;
+  line-height:1.25!important;
+  margin-bottom:10px!important;
+  white-space:normal!important;
+}
+@media (max-width:1180px){
+  #floatingInfo .monitor-row{
+    grid-template-columns:118px minmax(76px,1fr) 84px!important;
+    column-gap:8px!important;
+  }
+  #floatingInfo .monitor-row .label,
+  #floatingInfo .monitor-value{
+    font-size:10px!important;
+  }
+}
+
 </style></head><body><div class="app"><header><div class="brand"><div class="logo">U</div><div><h1>Urban form annealing design lab</h1></div></div><div class="header-actions"><span class="pill" id="modePill"><span class="status-dot" id="statusDot"></span>Best scheme so far</span><button id="exportJson">Export data</button><button id="exportPng">Export image</button></div></header>
 <div class="layout-resizer left-resizer" id="leftPanelResizer" title="Drag to resize the left panel · double-click to restore the default"></div><div class="layout-resizer right-resizer" id="rightPanelResizer" title="Drag to resize the right panel · double-click to restore the default"></div>
 <aside class="left">
