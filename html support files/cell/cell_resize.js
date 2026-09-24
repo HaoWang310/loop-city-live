@@ -1,8 +1,8 @@
 (function () {
   "use strict";
 
-  if (window.__LC_CELL_MAIN_PANEL_RESIZE__) return;
-  window.__LC_CELL_MAIN_PANEL_RESIZE__ = true;
+  if (window.__LC_CELL_MAIN_PANEL_RESIZE_STABLE__) return;
+  window.__LC_CELL_MAIN_PANEL_RESIZE_STABLE__ = true;
 
   var panel = document.getElementById("bar");
   var stage = document.getElementById("wrap");
@@ -21,7 +21,8 @@
   var pointerId = null;
   var startX = 0;
   var startWidth = 0;
-  var raf = 0;
+  var pendingWidth = null;
+  var dragRAF = 0;
 
   function number(value, fallback) {
     value = parseFloat(value);
@@ -32,8 +33,8 @@
     return Math.max(min, Math.min(max, value));
   }
 
-  function availableMaximum() {
-    var viewportWidth =
+  function maximumWidth() {
+    var viewport =
       document.documentElement.clientWidth ||
       window.innerWidth ||
       1200;
@@ -42,55 +43,82 @@
       MIN_WIDTH,
       Math.min(
         MAX_WIDTH,
-        viewportWidth - MIN_STAGE_WIDTH - HANDLE_WIDTH
+        viewport - MIN_STAGE_WIDTH - HANDLE_WIDTH
       )
     );
   }
 
-  function notifyResize() {
-    if (raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(function () {
-      raf = 0;
-      window.dispatchEvent(new Event("resize"));
-    });
-  }
-
-  function setWidth(width, persist) {
-    width = clamp(
-      number(width, DEFAULT_WIDTH),
-      MIN_WIDTH,
-      availableMaximum()
+  function applyWidth(width) {
+    width = Math.round(
+      clamp(
+        number(width, DEFAULT_WIDTH),
+        MIN_WIDTH,
+        maximumWidth()
+      )
     );
-
-    width = Math.round(width);
 
     panel.style.width = width + "px";
     panel.style.flexBasis = width + "px";
     panel.style.flexGrow = "0";
     panel.style.flexShrink = "0";
 
-    if (persist) {
-      try {
-        localStorage.setItem(STORAGE_KEY, String(width));
-      } catch (_) {}
-    }
-
-    notifyResize();
     return width;
   }
 
-  function restoreWidth() {
-    var saved = null;
-
+  function persistWidth(width) {
     try {
-      saved = localStorage.getItem(STORAGE_KEY);
+      localStorage.setItem(STORAGE_KEY, String(Math.round(width)));
     } catch (_) {}
+  }
 
-    if (saved !== null && saved !== "") {
-      setWidth(number(saved, DEFAULT_WIDTH), false);
-    } else {
-      setWidth(DEFAULT_WIDTH, false);
+  function finalResizeNotify() {
+    /*
+     * Do this only AFTER dragging.
+     * During drag, the browser already resizes the iframe viewport
+     * because flex layout changes. Broadcasting resize on every
+     * pointermove caused Canvas / Wool / layer redraw cascades.
+     */
+    requestAnimationFrame(function () {
+      try {
+        window.dispatchEvent(new Event("resize"));
+      } catch (_) {}
+
+      var frames = stage.querySelectorAll("iframe");
+      frames.forEach(function (frame) {
+        try {
+          frame.contentWindow.dispatchEvent(new Event("resize"));
+        } catch (_) {}
+      });
+    });
+  }
+
+  function scheduleDragWidth(width) {
+    pendingWidth = width;
+
+    if (dragRAF) return;
+
+    dragRAF = requestAnimationFrame(function () {
+      dragRAF = 0;
+
+      if (pendingWidth === null) return;
+
+      applyWidth(pendingWidth);
+      pendingWidth = null;
+    });
+  }
+
+  function clearDragState() {
+    dragging = false;
+    pointerId = null;
+    pendingWidth = null;
+
+    if (dragRAF) {
+      cancelAnimationFrame(dragRAF);
+      dragRAF = 0;
     }
+
+    handle.classList.remove("dragging");
+    document.body.classList.remove("cell-main-panel-resizing");
   }
 
   function beginDrag(event) {
@@ -118,13 +146,15 @@
 
     event.preventDefault();
 
-    // Right-side panel:
-    // drag left = wider, drag right = narrower.
     var delta = event.clientX - startX;
-    setWidth(startWidth - delta, false);
+
+    // Right-side panel:
+    // drag left => wider
+    // drag right => narrower
+    scheduleDragWidth(startWidth - delta);
   }
 
-  function endDrag(event) {
+  function finishDrag(event) {
     if (!dragging) return;
 
     if (
@@ -133,26 +163,33 @@
       event.pointerId !== pointerId
     ) return;
 
-    dragging = false;
+    var finalWidth =
+      pendingWidth !== null
+        ? applyWidth(pendingWidth)
+        : applyWidth(panel.getBoundingClientRect().width);
+
+    var oldPointerId = pointerId;
+
+    clearDragState();
 
     try {
       if (
-        pointerId !== null &&
-        handle.hasPointerCapture(pointerId)
+        oldPointerId !== null &&
+        handle.hasPointerCapture(oldPointerId)
       ) {
-        handle.releasePointerCapture(pointerId);
+        handle.releasePointerCapture(oldPointerId);
       }
     } catch (_) {}
 
-    pointerId = null;
+    persistWidth(finalWidth);
+    finalResizeNotify();
+  }
 
-    handle.classList.remove("dragging");
-    document.body.classList.remove("cell-main-panel-resizing");
+  function cancelDrag() {
+    if (!dragging) return;
 
-    setWidth(
-      panel.getBoundingClientRect().width,
-      true
-    );
+    clearDragState();
+    applyWidth(panel.getBoundingClientRect().width);
   }
 
   function resetWidth(event) {
@@ -165,17 +202,25 @@
       localStorage.removeItem(STORAGE_KEY);
     } catch (_) {}
 
-    setWidth(DEFAULT_WIDTH, false);
+    applyWidth(DEFAULT_WIDTH);
+    finalResizeNotify();
   }
 
   handle.addEventListener("pointerdown", beginDrag);
   handle.addEventListener("pointermove", moveDrag);
-  handle.addEventListener("pointerup", endDrag);
-  handle.addEventListener("pointercancel", endDrag);
+  handle.addEventListener("pointerup", finishDrag);
+  handle.addEventListener("pointercancel", cancelDrag);
 
+  /*
+   * Do NOT call finishDrag from lostpointercapture.
+   * Releasing pointer capture inside finishDrag can itself produce
+   * lostpointercapture and used to create a duplicate end path.
+   */
   handle.addEventListener("lostpointercapture", function () {
-    if (dragging) endDrag();
+    if (dragging) cancelDrag();
   });
+
+  window.addEventListener("blur", cancelDrag);
 
   handle.addEventListener("dblclick", resetWidth);
 
@@ -186,28 +231,43 @@
 
     if (event.key === "ArrowLeft") {
       event.preventDefault();
-      setWidth(current + 20, true);
-    }
-
-    if (event.key === "ArrowRight") {
+      var w1 = applyWidth(current + 20);
+      persistWidth(w1);
+      finalResizeNotify();
+    } else if (event.key === "ArrowRight") {
       event.preventDefault();
-      setWidth(current - 20, true);
-    }
-
-    if (event.key === "Home") {
-      event.preventDefault();
-      resetWidth();
+      var w2 = applyWidth(current - 20);
+      persistWidth(w2);
+      finalResizeNotify();
+    } else if (event.key === "Home") {
+      resetWidth(event);
     }
   });
 
+  /*
+   * Browser resize: clamp only.
+   * Never dispatch another resize from inside a resize handler.
+   */
   window.addEventListener("resize", function () {
+    if (dragging) return;
+
     var current = panel.getBoundingClientRect().width;
-    var maximum = availableMaximum();
+    var maximum = maximumWidth();
 
     if (current > maximum) {
-      setWidth(maximum, false);
+      applyWidth(maximum);
     }
   });
 
-  restoreWidth();
+  var saved = null;
+
+  try {
+    saved = localStorage.getItem(STORAGE_KEY);
+  } catch (_) {}
+
+  applyWidth(
+    saved !== null && saved !== ""
+      ? number(saved, DEFAULT_WIDTH)
+      : DEFAULT_WIDTH
+  );
 })();
