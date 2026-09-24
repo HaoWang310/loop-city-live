@@ -318,7 +318,6 @@
   function annealSend() {
     if (ANN.busy) return;
 
-    // Any active Wool slot may transfer selected parcels, including the built-in demo.
     if (!ACT || ACT === "all") {
       annealPreviewOpen();
       return;
@@ -330,55 +329,71 @@
       note("<b>Annealing demo opened.</b> The current Wool workspace is not ready for parcel transfer yet.");
       return;
     }
-    /* What is selected on his drawing NOW is what goes, every press: the parcels are read again each time,
-       never held from the press before. (Held ones were the bug: his payload ids are positions in the parcel
-       list, so a list re-extracted in between turned a held parcel into a different one -- "it showed random
-       parcels, not the ones I picked".) Only the note of WHICH of them have already gone is kept, so pressing
-       again sends the next group of a like size rather than the same one. */
+
+    // Read the CURRENT parcel selection from Wool.
+    // Every selected parcel is transferred; nothing is grouped, skipped or auto-confirmed.
     var r = B.getSelectedParcels();
     if (!r.ok) {
-      note("<b>" + r.message + "</b> Extract parcels, select one or more, then press <b>Enter</b> or click <b>Annealing →</b>.");
+      note("<b>" + r.message + "</b> Select one or more parcels, then press <b>Enter</b> or click <b>Annealing →</b>.");
       return;
     }
 
+    var parcels = r.parcels.slice();
     var cellId = ACT.pack && ACT.pack.id ? ACT.pack.id : "demo";
-    var key = function (p) { return cellId + "#" + (p.sourceId || p.id); };
-    var sig = cellId + "|" + r.parcels.map(key).sort().join(",");
-    if (sig !== ANN.sig) { ANN.sig = sig; ANN.done = {}; }
-    var waiting = r.parcels.filter(function (p) { return !ANN.done[key(p)]; });
-    var again = !waiting.length;
-    if (again) { ANN.done = {}; waiting = r.parcels; }          // everything has been sent once: start again
-    var groups = annealGroups(waiting), g = groups[0];
-    var area = g.reduce(function (a, p) { return a + (p.area || 0); }, 0), left = waiting.length - g.length;
-    g.forEach(function (p) { ANN.done[key(p)] = 1; });
-    ANN.busy = true; ANN.selCell = cellId;
-    note("Taking " + g.length + " parcel" + (g.length === 1 ? "" : "s") + " (" + num(area / 10000, 1) + " ha) into the annealing lab…");
-    annealMake(); annealShow(true);
+    var sig = cellId + "|" + parcels.map(function (p) {
+      return p.sourceId || p.id;
+    }).sort().join(",");
+
+    ANN.sig = sig;
+    ANN.done = {};
+    ANN.busy = true;
+    ANN.selCell = cellId;
+
+    var area = parcels.reduce(function (sum, p) {
+      return sum + (+p.area || 0);
+    }, 0);
+
+    note("Sending <b>" + parcels.length + " selected parcel" +
+      (parcels.length === 1 ? "" : "s") +
+      "</b> (" + num(area / 10000, 2) +
+      " ha) into Annealing. All will remain selectable there.");
+
+    annealMake();
+    annealShow(true);
+
     annealReady(function (w) {
-      var A = w.AnnealWorkflowBridge, n = annealSetup(w, g), want = annealWanted(g);
-      Promise.resolve(A.importParcels(g)).then(function () {
-        return A.applySelection();
-      }).then(function (res) {
-        ANN.busy = false;
-        var ok = !res || res.ok !== false;
-        var sizes = g.map(function (p) { return "#" + (p.sourceId || p.id) + " " + num((p.area || 0) / 10000, 1) + " ha"; }).join(", ");
-        note(ok ? "<b>" + g.length + " parcel" + (g.length === 1 ? "" : "s") + " in the annealing lab</b> · " + sizes + " · <b>" + n +
-                  " buildings each</b> (" + num(annealDensity(), 1) + " a hectare) · press <b>Start annealing</b> in it." +
-                  (want > n ? " <b>" + want + " buildings would be " + num(annealDensity(), 1) + " a hectare here, and the lab is held at " + n +
-                              "</b> -- his daylight check compares every building with every other, so more than that runs for hours. A parcel this size (" +
-                              num((g[0].area || 0) / 10000, 0) + " ha) is really a district: either accept " + num(n / ((g[0].area || 0) / 10000), 1) +
-                              " a hectare here, or anneal a smaller parcel."
-                           : n > 90 ? " <b>" + n + " buildings a site is a long run</b>: his daylight check compares every building with every other." : "") +
-                  (left ? " " + left + " of the " + r.count + " selected " + (left === 1 ? "parcel is" : "parcels are") + " a different size: press <b>Annealing →</b> again to send " +
-                          (groups[1].length === 1 ? "it" : "the next " + groups[1].length) +
-                          " -- his lab gives every site the same count, so sizes go in groups."
-                        : r.count > 1 ? " All " + r.count + " selected parcels have now been sent; pressing again starts over." : "") +
-                  (again && r.count > 1 ? " (Starting over: every selected parcel had already gone.)" : "")
-                : "<b>The lab refused the parcels:</b> " + (res.message || "no reason given"));
-      }).catch(function (e) {
+      try {
+        var A = w && w.AnnealWorkflowBridge;
+        if (!A || typeof A.importParcels !== "function") {
+          throw new Error("Annealing parcel bridge is not ready.");
+        }
+
+        // Use all selected parcels only to set a sensible initial building-count default.
+        // The Annealing layer itself decides the final subset after the second selection.
+        var n = annealSetup(w, parcels);
+
+        Promise.resolve(A.importParcels(parcels)).then(function (res) {
+          ANN.busy = false;
+
+          if (res && res.ok === false) {
+            note("<b>The annealing lab refused the parcels:</b> " +
+              (res.message || "no reason given"));
+            return;
+          }
+
+          note("<b>" + parcels.length + " parcel" +
+            (parcels.length === 1 ? "" : "s") +
+            " transferred to Annealing.</b> All are shown as candidates. " +
+            "Select again in Annealing with click / Shift+click / box selection, then press <b>Enter</b> to start. " +
+            "Current default: <b>" + n + " buildings per selected site</b>.");
+        }).catch(function (e) {
+          ANN.busy = false;
+          note("<b>The annealing lab could not take the parcels:</b> " + e.message);
+        });
+      } catch (e) {
         ANN.busy = false;
         note("<b>The annealing lab could not take the parcels:</b> " + e.message);
-      });
+      }
     });
   }
 
