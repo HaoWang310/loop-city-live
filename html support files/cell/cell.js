@@ -972,6 +972,27 @@
     annealSend();
   });
 
+  // Global top navigation can return from Annealing to the Wool workspace.
+  window.addEventListener("message", function (e) {
+    var d = e.data || {};
+    if (d.lc !== 1 || d.type !== "openWool") return;
+
+    try {
+      if (window.parent && window.parent !== window && e.source !== window.parent) return;
+    } catch (_) {}
+
+    // Hide Annealing only; keep the Wool iframe, simulation, anchors,
+    // selected parcels and all controls exactly as they were.
+    annealShow(false);
+    applyMode("wool");
+    workflowStepUI("wool");
+
+    try {
+      var w = ACT && ACT !== "all" && ACT.win && ACT.win();
+      if (w && w.focus) w.focus();
+    } catch (_) {}
+  });
+
   // Global top navigation can open the Annealing workspace directly.
   window.addEventListener("message", function (e) {
     var d = e.data || {};
@@ -1004,6 +1025,11 @@
     mode: applyMode, runAll: runAll,
     openAnnealing: annealSend,
     closeAnnealing: function () { annealShow(false); },
+    openWool: function () {
+      annealShow(false);
+      applyMode("wool");
+      workflowStepUI("wool");
+    },
     get slots() { return SLOTS; }, get active() { return ACT; },
     get pack() { return ACT && ACT.pack; }, get built() { return ACT && ACT.built; }
   };
