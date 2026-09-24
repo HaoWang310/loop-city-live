@@ -21,8 +21,8 @@
   // What the model runs on. The whole loop is the master setting; the quadrant is the quick one, and the
   // same window the slime mould works in. The views are only windows onto whatever has grown.
   var SCOPES = {
-    loop: { zones: [1, 2, 3, 4, 5, 6], win: null, nm: "整个环线", label: "整个环线" },
-    quad: { zones: [5, 6], win: null, nm: "分区 05 + 06", label: "象限" }
+    loop: { zones: [1, 2, 3, 4, 5, 6], win: null, nm: "整个环线" },
+    quad: { zones: [5, 6], win: null, nm: "分区 05 + 06" }
   };
   var scope = "loop";
   function zonesNow() { return SCOPES[scope].zones; }
@@ -1118,7 +1118,6 @@
     paintGrowth(year);                                       // which also brings the counts to this year
     return true;
   }
-  var PLANNED = { loop: null, zone: null, node: null };
   function plannedFor() {                                    // the release's own figure for what is selected
     var z, sum = 0;
     if (viewMode === "zone") {
