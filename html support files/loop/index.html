@@ -70,6 +70,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 .stat .v{font-weight:600;font-variant-numeric:tabular-nums}
 .big{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
 .sub{font-size:11px;color:var(--ink3)}
+.bi{display:inline-flex;flex-direction:column;align-items:flex-start;line-height:1.12;min-width:0}
+.bi .en{display:block;color:inherit;font-size:1em;font-weight:inherit;white-space:nowrap}
+.bi .zh{display:block;color:var(--ink3);font-size:.72em;font-weight:400;line-height:1.18;margin-top:2px;white-space:nowrap}
+.btn .bi{align-items:center}
+.btn .bi .zh{color:inherit;opacity:.65;font-size:.68em}
+.left-section-title{display:flex;flex-direction:column;align-items:flex-start;line-height:1.05}
+.left-section-title .en{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);font-weight:700}
+.left-section-title .zh{font-size:9px;letter-spacing:.02em;color:#aaa49a;font-weight:400;margin-top:3px}
+#leftPanel .grp h3 .bi .en{font-size:12px;font-weight:700;color:var(--ink)}
+#leftPanel .grp h3 .bi .zh{font-size:9px;color:var(--ink3);margin-top:2px}
+#leftPanel .sl .lab>span .bi .en{font-size:11.5px;color:var(--ink2)}
+#leftPanel .sl .lab>span .bi .zh{font-size:8.5px;color:var(--ink3);margin-top:2px}
+#leftPanel .ticks button .bi{align-items:center}
+#leftPanel .ticks button .bi .en{font-size:10px;color:var(--ink3)}
+#leftPanel .ticks button .bi .zh{font-size:7.5px;color:#aaa49a;margin-top:1px}
+#runNote{line-height:1.2}
+#runNote .en{font-size:11px;color:var(--ink3)}
+#runNote .zh{font-size:8.5px;color:#aaa49a;margin-top:2px}
 .kp{display:flex;gap:13px;align-items:flex-start}
 #keyplan{width:150px;height:auto;flex:0 0 150px;display:block;margin:2px 0 0 -2px}
 #keyplan path[data-zone],#keyplan rect[data-quad],#keyplan circle[data-node]{cursor:pointer}
@@ -117,14 +135,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   <aside class="panel" id="leftPanel">
     <div class="head">
       <div class="row">
-        <button class="btn primary" id="btnRun">运行</button>
-        <button class="btn small on" data-scope="loop">整个环线</button>
-        <button class="btn small" data-scope="quad">象限</button>
+        <button class="btn primary" id="btnRun"><span class="bi"><span class="en">Run</span><span class="zh">运行</span></span></button>
+        <button class="btn small on" data-scope="loop"><span class="bi"><span class="en">Whole loop</span><span class="zh">整个环线</span></span></button>
+        <button class="btn small" data-scope="quad"><span class="bi"><span class="en">Quadrant</span><span class="zh">象限</span></span></button>
       </div>
-      <div class="sub" id="runNote" style="margin-top:7px">整个环线 · 70 m 网格</div>
+      <div class="sub" id="runNote" style="margin-top:7px"><span class="bi"><span class="en">the whole loop · 70 m grid</span><span class="zh">整个环线 · 70 m 网格</span></span></div>
     </div>
     <div class="scroll">
-      <h2>参数目录</h2>
+      <h2 class="left-section-title"><span class="en">Parameter catalogue</span><span class="zh">参数目录</span></h2>
       <div id="sliders"></div>
     </div>
   </aside>
