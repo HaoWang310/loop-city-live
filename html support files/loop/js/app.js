@@ -178,8 +178,11 @@
     });
     growthCv.width = SIMW; growthCv.height = SIMH;
     growthCtx = growthCv.getContext("2d");
-    $("runNote").textContent = SCOPES[scope].nm + " · " + (PX * STEP) + " m 网格 · " +
-      fmt(SIMW * SIMH / 1e6 * 10) / 10 + "M 个单元";
+    var scopeEn = scope === "loop" ? "the whole loop" : "Zones 05 + 06";
+    $("runNote").innerHTML = leftBi(
+      scopeEn + " · " + (PX * STEP) + " m grid · " + fmt(SIMW * SIMH / 1e6 * 10) / 10 + "M cells",
+      SCOPES[scope].nm + " · " + (PX * STEP) + " m 网格 · " + fmt(SIMW * SIMH / 1e6 * 10) / 10 + "M 个单元"
+    );
     document.querySelectorAll("[data-scope]").forEach(function (b) {
       b.classList.toggle("on", b.dataset.scope === scope);
     });
@@ -291,6 +294,9 @@
   function leftZh(map, key) {
     return (map && map[key] !== undefined) ? map[key] : key;
   }
+  function leftBi(en, zh) {
+    return "<span class='bi'><span class='en'>" + en + "</span><span class='zh'>" + zh + "</span></span>";
+  }
 
   function buildUI() {
     // sliders, grouped as the catalogue's axes
@@ -303,16 +309,16 @@
     });
     var html = "";
     groups.forEach(function (g) {
-      html += "<div class='grp'><h3>" + leftZh(LEFT_ZH.group, g) + "</h3>";
+      html += "<div class='grp'><h3>" + leftBi(g, leftZh(LEFT_ZH.group, g)) + "</h3>";
       byGroup[g].forEach(function (p) {
-        html += "<div class='sl' data-id='" + p.id + "'><div class='lab'><span>" + leftZh(LEFT_ZH.label, p.label) +
+        html += "<div class='sl' data-id='" + p.id + "'><div class='lab'><span>" + leftBi(p.label, leftZh(LEFT_ZH.label, p.label)) +
           "</span><b id='v_" + p.id + "'>" + p.def + "</b></div>" +
           "<input type='range' id='s_" + p.id + "' min='" + p.min + "' max='" + p.max + "' step='" + p.step +
-          "' value='" + p.def + "' title='" + (LEFT_ZH.help[p.id] || p.help || "").replace(/'/g, "") + "'>";
+          "' value='" + p.def + "' title='" + ((p.help || "") + (LEFT_ZH.help[p.id] ? "\n" + LEFT_ZH.help[p.id] : "")).replace(/'/g, "") + "'>";
         if (p.ticks) {
           html += "<div class='ticks'>";
           p.ticks.forEach(function (t, i) {
-            html += "<button data-set='" + p.id + "' data-val='" + t + "'>" + leftZh(LEFT_ZH.tick, p.tickNames[i]) + "</button>";
+            html += "<button data-set='" + p.id + "' data-val='" + t + "'>" + leftBi(p.tickNames[i], leftZh(LEFT_ZH.tick, p.tickNames[i])) + "</button>";
           });
           html += "</div>";
         }
