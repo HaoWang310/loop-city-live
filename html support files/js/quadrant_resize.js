@@ -21,7 +21,8 @@
       "background:transparent;transition:background .12s ease}" +
       ".lc-qsplit:hover:after,.lc-qsplit.dragging:after{background:rgba(143,95,56,.48)}" +
       "body.lc-qresizing{cursor:col-resize!important;user-select:none!important}" +
-      "body.lc-qresizing *{cursor:col-resize!important}";
+      "body.lc-qresizing *{cursor:col-resize!important}" +
+      "#toggleW.open{border-right:1px solid var(--line,#e2ded6)!important;border-radius:7px!important;background:#faf8f4!important}";
     document.head.appendChild(style);
   }
 
@@ -32,6 +33,7 @@
   };
   var MIN_STAGE = 360;
   var HANDLE_W = 8;
+  var WOOL_TAB_RAIL = 34;
 
   function visible(el) {
     return !!el && getComputedStyle(el).display !== "none";
@@ -84,14 +86,26 @@
       if (visible(x.panel)) used += width(x.panel, x.def);
     });
     used += (handleCount(name) + 1) * HANDLE_W;
+    if (visible(wool) || visible(layers)) used += WOOL_TAB_RAIL;
     return Math.max(me.min, Math.min(me.max, document.body.clientWidth - used));
   }
 
   function updateWoolTab() {
     var t = document.getElementById("toggleW");
     if (!t) return;
-    if (visible(wool)) t.style.right = Math.round(width(wool, CFG.wool.def)) + "px";
-    else t.style.right = "0px";
+
+    /* The Wool tab gets its own rail instead of floating over either panel.
+       When Wool is open the rail is the left margin of the Wool panel; when
+       Wool is closed the same rail sits at the outside edge of the Layers panel. */
+    if (visible(wool)) {
+      wool.style.marginLeft = WOOL_TAB_RAIL + "px";
+      layers.style.marginRight = "0px";
+      t.style.right = Math.round(width(wool, CFG.wool.def)) + "px";
+    } else {
+      wool.style.marginLeft = "0px";
+      layers.style.marginRight = visible(layers) ? WOOL_TAB_RAIL + "px" : "0px";
+      t.style.right = "0px";
+    }
   }
 
   function dispatchResize() {
