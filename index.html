@@ -80,7 +80,7 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
   var LV = {
     loop:     { src: "html support files/loop/index.html",  el: null, ready: false, queue: [] },
     quadrant: { src: "html support files/combined_v10.html", el: null, ready: false, queue: [] },
-    cell:     { src: "html support files/cell/cell.html?v=anneal-flow-fix-20260924-4",   el: null, ready: false, queue: [] }
+    cell:     { src: "html support files/cell/cell.html?v=return-wool-20260924-1",   el: null, ready: false, queue: [] }
   };
   var current = null;
   var $ = function (id) { return document.getElementById(id); };
@@ -193,6 +193,16 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
       if (!LV[level]) return;
       if (!LV[level].el) frame(level);
       show(level);
+
+      // The third breadcrumb is the Wool / Cell workspace.
+      // If Annealing is covering the Cell frame, explicitly close it
+      // and restore Wool without rebuilding or losing state.
+      if (level === "cell") {
+        send("cell", { type: "openWool" });
+        var ac = $("annealCrumb");
+        if (ac) ac.classList.remove("on");
+        b.classList.add("on");
+      }
     }
     b.addEventListener("click", go);
     b.addEventListener("dblclick", go);
