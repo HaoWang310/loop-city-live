@@ -729,6 +729,7 @@
       model: { boundary: boundary, anchors: anchorsW, nextId: M.nextId, groups: groups, active: M.active, units: "m" },
       siteAreaTargetM2: cellA, siteAreaCalibrationManual: true,
       loopCity: { cell: pack.id, kind: M.kind, E0: E0, N0: N0, frame: "x = E - E0, y = N - N0, metres, y north",
+                  autoMechanics: true,
                   corridor: M.corridor && M.corridor.source === "green" ? { source: M.corridor.sourceFile, year: M.corridor.year } : "fixed widths" }
     };
     var st = M.stats;
