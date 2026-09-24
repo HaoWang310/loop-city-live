@@ -272,9 +272,16 @@ def archive_current():
     return "%s.%d" % (VER, rev)
 
 
-kept = archive_current()
-if kept:
-    print("kept the previous state as archive/%s" % kept)
+# Local/manual builds keep the full revision archive. CI builds deliberately skip it:
+# the generated combined_v10.html is already versioned by Git, and archiving 7+ MB on every
+# automatic rebuild would make the repository grow unnecessarily.
+if os.environ.get("LOOP_CITY_NO_ARCHIVE") == "1":
+    kept = None
+    print("CI build: revision archive skipped")
+else:
+    kept = archive_current()
+    if kept:
+        print("kept the previous state as archive/%s" % kept)
 
 open(OUT, "w", encoding="utf-8").write(html)
 
