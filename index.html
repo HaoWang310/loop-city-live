@@ -169,11 +169,18 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
   });
 
   document.querySelectorAll(".crumb").forEach(function (b) {
-    b.addEventListener("click", function () { if (!b.disabled) show(b.dataset.level); });
+    b.addEventListener("click", function () {
+      var level = b.dataset.level;
+      if (!LV[level]) return;
+      if (!LV[level].el) frame(level);
+      show(level);
+    });
   });
   window.addEventListener("hashchange", function () {
     var h = location.hash.slice(1);
-    if (LV[h] && LV[h].el && h !== current) show(h, true);
+    if (!LV[h] || h === current) return;
+    if (!LV[h].el) frame(h);
+    show(h, true);
   });
 
   frame("loop");
