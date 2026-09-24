@@ -14,7 +14,7 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{background:var(--paper);color:var(--ink);overflow:hidden;font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;font-size:13px;display:flex;flex-direction:row}
-#stage{order:1;flex:1 1 auto;position:relative;overflow:hidden;background:var(--paper);min-width:0}
+#stage{order:1!important;flex:1 1 auto;position:relative;overflow:hidden;background:var(--paper);min-width:0}
 #view{position:absolute;left:0;top:0;width:100%;height:100%;display:block;touch-action:none}
 #hud{position:absolute;top:18px;left:22px;pointer-events:none;display:flex;flex-direction:column;gap:8px}
 #hud h1{margin:0;font-size:19px;font-weight:700;color:var(--accent)}
@@ -49,7 +49,7 @@ body{background:var(--paper);color:var(--ink);overflow:hidden;font-family:"PingF
 .card .ac a{cursor:pointer}
 .card .ac a:hover{color:var(--accent)}
 #panelResizer{
-  order:2;
+  order:2!important;
   flex:0 0 8px;width:8px;height:100%;
   position:relative;z-index:50;cursor:ew-resize;
   background:transparent;touch-action:none
@@ -70,7 +70,7 @@ body.panel-resizing *{
   cursor:ew-resize!important
 }
 #panel{
-  order:3;
+  order:3!important;
   flex:0 0 320px;width:320px;min-width:260px;max-width:720px;
   height:100%;background:var(--card);border-left:1px solid var(--line);border-right:none;
   display:flex;flex-direction:column
@@ -266,6 +266,11 @@ details{border-top-color:#eeebe5}details summary{color:#6f6a62}details summary::
 .plBigSwitch{background:#fbfaf8;border-color:#e2ded6;border-radius:8px;color:#6f6a62}.plBigSwitch:hover{background:#f2efe9}.plSwitchTrack{background:#e2ded6;border-color:#d8d2c8}.plSwitchTrack::after{background:#ffffff}.plSwitchWrap input:checked + .plSwitchTrack{background:#8f5f38;border-color:#8f5f38}.plSwitchWrap input:checked + .plSwitchTrack::after{background:#ffffff}
 input::placeholder{color:#b5afa6}option{background:#ffffff;color:#2b2925}
 @media(max-width:900px){#panel{flex-basis:330px;width:330px}#panelScroll{padding-left:13px;padding-right:13px}}
+/* final layout lock: canvas left, controls right */
+body{display:flex!important;flex-direction:row!important}
+#stage{order:1!important;flex:1 1 auto!important;min-width:0!important}
+#panelResizer{order:2!important;flex:0 0 8px!important}
+#panel{order:3!important;flex-shrink:0!important;border-left:1px solid var(--line)!important;border-right:none!important}
 </style>
 </head>
 <body>
