@@ -15236,6 +15236,7 @@ function initSliders(){
     p.classList.toggle("hidden");
     t.classList.toggle("closed");
     t.innerHTML = p.classList.contains("hidden") ? "&lsaquo;" : "&rsaquo;";
+    syncRightPanelTabs();
     resize();
   };
   const tw = $("toggleW");
@@ -15245,6 +15246,23 @@ function initSliders(){
      are threading a cell. Below 1,500 px it closes the left panel; above that all three fit. */
   const MIN_MAP = 430;
   const WOOL_UI_RAIL = 34;
+
+  function syncRightPanelTabs(){
+    const p = $("panelW"), layers = $("panel"), tl = $("toggleTab");
+    const woolOpen = p && !p.classList.contains("hidden");
+    const layersOpen = layers && !layers.classList.contains("hidden");
+    const woolOffset = woolOpen ? (Math.round(p.offsetWidth) + WOOL_UI_RAIL) : 0;
+
+    if(tl){
+      tl.style.right = layersOpen
+        ? (Math.round(layers.offsetWidth) + woolOffset) + "px"
+        : woolOffset + "px";
+    }
+    if(tw){
+      tw.style.right = woolOpen ? Math.round(p.offsetWidth) + "px" : "0px";
+    }
+  }
+
   window.woolPanel = (open) => {
     const p = $("panelW"), pl = $("panelL"), tl = $("toggleTab");
     const want = (open === undefined) ? p.classList.contains("hidden") : open;
@@ -15257,8 +15275,8 @@ function initSliders(){
       }
     }
     tw.classList.toggle("open", want);
-    tw.style.right = want ? Math.round(p.offsetWidth) + "px" : "0px";
     tw.title = want ? "Hide the wool thread panel" : "Show the wool thread panel";
+    syncRightPanelTabs();
     resize();
   };
   if(tw) tw.onclick = () => window.woolPanel();
@@ -15266,6 +15284,8 @@ function initSliders(){
      you see rather than a tab you have to find -- but not at the cost of the drawing, so
      on a narrow window it stays shut and the tab says what it is. */
   if(window.innerWidth >= 1380) window.woolPanel(true);
+  else syncRightPanelTabs();
+  window.addEventListener("resize", syncRightPanelTabs);
 }
 
 function boot(img, label){
