@@ -224,6 +224,21 @@ body{
 .wf-step.on>b{background:var(--accent);border-color:var(--accent);color:#fff}
 .wf-step.done{color:#6f6a62}
 .wf-step.done>b{border-color:#b9aa9a;color:#7b5b42;background:#f4eee7}
+/* HIDE CELL SIDEBAR IN ANNEALING */
+body.isAnneal #bar,
+body.isAnneal #barResizer{
+  display:none!important;
+}
+body.isAnneal #wrap{
+  flex:1 1 100%!important;
+  width:100%!important;
+  min-width:0!important;
+}
+body.isAnneal iframe.anneal.on{
+  left:0!important;
+  right:0!important;
+  width:100%!important;
+}
 </style>
 </head>
 <body>
