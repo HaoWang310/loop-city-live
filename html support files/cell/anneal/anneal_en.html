@@ -756,6 +756,82 @@ input[type=range]::-moz-range-thumb{
 #floatingInfo .perf-resize-edge.dragging::after{opacity:1!important}
 body.perf-panel-resizing,
 body.perf-panel-resizing *{user-select:none!important}
+
+/* ===== PERFORMANCE MONITOR RESPONSIVE CONTENT ===== */
+#floatingInfo{
+  --perf-scale:1;
+  min-width:280px!important;
+  min-height:230px!important;
+  padding:
+    calc(22px * var(--perf-scale))
+    calc(22px * var(--perf-scale))
+    calc(20px * var(--perf-scale))!important;
+}
+#floatingInfo h4{
+  font-size:calc(20px * var(--perf-scale))!important;
+  line-height:1.08!important;
+  letter-spacing:calc(.11em * var(--perf-scale))!important;
+  margin-bottom:calc(7px * var(--perf-scale))!important;
+  padding-right:calc(28px * var(--perf-scale))!important;
+}
+#floatingInfo h4::after{
+  top:calc(7px * var(--perf-scale))!important;
+  width:calc(18px * var(--perf-scale))!important;
+}
+#floatingInfo .float-sub{
+  gap:calc(7px * var(--perf-scale))!important;
+  font-size:calc(10px * var(--perf-scale))!important;
+  line-height:1.28!important;
+  letter-spacing:calc(.055em * var(--perf-scale))!important;
+  margin-bottom:calc(14px * var(--perf-scale))!important;
+}
+#floatingInfo .float-sub::before{
+  width:calc(6px * var(--perf-scale))!important;
+  height:calc(6px * var(--perf-scale))!important;
+}
+#floatingInfo .monitor-row{
+  grid-template-columns:
+    calc(155px * var(--perf-scale))
+    minmax(calc(82px * var(--perf-scale)),1fr)
+    calc(112px * var(--perf-scale))!important;
+  column-gap:calc(12px * var(--perf-scale))!important;
+  min-height:calc(32px * var(--perf-scale))!important;
+  padding:calc(3px * var(--perf-scale)) 0!important;
+}
+#floatingInfo .monitor-row .label{
+  font-size:calc(12px * var(--perf-scale))!important;
+  line-height:1.16!important;
+}
+#floatingInfo .monitor-row .label .metric-unit{
+  font-size:calc(9.5px * var(--perf-scale))!important;
+  margin-left:calc(3px * var(--perf-scale))!important;
+}
+#floatingInfo .monitor-value{
+  font-size:calc(12px * var(--perf-scale))!important;
+  line-height:1.16!important;
+}
+#floatingInfo .monitor-bar,
+#floatingInfo .monitor-fill{
+  height:max(2px,calc(3px * var(--perf-scale)))!important;
+}
+#floatingInfo .monitor-bar::after,
+#floatingInfo .monitor-fill::after{
+  height:max(5px,calc(7px * var(--perf-scale)))!important;
+  top:calc(-2px * var(--perf-scale))!important;
+}
+#floatingInfo.compact .monitor-row .label,
+#floatingInfo.compact .monitor-value{
+  letter-spacing:0!important;
+}
+#floatingInfo.tiny .monitor-row{
+  grid-template-columns:
+    calc(118px * var(--perf-scale))
+    minmax(calc(60px * var(--perf-scale)),1fr)
+    calc(88px * var(--perf-scale))!important;
+}
+#floatingInfo.tiny .monitor-row .label{
+  overflow-wrap:anywhere!important;
+}
 </style></head><body><div class="app"><header><div class="brand"><div class="logo">U</div><div><h1>Urban form annealing design lab</h1></div></div><div class="header-actions"><span class="pill" id="modePill"><span class="status-dot" id="statusDot"></span>Best scheme so far</span><button id="exportJson">Export data</button><button id="exportPng">Export image</button></div></header>
 <div class="layout-resizer left-resizer" id="leftPanelResizer" title="Drag to resize the left panel · double-click to restore the default"></div><div class="layout-resizer right-resizer" id="rightPanelResizer" title="Drag to resize the right panel · double-click to restore the default"></div>
 <aside class="left">
@@ -3459,7 +3535,7 @@ window.AnnealWorkflowBridge={
   const box=$('floatingInfo'),right=$('perfResizeRight'),bottom=$('perfResizeBottom'),corner=$('perfResizeCorner');
   if(!box||!right||!bottom||!corner)return;
 
-  const KEY='loopCity.anneal.performancePanelSize',DEFAULT_W=460,DEFAULT_H=452,MIN_W=360,MIN_H=300;
+  const KEY='loopCity.anneal.performancePanelSize',DEFAULT_W=460,DEFAULT_H=452,MIN_W=280,MIN_H=230;
 
   function limits(){
     return{
@@ -3476,11 +3552,28 @@ window.AnnealWorkflowBridge={
   }
   function apply(w,h,persist){
     const s=clampSize(w,h);
+
     box.style.width=s.w+'px';
     box.style.height=s.h+'px';
     box.style.maxWidth='none';
     box.style.maxHeight='none';
-    if(persist){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(_){}}
+
+    // Responsive content scale:
+    // width and height both contribute, so text + bars shrink together
+    // when the user makes the panel smaller.
+    const scaleW=s.w/DEFAULT_W;
+    const scaleH=s.h/DEFAULT_H;
+    const scale=Math.max(0.62,Math.min(1.16,Math.min(scaleW,scaleH)));
+
+    box.style.setProperty('--perf-scale',scale.toFixed(3));
+    box.classList.toggle('compact',scale<0.88);
+    box.classList.toggle('tiny',scale<0.73);
+
+    if(persist){
+      try{
+        localStorage.setItem(KEY,JSON.stringify({w:s.w,h:s.h,scale:scale}));
+      }catch(_){}
+    }
     return s;
   }
   function restore(){
