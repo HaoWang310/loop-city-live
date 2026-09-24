@@ -174,3 +174,47 @@
   window.addEventListener("resize", sync);
   sync();
 })();
+
+/* Data-integrity compatibility patch for the currently generated combined_v10.html.
+   Future builds from template_combined_v10.html contain the final-metrics marker and skip this. */
+(function(){
+  "use strict";
+  if(window.__LC_QUADRANT_FINAL_METRICS_PATCH__)return;
+  window.__LC_QUADRANT_FINAL_METRICS_PATCH__=true;
+  if(window.__LC_FINAL_PARCEL_METRICS_AFTER_SMOOTH__)return;
+  if(typeof smoothParcelRings!=="function"||typeof attachParcelFigures!=="function")return;
+
+  function refreshFinalMetrics(){
+    if(typeof S==="undefined"||!S||!Array.isArray(S.parcels))return;
+    var CE=Number(S.cellE)||1,CN=Number(S.cellN)||CE;
+    S.parcels.forEach(function(f){
+      var r=f&&f.ring||[];
+      if(r.length<6)return;
+      var twiceA=0,perM=0;
+      for(var i=0,j=r.length-2;i<r.length;j=i,i+=2){
+        var x0=r[j],y0=r[j+1],x1=r[i],y1=r[i+1];
+        twiceA+=x0*y1-x1*y0;
+        perM+=Math.hypot((x1-x0)*CE,(y1-y0)*CN);
+      }
+      f.areaCells=Math.abs(twiceA)*0.5;
+      f.perimCells=perM/Math.max(CE,1e-9);
+      f.areaKm2=f.areaCells*CE*CN/1e6;
+      f.perimKm=perM/1000;
+    });
+  }
+
+  var originalSmooth=smoothParcelRings;
+  smoothParcelRings=function(){
+    var result=originalSmooth.apply(this,arguments);
+    refreshFinalMetrics();
+    attachParcelFigures();
+    return result;
+  };
+
+  try{
+    if(typeof S!=="undefined"&&S&&S.parcels&&S.parcels.length){
+      refreshFinalMetrics();
+      attachParcelFigures();
+    }
+  }catch(_){}
+})();
