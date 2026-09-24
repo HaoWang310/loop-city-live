@@ -529,7 +529,7 @@ input[type=range]::-webkit-slider-thumb{
       <label class="check"><input type="checkbox" id="cMagAll"> Magnet across groups (single solve)</label>
       <div class="row"><button class="btn sm" id="bDefRange" title="Mean segment length × a scale-adaptive factor for Loop City cells; original definition = 1.84386">Range from segments</button><button class="btn sm" id="bDefaults">Definition defaults</button></div>
     </details>
-    <p class="hint">Loop City cells automatically rebalance wet-wool slack, length, angle, magnet strength and magnet range to the real cell scale. Original reference: anchor 1,000,000 · length 409,847 · angle 20,995 · MagnetSnap 350 · range ×1.84. Click a value to type it in.</p>
+    <p class="hint">Loop City cells use a deformation-dominant urban profile: more wet-wool slack, tension-only length control, much lower straightening, stronger cross-group magnetism and a larger capture range. Original reference values remain available through Definition defaults.</p>
   </section>
 
   <section>
@@ -3472,11 +3472,15 @@ function scaleAdaptiveMechanicalProfile(areaM2){
   var refArea=49794;
   var scale=Math.sqrt(Math.max(1,Number(areaM2)||refArea)/refArea);
   var lg=Math.max(0,Math.min(6,Math.log(scale)/Math.LN2));
-  var len=Math.round(120000/(1+0.10*lg));
-  var ang=Math.round(len*(0.085-0.004*Math.min(lg,5)));
-  var mag=Math.round(len*(0.065+0.018*lg));
-  var over=Math.round(Math.min(12,5+1.2*lg)*10)/10;
-  var rangeK=Math.min(3.25,2.20+0.16*lg);
+
+  // Urban cells need a deformation-dominant regime rather than the very stiff
+  // reference definition. Keep anchors hard, but let the thread itself move.
+  var len=Math.round(52000/(1+0.08*lg));
+  var ang=Math.round(len*(0.030-0.0025*Math.min(lg,5)));
+  var mag=Math.round(len*(0.55+0.08*lg));
+  var over=Math.round(Math.min(24,12+2.0*lg)*10)/10;
+  var rangeK=Math.min(4.8,3.25+0.28*lg);
+
   return {scale:scale,log2Scale:lg,lenS:len,angS:ang,magS:mag,over:over,rangeK:rangeK};
 }
 function meanThreadSegmentLength(){
@@ -3503,11 +3507,15 @@ function applyScaleAdaptiveMechanics(){
   params.magS=p.magS;
   params.over=p.over;
   params.magAll=true;
-  params.tension=false;
+  // True = slack is allowed. Length only resists overstretching, so magnet forces
+  // can actually pull the wool into bundles instead of the line solver straightening it back.
+  params.tension=true;
+  params.mom=0.86;
   if(meanSeg>0)params.magR=Math.max(0.01,meanSeg*p.rangeK);
   ensureRangeContains('sMag',params.magS);
   ensureRangeContains('sRange',params.magR);
-  lastAutoMechanics={areaM2:area,scale:p.scale,lenS:params.lenS,angS:params.angS,magS:params.magS,over:params.over,magR:params.magR,rangeK:p.rangeK};
+  ensureRangeContains('sOver',params.over);
+  lastAutoMechanics={areaM2:area,scale:p.scale,lenS:params.lenS,angS:params.angS,magS:params.magS,over:params.over,magR:params.magR,rangeK:p.rangeK,tension:params.tension,mom:params.mom};
   return lastAutoMechanics;
 }
 
