@@ -21,8 +21,8 @@
   // What the model runs on. The whole loop is the master setting; the quadrant is the quick one, and the
   // same window the slime mould works in. The views are only windows onto whatever has grown.
   var SCOPES = {
-    loop: { zones: [1, 2, 3, 4, 5, 6], win: null, nm: "the whole loop", label: "Whole loop" },
-    quad: { zones: [5, 6], win: null, nm: "Zones 05 + 06", label: "Quadrant" }
+    loop: { zones: [1, 2, 3, 4, 5, 6], win: null, nm: "整个环线", label: "整个环线" },
+    quad: { zones: [5, 6], win: null, nm: "分区 05 + 06", label: "象限" }
   };
   var scope = "loop";
   function zonesNow() { return SCOPES[scope].zones; }
@@ -178,8 +178,8 @@
     });
     growthCv.width = SIMW; growthCv.height = SIMH;
     growthCtx = growthCv.getContext("2d");
-    $("runNote").textContent = SCOPES[scope].nm + " · " + (PX * STEP) + " m grid · " +
-      fmt(SIMW * SIMH / 1e6 * 10) / 10 + "M cells";
+    $("runNote").textContent = SCOPES[scope].nm + " · " + (PX * STEP) + " m 网格 · " +
+      fmt(SIMW * SIMH / 1e6 * 10) / 10 + "M 个单元";
     document.querySelectorAll("[data-scope]").forEach(function (b) {
       b.classList.toggle("on", b.dataset.scope === scope);
     });
@@ -202,6 +202,96 @@
   }
 
   // ---------------------------------------------------------------- the panels
+  // Chinese display strings for the Loop left control panel only.
+  // Parameter ids, numeric ranges and simulation logic remain unchanged.
+  var LEFT_ZH = {
+    group: {
+      "Reach": "扩散范围",
+      "Vein": "脉络",
+      "Contrast": "对比度",
+      "Adjacency": "邻接性",
+      "Spine": "主环线",
+      "Promotion": "密度提升",
+      "Soil": "土地保护",
+      "Vertical band": "垂直农业带",
+      "Chance": "随机性",
+      "Farming": "农业",
+      "Functions": "功能"
+    },
+    label: {
+      "Reach": "扩散范围",
+      "Vein, base a": "脉络，基础值 a",
+      "Vein, weight b": "脉络，权重 b",
+      "Contrast": "对比度",
+      "Adjacency, base a": "邻接性，基础值 a",
+      "Adjacency, reward b": "邻接性，奖励值 b",
+      "Spine, weight": "主环线，权重",
+      "Spine, decay": "主环线，衰减距离",
+      "Promotion, core radius": "密度提升，核心半径",
+      "Promotion, medium radius": "密度提升，中密度半径",
+      "Soil": "优质农地保护",
+      "Vertical band, peak": "垂直农业带，峰值位置",
+      "Vertical band, sigma": "垂直农业带，宽度 σ",
+      "Vertical band, tail": "垂直农业带，尾部权重",
+      "Vertical band, tail length": "垂直农业带，尾部长度",
+      "Chance": "随机种子",
+      "Horizontal farming starts": "水平农业起始年份",
+      "Vertical farming starts": "垂直农业起始年份",
+      "Commercial / public": "商业 / 公共",
+      "Institutional": "公共机构",
+      "Institutional, ring": "公共机构，环带",
+      "Functions start": "功能起始年份"
+    },
+    tick: {
+      "tight": "紧凑",
+      "as run": "基准",
+      "loose": "宽松",
+      "off": "关闭",
+      "hard": "强",
+      "flat": "平缓",
+      "greedy": "集中",
+      "weak": "弱",
+      "strong": "强",
+      "node city": "节点城市",
+      "ribbon city": "带状城市",
+      "peak at the station": "站点峰值",
+      "a far ring": "远距环带",
+      "soil protected": "保护优质农地",
+      "soil ignored": "忽略土壤",
+      "quarter": "窄带",
+      "wide": "宽带",
+      "seed 7": "种子 7",
+      "seed 2026": "种子 2026"
+    },
+    help: {
+      "reach": "控制节点承载同等建设用地时，增长向外扩散的距离。",
+      "veinA": "脉络场的基础影响值；脉络形态参考 Frei Otto 的网络实验。",
+      "veinB": "脉络场的权重；设为 0 时关闭脉络影响。",
+      "expo": "控制适宜度差异被放大的程度。",
+      "adjA": "已有建成区附近继续建设的基础奖励。",
+      "adjB": "数值越高，新增建设越倾向贴近已有建成区。",
+      "wR": "控制主环线相对节点的吸引强度。",
+      "sR": "控制主环线吸引力随距离衰减的速度。",
+      "rcore": "中密度开发开始出现前的核心距离限制。",
+      "rmed": "高密度开发开始出现前的距离限制。",
+      "soil": "控制优质农地的保护强度；数值越低，对一级、二级农地的建设惩罚越强。",
+      "vpk": "控制垂直农业相对建成区边缘的峰值位置。",
+      "vsg": "控制垂直农业环带的宽度。",
+      "vta": "控制垂直农业在主要环带之外继续延伸的程度。",
+      "vtl": "控制垂直农业尾部延伸的距离。",
+      "seed": "在规则和总量不变的情况下生成不同空间布局。",
+      "farmH": "水平农业开始释放的年份。",
+      "farmV": "垂直农业开始释放的年份。",
+      "com": "建成区中的商业、办公与公共功能点。",
+      "inst": "学校、医疗、市政与文化等公共机构点。",
+      "instPeak": "公共机构点最集中的环带位置。",
+      "progStart": "商业与公共机构功能开始出现的年份。"
+    }
+  };
+  function leftZh(map, key) {
+    return (map && map[key] !== undefined) ? map[key] : key;
+  }
+
   function buildUI() {
     // sliders, grouped as the catalogue's axes
     var host = $("sliders"), groups = [], byGroup = {};
@@ -213,16 +303,16 @@
     });
     var html = "";
     groups.forEach(function (g) {
-      html += "<div class='grp'><h3>" + g + "</h3>";
+      html += "<div class='grp'><h3>" + leftZh(LEFT_ZH.group, g) + "</h3>";
       byGroup[g].forEach(function (p) {
-        html += "<div class='sl' data-id='" + p.id + "'><div class='lab'><span>" + p.label +
+        html += "<div class='sl' data-id='" + p.id + "'><div class='lab'><span>" + leftZh(LEFT_ZH.label, p.label) +
           "</span><b id='v_" + p.id + "'>" + p.def + "</b></div>" +
           "<input type='range' id='s_" + p.id + "' min='" + p.min + "' max='" + p.max + "' step='" + p.step +
-          "' value='" + p.def + "' title='" + (p.help || "").replace(/'/g, "") + "'>";
+          "' value='" + p.def + "' title='" + (LEFT_ZH.help[p.id] || p.help || "").replace(/'/g, "") + "'>";
         if (p.ticks) {
           html += "<div class='ticks'>";
           p.ticks.forEach(function (t, i) {
-            html += "<button data-set='" + p.id + "' data-val='" + t + "'>" + p.tickNames[i] + "</button>";
+            html += "<button data-set='" + p.id + "' data-val='" + t + "'>" + leftZh(LEFT_ZH.tick, p.tickNames[i]) + "</button>";
           });
           html += "</div>";
         }
