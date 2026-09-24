@@ -34,11 +34,9 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
   display:flex;align-items:baseline;gap:7px;max-width:340px;overflow:hidden;text-overflow:ellipsis}
 .crumb .lv{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
 .crumb .nm{overflow:hidden;text-overflow:ellipsis}
-.crumb:hover:not(:disabled){border-color:var(--line);background:#fbfaf8;color:var(--ink)}
+.crumb:hover{border-color:var(--line);background:#fbfaf8;color:var(--ink)}
 .crumb.on{background:#efe7dc;border-color:#e2d3bf;color:#6b4a2c;font-weight:600}
 .crumb.on .lv{color:#a07a55}
-.crumb:disabled{cursor:default;color:#c4bfb6}
-.crumb:disabled .lv{color:#cdc8bf}
 .sep{color:#c4bfb6;font-size:13px;padding:0 1px;user-select:none}
 .aside{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--ink3);white-space:nowrap}
 .aside a{color:var(--ink2);text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:3px 8px}
@@ -57,9 +55,9 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
   <div class="crumbs">
     <button class="crumb on" data-level="loop"><span class="lv">Loop</span><span class="nm" id="nm_loop">the whole loop</span></button>
     <span class="sep">›</span>
-    <button class="crumb" data-level="quadrant" disabled><span class="lv">Quadrant</span><span class="nm" id="nm_quadrant">choose one on the key plan</span></button>
+    <button class="crumb" data-level="quadrant"><span class="lv">Quadrant</span><span class="nm" id="nm_quadrant">choose one on the key plan</span></button>
     <span class="sep">›</span>
-    <button class="crumb" data-level="cell" disabled><span class="lv">Cell</span><span class="nm" id="nm_cell">choose one in the quadrant</span></button>
+    <button class="crumb" data-level="cell"><span class="lv">Cell</span><span class="nm" id="nm_cell">choose one in the quadrant</span></button>
   </div>
   <div class="aside">
     <span id="keep" title="Moving between scales hides a scale, it does not close it">each scale stays as you left it</span>
