@@ -3219,7 +3219,36 @@ async function workflowImportParcelsFromWool(input){
   if($('rhinoStatus'))$('rhinoStatus').textContent=`Received ${candidates.length} parcels from the wool thread workflow, total area about ${totalA.toFixed(1)} m². All are preselected; click to select one, Shift+click to add/remove, drag a box to select, press Enter to start annealing.`;
   return {ok:true,count:candidates.length,totalArea:totalA,selectionReady:true,selectedCount:selectedRhinoIds.size};
 }
+function workflowShowBuiltInDemo(){
+  haltComputation();
+  focusedSiteIndex=null;
+  updateSitePreviewBadge();
+  importedSite=null;
+  importedSites=[];
+  importedPolylines=[];
+  importedPolylinesPool=[];
+  selectedRhinoIds.clear();
+  rhinoSelectionMode=false;
+  rhinoSelectionMarquee=null;
+  workflowWoolSource=false;
+  workflowWoolAutoTuning=null;
+  rhinoFileName='';
+  if($('rhinoFile'))$('rhinoFile').value='';
+  if($('polylineSelect')){
+    $('polylineSelect').innerHTML='';
+    var picker=$('polylineSelect').closest('.polyline-picker');
+    if(picker)picker.style.display='none';
+  }
+  if($('rhinoStatus'))$('rhinoStatus').textContent='Built-in Annealing demo · adjust the parameters or press Start annealing.';
+  syncRhinoSelectionUI();
+  resetViewState(false);
+  initialize();
+  resize();
+  return {ok:true,demo:true,regions:state&&state.regions?state.regions.length:0,buildings:workflowCurrentBuildingCount()};
+}
+
 window.AnnealWorkflowBridge={
+  showDemo:workflowShowBuiltInDemo,
   importParcels:workflowImportParcelsFromWool,
   applySelection:workflowCommitSelectedParcels,
   reselect:function(){enterRhinoSelectionMode(false);return {ok:true,selectionMode:true,selectedCount:selectedRhinoIds.size,candidateCount:importedPolylines.length,totalCandidateCount:(importedPolylinesPool.length||importedPolylines.length)}},
