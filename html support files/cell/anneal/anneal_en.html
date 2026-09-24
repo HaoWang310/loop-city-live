@@ -694,6 +694,68 @@ input[type=range]::-moz-range-thumb{
     font-size:11px!important;
   }
 }
+
+/* ===== PERFORMANCE MONITOR RESIZE HANDLES ===== */
+#floatingInfo{
+  min-width:360px!important;
+  min-height:300px!important;
+  max-width:calc(100% - 36px)!important;
+  max-height:calc(100% - 80px)!important;
+}
+#floatingInfo .perf-resize-edge{
+  position:absolute!important;
+  z-index:30!important;
+  pointer-events:auto!important;
+  touch-action:none!important;
+  user-select:none!important;
+  background:transparent!important;
+}
+#floatingInfo .perf-resize-right{
+  top:14px!important;
+  right:-4px!important;
+  bottom:14px!important;
+  width:10px!important;
+  cursor:ew-resize!important;
+}
+#floatingInfo .perf-resize-bottom{
+  left:14px!important;
+  right:14px!important;
+  bottom:-4px!important;
+  height:10px!important;
+  cursor:ns-resize!important;
+}
+#floatingInfo .perf-resize-corner{
+  right:-5px!important;
+  bottom:-5px!important;
+  width:18px!important;
+  height:18px!important;
+  cursor:nwse-resize!important;
+}
+#floatingInfo .perf-resize-right::after,
+#floatingInfo .perf-resize-bottom::after,
+#floatingInfo .perf-resize-corner::after{
+  content:""!important;
+  position:absolute!important;
+  opacity:0!important;
+  transition:opacity .12s ease!important;
+}
+#floatingInfo .perf-resize-right::after{
+  top:18%!important;bottom:18%!important;left:4px!important;width:2px!important;
+  background:rgba(143,95,56,.5)!important;
+}
+#floatingInfo .perf-resize-bottom::after{
+  left:18%!important;right:18%!important;top:4px!important;height:2px!important;
+  background:rgba(143,95,56,.5)!important;
+}
+#floatingInfo .perf-resize-corner::after{
+  right:3px!important;bottom:3px!important;width:9px!important;height:9px!important;
+  border-right:2px solid rgba(143,95,56,.55)!important;
+  border-bottom:2px solid rgba(143,95,56,.55)!important;
+}
+#floatingInfo .perf-resize-edge:hover::after,
+#floatingInfo .perf-resize-edge.dragging::after{opacity:1!important}
+body.perf-panel-resizing,
+body.perf-panel-resizing *{user-select:none!important}
 </style></head><body><div class="app"><header><div class="brand"><div class="logo">U</div><div><h1>Urban form annealing design lab</h1></div></div><div class="header-actions"><span class="pill" id="modePill"><span class="status-dot" id="statusDot"></span>Best scheme so far</span><button id="exportJson">Export data</button><button id="exportPng">Export image</button></div></header>
 <div class="layout-resizer left-resizer" id="leftPanelResizer" title="Drag to resize the left panel · double-click to restore the default"></div><div class="layout-resizer right-resizer" id="rightPanelResizer" title="Drag to resize the right panel · double-click to restore the default"></div>
 <aside class="left">
@@ -726,7 +788,11 @@ input[type=range]::-moz-range-thumb{
   <div class="section"><div class="section-title">Wind environment calculation <span class="hint">EPW / manual</span></div><div class="control"><div class="control-head"><span>Wind data source</span><span class="value-chip" id="windSourceBadge">Manual input</span></div><select id="windSource" class="compact-select"><option value="manual">Manual input</option><option value="epw" disabled>Driven by EPW</option></select><div class="wind-source-note" id="windSourceStatus">No EPW wind data loaded. Uploading a valid EPW switches to EPW driving automatically; base wind speed and incoming wind direction are then locked and greyed out, while the other wind environment settings stay manual.</div></div><div class="switch-row"><span>Generate wind map</span><label class="switch"><input id="windCalc" type="checkbox"><span class="slider"></span></label></div><div class="control" id="windSpeedControl"><div class="control-head"><span>Base wind speed</span><span class="value-chip"><span id="windSpeedVal">5</span> m/s</span></div><input id="windSpeed" type="range" min="0.1" max="20" step="0.1" value="5" data-output="windSpeedVal"></div><div class="control" id="windDirControl"><div class="control-head"><span>Incoming wind direction</span><span class="value-chip"><span id="windDirVal">0</span>°</span></div><input id="windDir" type="range" min="0" max="359" step="1" value="0" data-output="windDirVal"></div><div class="control"><div class="control-head"><span>Wind analysis height</span><span class="value-chip"><span id="windHeightVal">1.5</span> m</span></div><input id="windHeight" type="range" min="0.05" max="20" step="0.05" value="1.5" data-output="windHeightVal"></div><div class="control"><div class="control-head"><span>Wind field grid resolution</span><span class="value-chip"><span id="windGridDivVal">42</span></span></div><input id="windGridDiv" type="range" min="8" max="120" step="1" value="42" data-output="windGridDivVal"></div><div class="control"><div class="control-head"><span>Wind arrow / streamline scale</span><span class="value-chip"><span id="windArrowScaleVal">0.75</span></span></div><input id="windArrowScale" type="range" min="0.05" max="8" step="0.05" value="0.75" data-output="windArrowScaleVal"></div><div class="control"><div class="control-head"><span>Wind arrow density</span><span class="value-chip"><span id="windArrowDensityVal">50</span> %</span></div><input id="windArrowDensity" type="range" min="10" max="100" step="5" value="50" data-output="windArrowDensityVal" data-display-only="1"><div class="candidate-note">Changes only how densely arrows are drawn, not the wind field resolution, wind speed results or streamlines.</div></div><div class="switch-row"><span>Include wind environment in the annealing score</span><label class="switch"><input id="windScore" type="checkbox" checked><span class="slider"></span></label></div><div class="domain"><div class="domain-title">Pedestrian comfort wind speed range</div><div class="domain-line"><span>Min</span><input id="windComfortMin" type="range" min="0" max="15" step="0.1" value="0.8" data-output="windComfortMinVal"><b><span id="windComfortMinVal">0.8</span> m/s</b></div><div class="domain-line"><span>Max</span><input id="windComfortMax" type="range" min="0" max="15" step="0.1" value="5" data-output="windComfortMaxVal"><b><span id="windComfortMaxVal">5</span> m/s</b></div></div></div>
   
   <div class="section"><div class="section-title">Web calculation settings <span class="hint">Extended controls</span></div><div class="control"><div class="control-head"><span>Iterations</span><span class="value-chip"><span id="maxIterVal">500</span></span></div><input id="maxIter" type="range" min="1" max="5000" step="1" value="500" data-output="maxIterVal"><div class="number-row"><span>Slider maximum (type your own)</span><input id="maxIterLimit" class="number-input" type="number" min="1" step="50" value="5000"></div><div class="candidate-note">For example, entering 20000 extends the iterations slider to 20000; the slider above still sets the current iteration target.</div></div></div>
-</aside><main class="canvas-wrap" id="canvasWrap"><div class="toolbar"><button class="toolbtn active" data-view="iso">Axonometric</button><button class="toolbtn" data-view="top">Top view</button><button class="toolbtn active" data-layer="roads">Roads</button><button class="toolbtn active" data-layer="green">Green space</button><button class="toolbtn" data-layer="sun">Daylight</button><button class="toolbtn" data-layer="wind">Wind environment</button><button class="toolbtn" data-layer="labels">Building IDs</button><button class="toolbtn active" id="togglePerfPanel" type="button">Performance panel</button><button class="toolbtn" id="selectCurvesView" type="button" style="display:none">Select Rhino curves</button><button class="toolbtn" id="resetView" type="button">Reset view</button></div><canvas id="canvas" tabindex="-1"></canvas><div class="building-info" id="buildingInfo"><div class="building-info-title" id="buildingInfoTitle">Building info</div><div class="building-info-sub" id="buildingInfoSub">Click a building / road / green space / area for info · double-click a Rhino area to preview it alone · Esc to exit</div><div class="building-info-grid"><span>Building height</span><b id="biHeight">—</b><span>Gross floor area</span><b id="biTotalArea">—</b><span>Floor height</span><b id="biFloorHeight">—</b><span>Area per floor</span><b id="biFloorArea">—</b></div></div><div class="floating-info" id="floatingInfo"><h4 id="floatTitle">Scheme performance monitor</h4><div class="float-sub" id="floatSub">Live view of the current scheme and the best scheme so far</div><div class="monitor-body"><div class="monitor-row"><span class="label">Iterations <small class="metric-unit">count</small></span><div class="monitor-bar"><div class="monitor-fill cool" id="fmIter"></div></div><span class="monitor-value" id="fvIter">0 / 500</span></div><div class="monitor-row"><span class="label">Buildings <small class="metric-unit">count</small></span><div class="monitor-bar"><div class="monitor-fill hot" id="fmBuildings"></div></div><span class="monitor-value" id="fvBuildings">0 / 0</span></div><div class="monitor-row"><span class="label">Total building area <small class="metric-unit">m²</small></span><div class="monitor-bar"><div class="monitor-fill" id="fmArea"></div></div><span class="monitor-value" id="fvArea">—</span></div><div class="monitor-row"><span class="label">FAR</span><div class="monitor-bar"><div class="monitor-fill" id="fmFar"></div></div><span class="monitor-value" id="fvFar">0.00</span></div><div class="monitor-row"><span class="label">Floor height <small class="metric-unit">m</small></span><div class="monitor-bar"><div class="monitor-fill" id="fmFloorH"></div></div><span class="monitor-value" id="fvFloorH">0.00</span></div><div class="monitor-row"><span class="label">Height <small class="metric-unit">m</small></span><div class="monitor-bar"><div class="monitor-fill" id="fmHeight"></div></div><span class="monitor-value" id="fvHeight">—</span></div><div class="monitor-row"><span class="label">Spacing <small class="metric-unit">m</small></span><div class="monitor-bar"><div class="monitor-fill" id="fmDistance"></div></div><span class="monitor-value" id="fvDistance">—</span></div><div class="monitor-row"><span class="label">Average daylight</span><div class="monitor-bar"><div class="monitor-fill" id="fmSun"></div></div><span class="monitor-value" id="fvSun">0%</span></div><div class="monitor-row"><span class="label">Average wind speed</span><div class="monitor-bar"><div class="monitor-fill hot" id="fmWind"></div></div><span class="monitor-value" id="fvWind">0.00 m/s</span></div><div class="monitor-row"><span class="label">Wind comfort</span><div class="monitor-bar"><div class="monitor-fill hot" id="fmComfort"></div></div><span class="monitor-value" id="fvComfort">0%</span></div><div class="monitor-row"><span class="label">Intersection probability</span><div class="monitor-bar"><div class="monitor-fill cool" id="fmInterProb"></div></div><span class="monitor-value" id="fvInterProb">OFF / 0%</span></div></div></div><div class="site-preview-badge" id="sitePreviewBadge"><strong id="sitePreviewBadgeText">Rhino area preview</strong><span>Press</span><kbd>Esc</kbd><span>to exit</span></div><div class="canvas-note" id="canvasNote">Drag the panel edges to resize them · click a building / road / green space / area for info · double-click a Rhino area to preview it alone · Esc to leave the preview · scroll to zoom · left-drag to pan · right-drag to orbit / tilt</div></main><aside class="right">
+</aside><main class="canvas-wrap" id="canvasWrap"><div class="toolbar"><button class="toolbtn active" data-view="iso">Axonometric</button><button class="toolbtn" data-view="top">Top view</button><button class="toolbtn active" data-layer="roads">Roads</button><button class="toolbtn active" data-layer="green">Green space</button><button class="toolbtn" data-layer="sun">Daylight</button><button class="toolbtn" data-layer="wind">Wind environment</button><button class="toolbtn" data-layer="labels">Building IDs</button><button class="toolbtn active" id="togglePerfPanel" type="button">Performance panel</button><button class="toolbtn" id="selectCurvesView" type="button" style="display:none">Select Rhino curves</button><button class="toolbtn" id="resetView" type="button">Reset view</button></div><canvas id="canvas" tabindex="-1"></canvas><div class="building-info" id="buildingInfo"><div class="building-info-title" id="buildingInfoTitle">Building info</div><div class="building-info-sub" id="buildingInfoSub">Click a building / road / green space / area for info · double-click a Rhino area to preview it alone · Esc to exit</div><div class="building-info-grid"><span>Building height</span><b id="biHeight">—</b><span>Gross floor area</span><b id="biTotalArea">—</b><span>Floor height</span><b id="biFloorHeight">—</b><span>Area per floor</span><b id="biFloorArea">—</b></div></div><div class="floating-info" id="floatingInfo"><h4 id="floatTitle">Scheme performance monitor</h4><div class="float-sub" id="floatSub">Live view of the current scheme and the best scheme so far</div><div class="monitor-body"><div class="monitor-row"><span class="label">Iterations <small class="metric-unit">count</small></span><div class="monitor-bar"><div class="monitor-fill cool" id="fmIter"></div></div><span class="monitor-value" id="fvIter">0 / 500</span></div><div class="monitor-row"><span class="label">Buildings <small class="metric-unit">count</small></span><div class="monitor-bar"><div class="monitor-fill hot" id="fmBuildings"></div></div><span class="monitor-value" id="fvBuildings">0 / 0</span></div><div class="monitor-row"><span class="label">Total building area <small class="metric-unit">m²</small></span><div class="monitor-bar"><div class="monitor-fill" id="fmArea"></div></div><span class="monitor-value" id="fvArea">—</span></div><div class="monitor-row"><span class="label">FAR</span><div class="monitor-bar"><div class="monitor-fill" id="fmFar"></div></div><span class="monitor-value" id="fvFar">0.00</span></div><div class="monitor-row"><span class="label">Floor height <small class="metric-unit">m</small></span><div class="monitor-bar"><div class="monitor-fill" id="fmFloorH"></div></div><span class="monitor-value" id="fvFloorH">0.00</span></div><div class="monitor-row"><span class="label">Height <small class="metric-unit">m</small></span><div class="monitor-bar"><div class="monitor-fill" id="fmHeight"></div></div><span class="monitor-value" id="fvHeight">—</span></div><div class="monitor-row"><span class="label">Spacing <small class="metric-unit">m</small></span><div class="monitor-bar"><div class="monitor-fill" id="fmDistance"></div></div><span class="monitor-value" id="fvDistance">—</span></div><div class="monitor-row"><span class="label">Average daylight</span><div class="monitor-bar"><div class="monitor-fill" id="fmSun"></div></div><span class="monitor-value" id="fvSun">0%</span></div><div class="monitor-row"><span class="label">Average wind speed</span><div class="monitor-bar"><div class="monitor-fill hot" id="fmWind"></div></div><span class="monitor-value" id="fvWind">0.00 m/s</span></div><div class="monitor-row"><span class="label">Wind comfort</span><div class="monitor-bar"><div class="monitor-fill hot" id="fmComfort"></div></div><span class="monitor-value" id="fvComfort">0%</span></div><div class="monitor-row"><span class="label">Intersection probability</span><div class="monitor-bar"><div class="monitor-fill cool" id="fmInterProb"></div></div><span class="monitor-value" id="fvInterProb">OFF / 0%</span></div></div>
+<div class="perf-resize-edge perf-resize-right" id="perfResizeRight" title="Drag to resize width"></div>
+<div class="perf-resize-edge perf-resize-bottom" id="perfResizeBottom" title="Drag to resize height"></div>
+<div class="perf-resize-edge perf-resize-corner" id="perfResizeCorner" title="Drag to resize panel · double-click to reset"></div>
+</div><div class="site-preview-badge" id="sitePreviewBadge"><strong id="sitePreviewBadgeText">Rhino area preview</strong><span>Press</span><kbd>Esc</kbd><span>to exit</span></div><div class="canvas-note" id="canvasNote">Drag the panel edges to resize them · click a building / road / green space / area for info · double-click a Rhino area to preview it alone · Esc to leave the preview · scroll to zoom · left-drag to pan · right-drag to orbit / tilt</div></main><aside class="right">
   <div class="section"><div class="section-title">Live performance <span class="hint">Metric charts</span></div><div class="kpi-grid"><div class="kpi good"><div class="name">Average FAR</div><div class="value" id="kFar">0.00</div></div><div class="kpi"><div class="name">Average daylight</div><div class="value" id="kSun">0<span class="unit">%</span></div></div><div class="kpi"><div class="name">Wind comfort share</div><div class="value" id="kWind">0<span class="unit">%</span></div></div></div><div class="metric"><div class="metric-head"><span>Iteration progress <small class="metric-unit">count</small></span><span id="mIter">0 / 500</span></div><div class="bar"><div id="bIter"></div></div></div><div class="metric"><div class="metric-head"><span>Footprint area min / max <small class="metric-unit">m²</small></span><span id="mArea">—</span></div><div class="bar"><div id="bArea"></div></div></div><div class="metric"><div class="metric-head"><span>Building height min / max <small class="metric-unit">m</small></span><span id="mHeight">—</span></div><div class="bar"><div id="bHeight"></div></div></div><div class="metric"><div class="metric-head"><span>Nearest edge-to-edge spacing <small class="metric-unit">m</small></span><span id="mGap">—</span></div><div class="bar"><div id="bGap"></div></div></div><div class="metric"><div class="metric-head"><span>Intersecting building pairs <small class="metric-unit">pairs</small></span><span id="mInter">0 / 0</span></div><div class="bar"><div id="bInter"></div></div></div></div>
   <div class="section"><div class="section-title">Results</div>
 <div class="legend"><span class="swatch" style="background:rgb(255,35,140);box-shadow:0 0 9px rgba(255,35,140,.72)"></span>L1 main road</div>
@@ -3386,6 +3452,106 @@ window.AnnealWorkflowBridge={
   }
 };
 // ===== END INTEGRATED WORKFLOW BRIDGE =====
+
+
+// ===== PERFORMANCE MONITOR RESIZE LOGIC =====
+(function initPerformanceMonitorResize(){
+  const box=$('floatingInfo'),right=$('perfResizeRight'),bottom=$('perfResizeBottom'),corner=$('perfResizeCorner');
+  if(!box||!right||!bottom||!corner)return;
+
+  const KEY='loopCity.anneal.performancePanelSize',DEFAULT_W=460,DEFAULT_H=452,MIN_W=360,MIN_H=300;
+
+  function limits(){
+    return{
+      maxW:Math.max(MIN_W,window.innerWidth-box.offsetLeft-18),
+      maxH:Math.max(MIN_H,window.innerHeight-box.offsetTop-18)
+    };
+  }
+  function clampSize(w,h){
+    const lim=limits();
+    return{
+      w:Math.round(Math.max(MIN_W,Math.min(lim.maxW,Number(w)||DEFAULT_W))),
+      h:Math.round(Math.max(MIN_H,Math.min(lim.maxH,Number(h)||DEFAULT_H)))
+    };
+  }
+  function apply(w,h,persist){
+    const s=clampSize(w,h);
+    box.style.width=s.w+'px';
+    box.style.height=s.h+'px';
+    box.style.maxWidth='none';
+    box.style.maxHeight='none';
+    if(persist){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(_){}}
+    return s;
+  }
+  function restore(){
+    try{
+      const raw=localStorage.getItem(KEY);
+      if(raw){
+        const s=JSON.parse(raw);
+        apply(s.w,s.h,false);
+        return;
+      }
+    }catch(_){}
+    apply(DEFAULT_W,DEFAULT_H,false);
+  }
+  function bind(handle,mode){
+    let active=false,pid=null,sx=0,sy=0,sw=0,sh=0,raf=0,nextW=null,nextH=null;
+
+    function flush(){
+      raf=0;
+      const r=box.getBoundingClientRect();
+      apply(nextW==null?r.width:nextW,nextH==null?r.height:nextH,false);
+      nextW=nextH=null;
+    }
+    handle.addEventListener('pointerdown',function(e){
+      if(e.pointerType==='mouse'&&e.button!==0)return;
+      e.preventDefault();e.stopPropagation();
+      const r=box.getBoundingClientRect();
+      active=true;pid=e.pointerId;sx=e.clientX;sy=e.clientY;sw=r.width;sh=r.height;
+      handle.classList.add('dragging');
+      document.body.classList.add('perf-panel-resizing');
+      try{handle.setPointerCapture(pid)}catch(_){}
+    });
+    handle.addEventListener('pointermove',function(e){
+      if(!active||e.pointerId!==pid)return;
+      e.preventDefault();
+      nextW=(mode==='x'||mode==='xy')?sw+(e.clientX-sx):sw;
+      nextH=(mode==='y'||mode==='xy')?sh+(e.clientY-sy):sh;
+      if(!raf)raf=requestAnimationFrame(flush);
+    });
+    function end(e){
+      if(!active)return;
+      if(e&&pid!==null&&e.pointerId!==pid)return;
+      if(raf){cancelAnimationFrame(raf);raf=0;flush()}
+      const r=box.getBoundingClientRect();
+      active=false;
+      handle.classList.remove('dragging');
+      document.body.classList.remove('perf-panel-resizing');
+      try{if(pid!==null&&handle.hasPointerCapture(pid))handle.releasePointerCapture(pid)}catch(_){}
+      pid=null;
+      apply(r.width,r.height,true);
+    }
+    handle.addEventListener('pointerup',end);
+    handle.addEventListener('pointercancel',end);
+  }
+
+  bind(right,'x');
+  bind(bottom,'y');
+  bind(corner,'xy');
+
+  corner.addEventListener('dblclick',function(e){
+    e.preventDefault();e.stopPropagation();
+    try{localStorage.removeItem(KEY)}catch(_){}
+    apply(DEFAULT_W,DEFAULT_H,true);
+  });
+
+  window.addEventListener('resize',function(){
+    const r=box.getBoundingClientRect();
+    apply(r.width,r.height,false);
+  });
+
+  restore();
+})();
 
 restorePanelWidths();enhanceAllEditableRanges();syncIterationLimit(false);syncSliderLabels();initBridgeUI();syncRhinoSelectionUI();applyWindSourceUI(false);setPerformancePanelVisible(true);updateSitePreviewBadge();initialize();resize();
 })();</script>
