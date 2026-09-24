@@ -31,7 +31,7 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
 .crumbs{display:flex;align-items:center;gap:2px;min-width:0}
 .crumb{appearance:none;border:1px solid transparent;background:none;font:inherit;font-size:12.5px;
   padding:4px 10px;border-radius:7px;color:var(--ink2);cursor:pointer;white-space:nowrap;
-  display:flex;align-items:baseline;gap:7px;max-width:340px;overflow:hidden;text-overflow:ellipsis}
+  display:flex;align-items:baseline;gap:7px;max-width:340px;overflow:hidden;text-overflow:ellipsis;touch-action:manipulation;user-select:none}
 .crumb .lv{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
 .crumb .nm{overflow:hidden;text-overflow:ellipsis}
 .crumb:hover{border-color:var(--line);background:#fbfaf8;color:var(--ink)}
@@ -169,12 +169,17 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
   });
 
   document.querySelectorAll(".crumb").forEach(function (b) {
-    b.addEventListener("click", function () {
+    b.disabled = false;
+    function go(ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
       var level = b.dataset.level;
       if (!LV[level]) return;
       if (!LV[level].el) frame(level);
       show(level);
-    });
+    }
+    b.addEventListener("click", go);
+    b.addEventListener("dblclick", go);
   });
   window.addEventListener("hashchange", function () {
     var h = location.hash.slice(1);
