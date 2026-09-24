@@ -90,6 +90,28 @@
     return Math.max(me.min, Math.min(me.max, document.body.clientWidth - used));
   }
 
+  function updateLayerTab() {
+    var t = document.getElementById("toggleTab");
+    var root = document.getElementById("quadrantMain");
+    if (!t || !root) return;
+
+    var rr = root.getBoundingClientRect();
+    var x;
+
+    if (visible(layers)) {
+      // Follow the ACTUAL left edge of the Base Map Layers panel.
+      // This avoids any arithmetic based on remembered panel widths.
+      x = layers.getBoundingClientRect().left - rr.left - t.offsetWidth;
+    } else {
+      // When the layers panel is closed, keep its reopen button attached
+      // to the live right edge of the drawing.
+      x = stage.getBoundingClientRect().right - rr.left - t.offsetWidth;
+    }
+
+    t.style.left = Math.round(Math.max(0, x)) + "px";
+    t.style.right = "auto";
+  }
+
   function updateWoolTab() {
     var t = document.getElementById("toggleW");
     if (!t) return;
@@ -120,6 +142,7 @@
       try { localStorage.setItem(c.key, String(Math.round(value))); } catch (_) {}
     }
     updateWoolTab();
+    updateLayerTab();
     dispatchResize();
   }
 
@@ -157,6 +180,7 @@
       c.panel.style.flexBasis = c.def + "px";
       try { localStorage.removeItem(c.key); } catch (_) {}
       updateWoolTab();
+      updateLayerTab();
       dispatchResize();
     });
     var saved = null;
@@ -177,6 +201,7 @@
       }
     });
     updateWoolTab();
+    updateLayerTab();
     dispatchResize();
   }
 
@@ -186,7 +211,14 @@
   observer.observe(wool, {attributes:true, attributeFilter:["class","style"]});
 
   window.addEventListener("resize", sync);
+  if (typeof ResizeObserver !== "undefined") {
+    var edgeObserver = new ResizeObserver(function () { updateLayerTab(); });
+    edgeObserver.observe(stage);
+    edgeObserver.observe(layers);
+    edgeObserver.observe(wool);
+  }
   sync();
+  updateLayerTab();
 })();
 
 /* Data-integrity compatibility patch for the currently generated combined_v10.html.
