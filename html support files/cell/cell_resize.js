@@ -1,8 +1,8 @@
 (function () {
   "use strict";
 
-  if (window.__LC_CELL_MAIN_PANEL_RESIZE_STABLE__) return;
-  window.__LC_CELL_MAIN_PANEL_RESIZE_STABLE__ = true;
+  if (window.__LC_CELL_MAIN_PANEL_RESIZE_LEFT_STABLE__) return;
+  window.__LC_CELL_MAIN_PANEL_RESIZE_LEFT_STABLE__ = true;
 
   var panel = document.getElementById("bar");
   var stage = document.getElementById("wrap");
@@ -148,10 +148,10 @@
 
     var delta = event.clientX - startX;
 
-    // Right-side panel:
-    // drag left => wider
-    // drag right => narrower
-    scheduleDragWidth(startWidth - delta);
+    // Left-side panel:
+    // drag right => wider
+    // drag left  => narrower
+    scheduleDragWidth(startWidth + delta);
   }
 
   function finishDrag(event) {
@@ -231,12 +231,12 @@
 
     if (event.key === "ArrowLeft") {
       event.preventDefault();
-      var w1 = applyWidth(current + 20);
+      var w1 = applyWidth(current - 20);
       persistWidth(w1);
       finalResizeNotify();
     } else if (event.key === "ArrowRight") {
       event.preventDefault();
-      var w2 = applyWidth(current - 20);
+      var w2 = applyWidth(current + 20);
       persistWidth(w2);
       finalResizeNotify();
     } else if (event.key === "Home") {
