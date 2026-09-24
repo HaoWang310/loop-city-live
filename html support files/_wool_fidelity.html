@@ -1,0 +1,136 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>wool solver fidelity</title>
+<pre id="o" style="font:12px ui-monospace,monospace;padding:14px;line-height:1.5">loading...</pre>
+<script src="js/wool.js"></script>
+<script>
+/* The port is judged against numbers the verifier measured on HIS solver, running in his page:
+
+     structure    NA = 57 anchors, T = 276 threads, N = 21,861 points, after weld(0.5)
+     seeding      102,104 same-group magnet pairs at iteration 0
+     magR         rangeFromSegments = 2.167737 -> 2.168, the value in his data
+     drift        anchors moved max 1.3726 m, mean 0.3933 m at iteration 3000
+
+   The first three are exact tests. The fourth is statistical: the bundling is chaotic, so a
+   different summation order gives a different picture with the same statistics. */
+const out = [];
+let pass = 0, fail = 0;
+function ok(name, cond, detail){ (cond?pass++:fail++); out.push((cond?"  ok   ":"  FAIL ")+name+(detail?"   "+detail:"")); }
+function show(){ document.getElementById("o").textContent = out.join("\n"); }
+
+fetch("_demo_DEF.json").then(r => r.json()).then(DEF => {
+  // ---- loadNodeCell (2527) + weld (2512), reproduced: anchors deduped at 1 mm, groups cross
+  const anchors = [], byKey = {};
+  function idFor(p){
+    const k = Math.round(p[0]*1000) + "," + Math.round(p[1]*1000);
+    if(byKey[k] === undefined){ byKey[k] = anchors.length; anchors.push([p[0], p[1]]); }
+    return byKey[k];
+  }
+  const groups = DEF.groups.map(g => ({ mode:"cross", A:g.A.map(idFor), B:g.B.map(idFor) }));
+  // weld(0.5): anchors of DIFFERENT groups within 0.5 fuse, averaging, into one shared anchor
+  const alive = anchors.map(() => true);
+  function groupsOf(id){ const s=[]; groups.forEach((g,gi)=>{ if(g.A.includes(id)||g.B.includes(id)) s.push(gi); }); return s; }
+  let welds = 0;
+  for(let i=0;i<anchors.length;i++){
+    if(!alive[i]) continue;
+    for(let j=i+1;j<anchors.length;j++){
+      if(!alive[j]) continue;
+      const a = anchors[i], b = anchors[j];
+      if(Math.hypot(a[0]-b[0], a[1]-b[1]) > 0.5) continue;
+      const ga = groupsOf(i), gb = groupsOf(j);
+      if(ga.some(g => gb.includes(g))) continue;
+      a[0] = (a[0]+b[0])/2; a[1] = (a[1]+b[1])/2;
+      groups.forEach(g => { g.A = g.A.map(x => x===j?i:x); g.B = g.B.map(x => x===j?i:x); });
+      alive[j] = false; welds++;
+    }
+  }
+  // compact the surviving anchors into dense indices, in ascending id order as the original does
+  const remap = {}, AA = [];
+  anchors.forEach((a,i) => { if(alive[i]){ remap[i] = AA.length/2; AA.push(a[0], a[1]); } });
+  groups.forEach(g => { g.A = g.A.map(x => remap[x]); g.B = g.B.map(x => remap[x]); });
+
+  const anchorsF = new Float64Array(AA);
+  const threads = Wool.buildThreads(groups);
+  const S = 80;
+  const bnd = new Float64Array(DEF.boundary.flat());
+  const magR = Wool.magnetRange(anchorsF, threads, S);
+
+  out.push("STRUCTURE");
+  ok("13 welds", welds === 13, "got " + welds);
+  ok("NA = 57 anchors", anchorsF.length/2 === 57, "got " + anchorsF.length/2);
+  ok("T = 276 threads", threads.length/3 === 276, "got " + threads.length/3);
+  const Nexp = 57 + 276*(S-1);
+  out.push("");
+  out.push("MAGNET RANGE");
+  ok("magnetRange = 2.1677 (his data says 2.168)", Math.abs(magR - 2.167737) < 2e-4, "got " + magR.toFixed(6));
+
+  // use HIS value, 2.168, so the run is the run he ships
+  const sv = Wool.Solver(anchorsF, threads, S, bnd, { magR: DEF.magnetRange });
+  ok("N = 21,861 points", sv.N === Nexp && sv.N === 21861, "got " + sv.N);
+
+  out.push("");
+  out.push("SEEDING  (the straight start is a fixed point of every goal except the magnet)");
+  sv.step();
+  ok("102,104 same-group magnet pairs at iteration 0", sv.pairs === 102104, "got " + sv.pairs);
+  ok("first-iteration move ~1.27e-2 m", Math.abs(sv.lastMove - 1.27e-2) < 0.2e-2, "got " + sv.lastMove.toExponential(3));
+  show();
+
+  // ---- the full run, chunked so the page keeps painting
+  out.push("");
+  out.push("RUNNING 3000 iterations ...");
+  const t0 = performance.now();
+  const trace = [];
+  function chunk(){
+    const until = performance.now() + 40;
+    while(sv.iter < 3000 && performance.now() < until){
+      sv.step();
+      if(sv.iter % 500 === 0) trace.push(sv.iter + ": move " + sv.lastMove.toExponential(2) + "  pairs " + sv.pairs);
+    }
+    out[out.length-1] = "RUNNING 3000 iterations ... " + sv.iter;
+    show();
+    if(sv.iter < 3000){ setTimeout(chunk, 0); return; }
+    const secs = (performance.now() - t0)/1000;
+    out[out.length-1] = "RAN 3000 iterations in " + secs.toFixed(1) + " s (his: 46.6 s)";
+    trace.forEach(s => out.push("   " + s));
+
+    // anchor drift, the statistical check
+    let mx = 0, sum = 0;
+    for(let a=0;a<sv.NA;a++){
+      const d = Math.hypot(sv.P[2*a]-anchorsF[2*a], sv.P[2*a+1]-anchorsF[2*a+1]);
+      if(d > mx) mx = d; sum += d;
+    }
+    const mean = sum/sv.NA;
+    out.push("");
+    out.push("DRIFT  (statistical -- chaotic process, compared with his measured run)");
+    ok("max anchor drift near 1.37 m", mx > 0.9 && mx < 1.9, "got " + mx.toFixed(4) + " (his 1.3726)");
+    ok("mean anchor drift near 0.39 m", mean > 0.25 && mean < 0.55, "got " + mean.toFixed(4) + " (his 0.3933)");
+    ok("plateau pair count near 1.69M", sv.pairs > 1.2e6 && sv.pairs < 2.2e6, "got " + sv.pairs);
+
+    // slack: polyline length / chord - 1
+    let sl = 0, slm = 0;
+    for(let t=0;t<sv.T;t++){
+      const th = sv.thread(t);
+      let L = 0; for(let k=0;k+3<th.length;k+=2) L += Math.hypot(th[k+2]-th[k], th[k+3]-th[k+1]);
+      const c = Math.hypot(th[th.length-2]-th[0], th[th.length-1]-th[1]);
+      const s = L/c - 1; sl += s; if(s > slm) slm = s;
+    }
+    ok("mean thread slack near 18.7%", sl/sv.T > 0.12 && sl/sv.T < 0.26, "got " + (100*sl/sv.T).toFixed(1) + "%");
+    ok("max thread slack near 90%", slm > 0.5 && slm < 1.4, "got " + (100*slm).toFixed(1) + "%");
+
+    // the pin option, on the same topology, must hold anchors exactly
+    const pin = new Uint8Array(sv.NA).fill(1);
+    const sp = Wool.Solver(anchorsF, threads, S, bnd, { magR: DEF.magnetRange }, pin);
+    for(let i=0;i<200;i++) sp.step();
+    let pd = 0;
+    for(let a=0;a<sp.NA;a++) pd = Math.max(pd, Math.hypot(sp.P[2*a]-anchorsF[2*a], sp.P[2*a+1]-anchorsF[2*a+1]));
+    out.push("");
+    out.push("PIN  (the one addition: a station must not creep)");
+    ok("pinned anchors stay exactly put", pd === 0, "max drift " + pd);
+
+    out.push("", (fail ? "  " + fail + " FAILED, " : "  ") + pass + " passed");
+    show();
+    window.__done = { pass, fail, text: out.join("\n") };
+  }
+  setTimeout(chunk, 0);
+}).catch(e => { out.push("ERROR " + e); show(); });
+</script>

@@ -1,0 +1,124 @@
+{
+ "sheet": [
+  2513,
+  2288
+ ],
+ "extentBNG": {
+  "e0": 452754.1,
+  "e1": 540739.7,
+  "n0": 166381.6,
+  "n1": 246493.2
+ },
+ "layers": [
+  {
+   "id": "greenbelt",
+   "label": "Green Belt",
+   "rgb": [
+    170,
+    190,
+    158
+   ],
+   "cells": 1852330
+  },
+  {
+   "id": "greenbelt_edge",
+   "label": "Green Belt boundary",
+   "rgb": [
+    124,
+    142,
+    108
+   ],
+   "cells": 173616
+  },
+  {
+   "id": "aonb",
+   "label": "National Landscape",
+   "rgb": [
+    206,
+    186,
+    146
+   ],
+   "cells": 848516
+  },
+  {
+   "id": "water",
+   "label": "Water",
+   "rgb": [
+    150,
+    178,
+    196
+   ],
+   "cells": 98776
+  },
+  {
+   "id": "woodland",
+   "label": "Woodland",
+   "rgb": [
+    198,
+    210,
+    186
+   ],
+   "cells": 901917
+  },
+  {
+   "id": "greenspace",
+   "label": "Green space",
+   "rgb": [
+    214,
+    224,
+    202
+   ],
+   "cells": 350122
+  },
+  {
+   "id": "urban",
+   "label": "Existing urban",
+   "rgb": [
+    206,
+    202,
+    196
+   ],
+   "cells": 1873778
+  },
+  {
+   "id": "roads_local",
+   "label": "Roads \u00b7 local",
+   "rgb": [
+    188,
+    176,
+    160
+   ],
+   "cells": 784263
+  },
+  {
+   "id": "roads_regional",
+   "label": "Roads \u00b7 A and B",
+   "rgb": [
+    170,
+    142,
+    108
+   ],
+   "cells": 92943
+  },
+  {
+   "id": "roads_national",
+   "label": "Roads \u00b7 motorway and trunk",
+   "rgb": [
+    150,
+    104,
+    56
+   ],
+   "cells": 110673
+  },
+  {
+   "id": "rail",
+   "label": "Railway, existing",
+   "rgb": [
+    92,
+    88,
+    82
+   ],
+   "cells": 45052
+  }
+ ]
+}

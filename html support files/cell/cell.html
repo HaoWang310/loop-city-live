@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loop City v10 · one cell · wool thread</title>
+<!--
+  The third scale: one cell, in the teammate's wool thread app.
+
+  His app is below, whole: his solver, his anchor tools, his parcel extraction, his sliders -- only
+  translated into English and put in our colours (cell/wool/wool_en.html, made from his file by
+  build/wool_translate.py; his original is kept beside it as wool_zh_original.html). Nothing in his
+  logic is changed.
+
+  What is ours is the bar along the top: it takes the cell handed down from the quadrant, turns it into
+  his input (cell/woolcell.js) -- the railway as his two spine groups, the road ends as the first outline
+  anchors, interior anchors in a line across the cell -- and loads it through his own "load settings".
+  It also exports in British National Grid, because inside his app the cell sits at a local origin.
+
+  v10: several cells at once (one copy of his app per cell, a tab each, Run all, and all cells on one sheet),
+  view modes, a measure tool, and his level 1/2 roads working at real size (cell/woolroads.js).
+-->
+<style>
+:root{
+  --paper:#f4f2ee; --card:#ffffff; --line:#e2ded6; --line2:#eeebe5;
+  --ink:#2b2925; --ink2:#6f6a62; --ink3:#9c968c; --accent:#8f5f38;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink);
+  font:12.5px/1.4 "DM Sans","Inter","Segoe UI",system-ui,sans-serif;overflow:hidden}
+#bar{flex:0 0 auto;display:flex;align-items:center;flex-wrap:wrap;gap:6px 18px;padding:7px 14px;
+  background:var(--card);border-bottom:1px solid var(--line);z-index:2}
+.kick{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.id b{font-size:14px;font-weight:600;margin:0 6px 0 4px}
+.id span.sub{color:var(--ink2)}
+.grp{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.grp label{display:flex;align-items:center;gap:4px;color:var(--ink2);font-size:11.5px;white-space:nowrap}
+.grp input[type=number]{width:62px;padding:3px 5px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:11.5px;
+  font-variant-numeric:tabular-nums;background:#fbfaf8;color:var(--ink)}
+.btn{appearance:none;border:1px solid var(--line);background:#fbfaf8;color:var(--ink);border-radius:7px;padding:5px 10px;
+  font:inherit;font-size:11.5px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#f2efe9}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:disabled{opacity:.45;cursor:default}
+.right{margin-left:auto}
+#note{flex-basis:100%;font-size:11px;color:var(--ink3);min-height:14px}
+#note b{color:var(--ink2);font-weight:600}
+#wrap{flex:1 1 auto;position:relative;min-height:0}
+#wool{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+#empty{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:400px;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:20px 22px;box-shadow:0 2px 12px rgba(43,41,37,.08);z-index:3}
+#empty h3{margin:3px 0 6px;font-size:16px;font-weight:600}
+#empty p{margin:0 0 12px;color:var(--ink2);line-height:1.55}
+#layersPop{position:absolute;right:14px;top:100%;margin-top:4px;width:250px;background:#fff;border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 6px 20px rgba(43,41,37,.12);padding:10px 12px 12px;display:none;z-index:10}
+#layersPop.show{display:block}
+#layersPop .kick{display:block;margin:6px 0 4px}
+#layersPop label{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink2);padding:2px 0;cursor:pointer}
+#layersPop input[type=range]{width:100%}
+#bar{position:relative}
+.row2{flex-basis:100%;display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;padding-top:6px;border-top:1px solid var(--line2)}
+.grp select{padding:3px 6px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:11.5px;background:#fbfaf8;color:var(--ink)}
+.btn.on{background:#1f5f8b;border-color:#1f5f8b;color:#fff}
+#cells{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fbfaf8;border-radius:14px;padding:3px 6px 3px 10px;
+  font-size:11.5px;cursor:pointer;white-space:nowrap;color:var(--ink2)}
+.chip b{color:var(--ink);font-weight:600}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#e9e5de}
+.chip.on b{color:#fff}
+.chip .x{border:0;background:none;color:inherit;opacity:.55;cursor:pointer;font-size:13px;line-height:1;padding:0 2px}
+.chip .x:hover{opacity:1}
+.chip.all{padding-right:10px}
+iframe.wool{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;visibility:hidden}
+iframe.wool.on{visibility:visible}
+/* the annealing lab: the step after the parcels, over everything else in the cell */
+iframe.anneal{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;display:none;z-index:5}
+iframe.anneal.on{display:block}
+#ov{position:absolute;inset:0;width:100%;height:100%;display:none;background:#fff;touch-action:none}
+#ov.on{display:block}
+#measureOut{position:absolute;right:16px;bottom:46px;background:#fff;border:1px solid var(--line);border-radius:8px;
+  padding:6px 12px;font-size:12px;color:var(--ink2);box-shadow:0 2px 10px rgba(43,41,37,.10);display:none;z-index:4;max-width:560px;text-align:right}
+#measureOut b{color:#1f5f8b;font-size:13px}
+.kind{font-size:11px;font-weight:600;color:#fff;background:var(--ink2);border-radius:10px;padding:2px 8px;white-space:nowrap}
+.kind.node{background:#8f5f38}
+.kind.spine{background:#6f9a58}
+body.isSpine .forNode, body.isNode .forSpine, body.isAll .forNode, body.isAll .forSpine{display:none}
+</style>
+</head>
+<body>
+<div id="bar">
+  <div class="id"><span class="kick">Cell</span><b id="cId">no cell yet</b><span class="sub" id="cSub"></span></div>
+  <div class="grp" title="The anchors the cell starts with. Afterwards, add, move and delete them with the wool thread's own tools.">
+    <span class="kick">Starting anchors</span>
+    <span class="kind" id="cKind"></span>
+    <span class="forNode"><label title="Anchors on the cell edge, per side of the corridor -- the road ends first">Outside / side <input type="number" id="oOutside" min="2" max="40" step="1" value="9"></label></span>
+    <span class="forNode"><label title="Interior anchors in a line across the cell, per side of the corridor">Inside / side <input type="number" id="oInside" min="0" max="30" step="1" value="4"></label></span>
+    <span class="forNode"><label>Rail points <input type="number" id="oSpine" min="2" max="12" step="1" value="4"></label></span>
+    <span class="forNode"><label title="Anchors along each corridor edge, per half of the railway: where the road network meets the corridor">Edge points <input type="number" id="oEdge" min="2" max="20" step="1" value="7"></label></span>
+    <span class="forNode"><label title="Nearby only: each stretch of outline connects to the corridor anchors facing it, each rail point to the corridor edges near it. Everything: his node cell, every edge anchor of a group to every interior anchor of it.">Connect
+      <select id="oConnect"><option value="nearby">nearby only</option><option value="all">everything (his)</option></select></label></span>
+    <span class="forSpine"><label title="Ribs across the cell, square to the corridor: the road ends first, then one every this many metres along the corridor">Rib spacing, m <input type="number" id="oRib" min="300" max="5000" step="50" value="1200"></label></span>
+    <span class="forSpine"><label title="Anchors between two ribs, on the outline and on the corridor edge: more gives a finer weave in each bay">Between ribs <input type="number" id="oBetween" min="0" max="6" step="1" value="1"></label></span>
+    <label title="Where the green corridor comes from: the two edge polylines of the Green Corridor Simulator (its Extract polyline), wider or thinner by the ground beside the line -- or the old fixed widths">Corridor
+      <select id="oCorrSrc"><option value="green">corridor app polylines</option><option value="fixed">fixed widths</option></select></label>
+    <label title="Fixed widths only: the band's width in cells around a node (a station in them)">at nodes, m <input type="number" id="oCorr" min="100" max="8000" step="50" value="2500"></label>
+    <label title="Fixed widths only: its width in cells in the spine (no station), narrowing to the node width where the railway enters a node cell">in the spine, m <input type="number" id="oCorrS" min="100" max="10000" step="50" value="4000"></label>
+    <button class="btn primary" id="bAnchors" disabled>Place anchors</button>
+  </div>
+  <div class="grp right">
+    <button class="btn" id="bLayers" title="The base map under the wool thread, and the railway over it">Layers &#9662;</button>
+    <button class="btn" id="bPng" disabled title="A picture of the view, 3,000 px across (Shift + click: exactly what is on screen)">Export PNG</button>
+    <button class="btn" id="bDxf" disabled title="Outline, anchors, threads and parcels in British National Grid metres">Export DXF · BNG</button>
+    <button class="btn" id="bSaveCell" disabled title="The cell as handed down, to open here again">Cell file</button>
+    <label title="How many buildings each parcel gets: its area times this. About 2 a hectare gives a plot ratio near 2 at his building sizes. His lab uses one count for every site, so parcels are sent in groups of a like size.">Buildings / ha <input type="number" id="oAnnealDens" min="0.2" max="20" step="0.1" value="2"></label>
+    <button class="btn primary" id="bAnneal" disabled title="Take the parcels selected in the wool thread into the annealing lab: buildings placed by simulated annealing, with daylight, wind and plot ratio">Annealing &rarr;</button>
+    <button class="btn" id="bAnnealBack" style="display:none" title="Back to this cell's parcels, to pick others">&larr; Back to the wool thread</button>
+    <button class="btn" id="bOpenCell" title="One or more cell files; each opens as a cell of its own">Open cell file…</button>
+    <input type="file" id="fileCell" accept=".json" multiple hidden>
+  </div>
+  <div class="row2">
+    <div class="grp" title="Ready-made combinations of what is shown: his drawing, and the ground under it">
+      <span class="kick">View</span>
+      <select id="vMode">
+        <option value="wool">Wool thread</option>
+        <option value="parcels">Parcels</option>
+        <option value="roads">Road network</option>
+        <option value="map">Map</option>
+        <option value="cover">Land cover</option>
+        <option value="growth">Growth</option>
+        <option value="ground">Base map only</option>
+        <option value="custom" hidden>Custom</option>
+      </select>
+      <select id="vCtx" title="In context: the map round the cells too -- roads, built fabric, water, the other cells. Isolated: only what is inside the cells.">
+        <option value="1">In context</option>
+        <option value="0">Isolated</option>
+      </select>
+    </div>
+    <div class="grp" title="His own display switches, for every cell">
+      <span class="kick">Show</span>
+      <label><input type="checkbox" id="sThreads" checked> Wool threads</label>
+      <label><input type="checkbox" id="sParcels" checked> Parcels</label>
+      <label><input type="checkbox" id="sRoads" checked> Roads</label>
+      <label><input type="checkbox" id="sAnchors" checked> Anchors</label>
+      <button class="btn" id="bRoadsNow" disabled title="His level 1/2 road network from the solved threads (the same as his Build level 1/2 roads)">Build roads</button>
+      <button class="btn" id="bMeasure" title="Click two points to read the distance">Measure</button>
+    </div>
+    <div class="grp right" id="cellsGrp" style="display:none">
+      <span class="kick">Cells</span>
+      <div id="cells"></div>
+      <button class="btn primary" id="bRunAll" title="For every cell: his Run to 3,000 iterations, his Extract parcels, then the roads -- several cells at a time">Run all</button>
+    </div>
+  </div>
+  <div id="note">Waiting for a cell from the quadrant.</div>
+  <div id="layersPop">
+    <span class="kick">Over the wool</span>
+    <label><input type="checkbox" id="lRail" checked> The railway, thick, dark grey</label>
+    <label><input type="checkbox" id="lStation" checked> The station</label>
+    <label><input type="checkbox" id="lGreen" checked> Corridor parcels in green</label>
+    <span class="kick">Road lines <span id="vRoadW" style="letter-spacing:0;text-transform:none;font-weight:500">× 1.00 (his widths)</span></span>
+    <input type="range" id="lRoadW" min="0.2" max="1.5" step="0.05" value="1" title="Line width of the level 1/2 roads; 1 draws them at his own widths">
+    <span class="kick">The ground under it</span>
+    <div id="lList"></div>
+    <span class="kick">Strength of the ground</span>
+    <input type="range" id="lOp" min="0.1" max="1" step="0.05" value="0.75">
+  </div>
+</div>
+<div id="wrap">
+  <canvas id="ov"></canvas>
+  <div id="measureOut"></div>
+  <div id="empty">
+    <div class="kick">The third scale</div>
+    <h3>No cell yet</h3>
+    <p>Cells come down from the quadrant: select one or several there (Shift + click), then <b>Open in the wool thread</b>.
+      Or open cell files saved from here. Until then, the wool thread shows its own demonstration cell.</p>
+    <button class="btn" id="bOpenCell2">Open a cell file…</button>
+    <button class="btn" id="bHideEmpty">Look at the demonstration cell</button>
+  </div>
+</div>
+<script src="../js/lclink.js"></script>
+<script src="wool/wool_app.js"></script>
+<script src="anneal/anneal_app.js"></script>
+<script src="rail_v12.js"></script>
+<script src="corridor_edges.js"></script>
+<script src="corridor.js"></script>
+<script src="woolcell.js"></script>
+<script src="layers.js"></script>
+<script src="woolroads.js"></script>
+<script src="measure.js"></script>
+<script src="overview.js"></script>
+<script src="cell.js"></script>
+</body>
+</html>

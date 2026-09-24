@@ -1,0 +1,1410 @@
+{
+ "translations": {
+  "1": {
+   "en": "Urban form annealing design lab",
+   "note": ""
+  },
+  "2": {
+   "en": "U",
+   "note": "One-letter logo in a 34 px box beside the title; U for urban."
+  },
+  "3": {
+   "en": "Best scheme so far",
+   "note": ""
+  },
+  "4": {
+   "en": "Export data",
+   "note": ""
+  },
+  "5": {
+   "en": "Export image",
+   "note": ""
+  },
+  "6": {
+   "en": "Drag to resize the left panel · double-click to restore the default",
+   "note": ""
+  },
+  "7": {
+   "en": "Drag to resize the right panel · double-click to restore the default",
+   "note": ""
+  },
+  "8": {
+   "en": "Run control ",
+   "note": ""
+  },
+  "9": {
+   "en": "Run / reset",
+   "note": ""
+  },
+  "10": {
+   "en": "▶ Start annealing",
+   "note": ""
+  },
+  "11": {
+   "en": "Single step × 1",
+   "note": ""
+  },
+  "12": {
+   "en": "Reset / regenerate",
+   "note": ""
+  },
+  "13": {
+   "en": "Iteration 0 / 500",
+   "note": ""
+  },
+  "14": {
+   "en": "Weather input ",
+   "note": ""
+  },
+  "15": {
+   "en": "EPW · optional",
+   "note": ""
+  },
+  "16": {
+   "en": "EPW weather file (.epw)",
+   "note": ""
+  },
+  "17": {
+   "en": "Upload EPW file",
+   "note": ""
+  },
+  "18": {
+   "en": "No file uploaded, using the London default: latitude 51.5, longitude 0, time zone 0.",
+   "note": ""
+  },
+  "19": {
+   "en": "Rectangle",
+   "note": ""
+  },
+  "20": {
+   "en": "Chamfered polygon",
+   "note": ""
+  },
+  "21": {
+   "en": "Irregular polygon",
+   "note": ""
+  },
+  "22": {
+   "en": "Building generation variables",
+   "note": ""
+  },
+  "23": {
+   "en": "Buildings per site",
+   "note": ""
+  },
+  "24": {
+   "en": "Building height range",
+   "note": ""
+  },
+  "25": {
+   "en": "Min",
+   "note": ""
+  },
+  "26": {
+   "en": "Max",
+   "note": ""
+  },
+  "27": {
+   "en": "Footprint side length range",
+   "note": ""
+  },
+  "28": {
+   "en": "Floor height range",
+   "note": ""
+  },
+  "29": {
+   "en": "Building skybridge check ",
+   "note": ""
+  },
+  "30": {
+   "en": "Within one site · optional",
+   "note": ""
+  },
+  "31": {
+   "en": "Enable skybridge check",
+   "note": ""
+  },
+  "32": {
+   "en": "Open skybridge settings",
+   "note": ""
+  },
+  "33": {
+   "en": "Skybridges off",
+   "note": ""
+  },
+  "34": {
+   "en": "The original annealing algorithm stays unchanged. Turn this on to set skybridge parameters separately.",
+   "note": ""
+  },
+  "35": {
+   "en": "Skybridges are off, so none are generated.",
+   "note": ""
+  },
+  "36": {
+   "en": "Density and spacing",
+   "note": ""
+  },
+  "37": {
+   "en": "Clear spacing between building edges",
+   "note": ""
+  },
+  "38": {
+   "en": "FAR range",
+   "note": ""
+  },
+  "39": {
+   "en": "Building intersection control",
+   "note": ""
+  },
+  "40": {
+   "en": "Allow buildings to intersect",
+   "note": ""
+  },
+  "41": {
+   "en": "Allowed / desired intersection ratio",
+   "note": ""
+  },
+  "42": {
+   "en": "Target intersection probability",
+   "note": ""
+  },
+  "43": {
+   "en": "Sunlight calculation",
+   "note": ""
+  },
+  "44": {
+   "en": "Height discretisation steps",
+   "note": ""
+  },
+  "45": {
+   "en": "Sun sampling hours",
+   "note": ""
+  },
+  "46": {
+   "en": "Minimum sun altitude",
+   "note": ""
+  },
+  "47": {
+   "en": "Generate daylight colour map",
+   "note": ""
+  },
+  "48": {
+   "en": "Wind environment calculation ",
+   "note": ""
+  },
+  "49": {
+   "en": "EPW / manual",
+   "note": ""
+  },
+  "50": {
+   "en": "Wind data source",
+   "note": ""
+  },
+  "51": {
+   "en": "Manual input",
+   "note": ""
+  },
+  "52": {
+   "en": "Driven by EPW",
+   "note": ""
+  },
+  "53": {
+   "en": "No EPW wind data loaded. Uploading a valid EPW switches to EPW driving automatically; base wind speed and incoming wind direction are then locked and greyed out, while the other wind environment settings stay manual.",
+   "note": ""
+  },
+  "54": {
+   "en": "Generate wind map",
+   "note": ""
+  },
+  "55": {
+   "en": "Base wind speed",
+   "note": ""
+  },
+  "56": {
+   "en": "Incoming wind direction",
+   "note": ""
+  },
+  "57": {
+   "en": "Wind analysis height",
+   "note": ""
+  },
+  "58": {
+   "en": "Wind field grid resolution",
+   "note": ""
+  },
+  "59": {
+   "en": "Wind arrow / streamline scale",
+   "note": ""
+  },
+  "60": {
+   "en": "Wind arrow density",
+   "note": ""
+  },
+  "61": {
+   "en": "Changes only how densely arrows are drawn, not the wind field resolution, wind speed results or streamlines.",
+   "note": ""
+  },
+  "62": {
+   "en": "Include wind environment in the annealing score",
+   "note": ""
+  },
+  "63": {
+   "en": "Pedestrian comfort wind speed range",
+   "note": ""
+  },
+  "64": {
+   "en": "Web calculation settings ",
+   "note": ""
+  },
+  "65": {
+   "en": "Extended controls",
+   "note": ""
+  },
+  "66": {
+   "en": "Iterations",
+   "note": ""
+  },
+  "67": {
+   "en": "Slider maximum (type your own)",
+   "note": ""
+  },
+  "68": {
+   "en": "For example, entering 20000 extends the iterations slider to 20000; the slider above still sets the current iteration target.",
+   "note": ""
+  },
+  "69": {
+   "en": "Axonometric",
+   "note": ""
+  },
+  "70": {
+   "en": "Top view",
+   "note": ""
+  },
+  "71": {
+   "en": "Roads",
+   "note": ""
+  },
+  "72": {
+   "en": "Green space",
+   "note": ""
+  },
+  "73": {
+   "en": "Daylight",
+   "note": ""
+  },
+  "74": {
+   "en": "Wind environment",
+   "note": ""
+  },
+  "75": {
+   "en": "Building IDs",
+   "note": ""
+  },
+  "76": {
+   "en": "Performance panel",
+   "note": ""
+  },
+  "77": {
+   "en": "Select Rhino curves",
+   "note": ""
+  },
+  "78": {
+   "en": "Reset view",
+   "note": ""
+  },
+  "79": {
+   "en": "Building info",
+   "note": ""
+  },
+  "80": {
+   "en": "Click a building / road / green space / area for info · double-click a Rhino area to preview it alone · Esc to exit",
+   "note": ""
+  },
+  "81": {
+   "en": "Building height",
+   "note": ""
+  },
+  "82": {
+   "en": "Gross floor area",
+   "note": ""
+  },
+  "83": {
+   "en": "Floor height",
+   "note": ""
+  },
+  "84": {
+   "en": "Area per floor",
+   "note": ""
+  },
+  "85": {
+   "en": "Scheme performance monitor",
+   "note": ""
+  },
+  "86": {
+   "en": "Live view of the current scheme and the best scheme so far",
+   "note": ""
+  },
+  "87": {
+   "en": "Iterations ",
+   "note": ""
+  },
+  "88": {
+   "en": "count",
+   "note": "Small grey unit after the label 'Iterations' (Chinese measure word for times)."
+  },
+  "89": {
+   "en": "Buildings ",
+   "note": ""
+  },
+  "90": {
+   "en": "count",
+   "note": "Small grey unit after the label 'Buildings' (Chinese measure word for buildings)."
+  },
+  "91": {
+   "en": "Area ",
+   "note": ""
+  },
+  "92": {
+   "en": "FAR",
+   "note": ""
+  },
+  "93": {
+   "en": "Floor height ",
+   "note": ""
+  },
+  "94": {
+   "en": "Height ",
+   "note": ""
+  },
+  "95": {
+   "en": "Spacing ",
+   "note": ""
+  },
+  "96": {
+   "en": "Average daylight",
+   "note": ""
+  },
+  "97": {
+   "en": "Average wind speed",
+   "note": ""
+  },
+  "98": {
+   "en": "Wind comfort",
+   "note": ""
+  },
+  "99": {
+   "en": "Intersection probability",
+   "note": ""
+  },
+  "100": {
+   "en": "Rhino area preview",
+   "note": ""
+  },
+  "101": {
+   "en": "Press",
+   "note": "Badge reads 'Press [Esc] to exit'."
+  },
+  "102": {
+   "en": "to exit",
+   "note": "Badge reads 'Press [Esc] to exit'."
+  },
+  "103": {
+   "en": "Drag the panel edges to resize them · click a building / road / green space / area for info · double-click a Rhino area to preview it alone · Esc to leave the preview · scroll to zoom · left-drag to pan · right-drag to orbit / tilt",
+   "note": ""
+  },
+  "104": {
+   "en": "Live performance ",
+   "note": ""
+  },
+  "105": {
+   "en": "Metric charts",
+   "note": ""
+  },
+  "106": {
+   "en": "Average FAR",
+   "note": ""
+  },
+  "107": {
+   "en": "Wind comfort share",
+   "note": ""
+  },
+  "108": {
+   "en": "Iteration progress ",
+   "note": ""
+  },
+  "109": {
+   "en": "Footprint area min / max ",
+   "note": ""
+  },
+  "110": {
+   "en": "Building height min / max ",
+   "note": ""
+  },
+  "111": {
+   "en": "Nearest edge-to-edge spacing ",
+   "note": ""
+  },
+  "112": {
+   "en": "Intersecting building pairs ",
+   "note": ""
+  },
+  "113": {
+   "en": "pairs",
+   "note": "Unit after 'Intersecting building pairs'; the value reads e.g. '3 / 45'."
+  },
+  "114": {
+   "en": "Results",
+   "note": ""
+  },
+  "115": {
+   "en": "L1 main road",
+   "note": ""
+  },
+  "116": {
+   "en": "L2 secondary road",
+   "note": ""
+  },
+  "117": {
+   "en": "L3 building access road",
+   "note": ""
+  },
+  "118": {
+   "en": "L4 green space access / pedestrian link",
+   "note": ""
+  },
+  "119": {
+   "en": "Green space by FAR and local need",
+   "note": "Legend for the annealing app's own green space. anneal_zh.html has no green corridor, central spine or 廊/脊/中央 wording, so the user's point about the green corridor near the central spine is not covered by these strings. It has to be handled in the combined app's logic, not in this translation."
+  },
+  "120": {
+   "en": "Building mass / footprint edge",
+   "note": ""
+  },
+  "121": {
+   "en": "Roads 0 · green spaces 0 · buildings 0",
+   "note": ""
+  },
+  "122": {
+   "en": "Current input parameters",
+   "note": ""
+  },
+  "123": {
+   "en": "参数列表",
+   "note": "Code: CSS class name used by the stylesheet (.参数列表), not visible text. Left unchanged."
+  },
+  "124": {
+   "en": "Skybridge settings",
+   "note": "Source repeats the title in English capitals after a slash; the duplicate is dropped."
+  },
+  "125": {
+   "en": "Controls only the skybridge check between buildings on the same site; it does not change the original annealing score, roads, green space, sunlight, wind environment or Rhino multi-site logic.",
+   "note": ""
+  },
+  "126": {
+   "en": "Global skybridge parameters",
+   "note": "Source repeats the title in English capitals after a slash; the duplicate is dropped."
+  },
+  "127": {
+   "en": "Skybridge score threshold",
+   "note": ""
+  },
+  "128": {
+   "en": "Maximum clear span",
+   "note": ""
+  },
+  "129": {
+   "en": "Maximum skybridges per building",
+   "note": ""
+  },
+  "130": {
+   "en": "skybridges",
+   "note": "Unit after the number input for maximum skybridges per building."
+  },
+  "131": {
+   "en": "Skybridge width",
+   "note": ""
+  },
+  "132": {
+   "en": "Skybridge check logic",
+   "note": ""
+  },
+  "133": {
+   "en": "\n        Pairs are tested only within one site. Once a pair passes the threshold, the check goes on to maximum clear span, skybridges per building, collision with a third building and clashes with skybridges at the same height.\n        Building use intensity is stood in for by estimated gross floor area for now. Skybridges are a post-processing analysis and do not enter the original evaluate() annealing score function.\n      ",
+   "note": ""
+  },
+  "134": {
+   "en": "Cancel",
+   "note": ""
+  },
+  "135": {
+   "en": "Apply and return",
+   "note": ""
+  },
+  "136": {
+   "en": "'London default'",
+   "note": "Weather source name shown in the parameter list when no EPW is loaded; not compared in code."
+  },
+  "137": {
+   "en": "'Main road'",
+   "note": "Road type name (meta.name), shown in the info panel; not compared in code."
+  },
+  "138": {
+   "en": "'Secondary road'",
+   "note": ""
+  },
+  "139": {
+   "en": "'Building access road'",
+   "note": ""
+  },
+  "140": {
+   "en": "'Green space access / pedestrian link'",
+   "note": ""
+  },
+  "141": {
+   "en": "'Performance panel'",
+   "note": ""
+  },
+  "142": {
+   "en": "'Show performance panel'",
+   "note": ""
+  },
+  "143": {
+   "en": "'Large green space'",
+   "note": ""
+  },
+  "144": {
+   "en": "'Medium green space'",
+   "note": ""
+  },
+  "145": {
+   "en": "'Pocket green space'",
+   "note": ""
+  },
+  "146": {
+   "en": "'Green space'",
+   "note": ""
+  },
+  "147": {
+   "en": "`Building B${b.id}`",
+   "note": ""
+  },
+  "148": {
+   "en": "`Site ${Number.isInteger(b.region)?b.region+1:1} · selected`",
+   "note": ""
+  },
+  "149": {
+   "en": "'Building height'",
+   "note": ""
+  },
+  "150": {
+   "en": "'Gross floor area'",
+   "note": ""
+  },
+  "151": {
+   "en": "'Floor height'",
+   "note": ""
+  },
+  "152": {
+   "en": "'Area per floor'",
+   "note": ""
+  },
+  "153": {
+   "en": "`Road ${meta.level}`",
+   "note": ""
+  },
+  "154": {
+   "en": "`Site ${Number.isInteger(r.region)?r.region+1:1} · ${meta.name} · selected`",
+   "note": ""
+  },
+  "155": {
+   "en": "'Road level'",
+   "note": ""
+  },
+  "156": {
+   "en": "'Road type'",
+   "note": ""
+  },
+  "157": {
+   "en": "'Road length'",
+   "note": ""
+  },
+  "158": {
+   "en": "'Design width'",
+   "note": ""
+  },
+  "159": {
+   "en": "`Green space G${g.index+1}`",
+   "note": ""
+  },
+  "160": {
+   "en": "`Site ${g.region+1} · ${greenTierName(g.reg.tier)} · selected`",
+   "note": ""
+  },
+  "161": {
+   "en": "'Green space area'",
+   "note": ""
+  },
+  "162": {
+   "en": "`Rhino area S${s.index+1}`",
+   "note": ""
+  },
+  "163": {
+   "en": "`Input area ${s.index+1} / ${totalSites} · selected`",
+   "note": ""
+  },
+  "164": {
+   "en": "`Built-in parcel S${s.index+1}`",
+   "note": ""
+  },
+  "165": {
+   "en": "`Built-in site ${s.index+1} / ${totalSites} · selected`",
+   "note": ""
+  },
+  "166": {
+   "en": "'Parcel area'",
+   "note": ""
+  },
+  "167": {
+   "en": "`Rhino area S${focusedSiteIndex+1} · previewed alone`",
+   "note": ""
+  },
+  "168": {
+   "en": "`Site ${x.ri+1} ${x.r.initializationCount||0}/${x.r.initializationTarget||params.number}${x.r.hardAreaImpossible?' (minimum footprint area exceeds the site area)':''}`",
+   "note": "Only the Chinese inside the conditional string changes; all ${...} expressions kept."
+  },
+  "169": {
+   "en": "'; '",
+   "note": "Joiner between per-site problem entries."
+  },
+  "170": {
+   "en": "`Fixed building count not met: ${detail}. The program tried several rounds of random reshuffling, shrank step by step to the SquareDomain minimum and filled gaps with a minimum-size grid, but still found no complete layout under the current constraints. Reduce the building count / footprint size / spacing, or enlarge the site, then initialise again.`",
+   "note": ""
+  },
+  "171": {
+   "en": "`Top-${TOP_K_FINAL} high-precision re-ranking · ${state.regions.length} independent sites`",
+   "note": ""
+  },
+  "172": {
+   "en": "`Top-${TOP_K_FINAL} high-precision re-ranking · site ${ri+1}/${state.regions.length} · candidate ${ci+1}/${pool.length}`",
+   "note": ""
+  },
+  "173": {
+   "en": "'Iteration '",
+   "note": ""
+  },
+  "174": {
+   "en": "' sites computed independently in parallel'",
+   "note": "Follows a count: 'Iteration 12 / 500 · 3 sites computed independently in parallel'."
+  },
+  "175": {
+   "en": "' iterations'",
+   "note": "Follows '12 / 500'."
+  },
+  "176": {
+   "en": "'S'",
+   "note": "Site prefix on canvas building labels, e.g. S2-B5 (was 场2-B5)."
+  },
+  "177": {
+   "en": "'Skybridges are off; no skybridges are generated.'",
+   "note": ""
+  },
+  "178": {
+   "en": "'Skybridges on; waiting for a building scheme.'",
+   "note": ""
+  },
+  "179": {
+   "en": "`Current check: ${shown} skybridges · ${sys.candidates} candidates · ${sys.blocked} candidates blocked by geometry rules. The final daylight and wind analysis includes the skybridges.`",
+   "note": ""
+  },
+  "180": {
+   "en": "'Live scheme performance'",
+   "note": ""
+  },
+  "181": {
+   "en": "'Scheme performance monitor'",
+   "note": ""
+  },
+  "182": {
+   "en": "`Annealing live · ${regionCount} separate sites`",
+   "note": ""
+  },
+  "183": {
+   "en": "`Top-${TOP_K_FINAL} high-precision re-ranking done · ${regionCount} separate sites`",
+   "note": ""
+  },
+  "184": {
+   "en": "`Best scheme so far · ${regionCount} separate sites`",
+   "note": ""
+  },
+  "185": {
+   "en": "`${iter} / ${params.maxIter} iterations`",
+   "note": ""
+  },
+  "186": {
+   "en": "`${bs.length} / ${totalTarget} buildings`",
+   "note": ""
+  },
+  "187": {
+   "en": "`${params.allowIntersect?'On':'Off'} / ${Math.round(params.interProb)}%`",
+   "note": "Only the Chinese string literals inside ${...} were translated; the code is unchanged."
+  },
+  "188": {
+   "en": "'Site boundary'",
+   "note": ""
+  },
+  "189": {
+   "en": "`${rhinoFileName||'Rhino file'} · ${importedSites.length} curves`",
+   "note": "Only the Chinese string literal inside ${...} was translated; the code is unchanged."
+  },
+  "190": {
+   "en": "'Built-in site'",
+   "note": ""
+  },
+  "191": {
+   "en": "'Buildings per site'",
+   "note": ""
+  },
+  "192": {
+   "en": "'Total buildings'",
+   "note": ""
+  },
+  "193": {
+   "en": "'Weather file'",
+   "note": ""
+  },
+  "194": {
+   "en": "'Height range'",
+   "note": ""
+  },
+  "195": {
+   "en": "'Footprint side range'",
+   "note": ""
+  },
+  "196": {
+   "en": "'Clear spacing range'",
+   "note": ""
+  },
+  "197": {
+   "en": "'Overlap ratio range'",
+   "note": ""
+  },
+  "198": {
+   "en": "'FAR range'",
+   "note": ""
+  },
+  "199": {
+   "en": "'Floor height range'",
+   "note": ""
+  },
+  "200": {
+   "en": "'Target overlap probability'",
+   "note": ""
+  },
+  "201": {
+   "en": "'Height steps'",
+   "note": ""
+  },
+  "202": {
+   "en": "'Sun sample hours'",
+   "note": ""
+  },
+  "203": {
+   "en": "'Minimum sun altitude'",
+   "note": ""
+  },
+  "204": {
+   "en": "'Daylight map'",
+   "note": ""
+  },
+  "205": {
+   "en": "'On'",
+   "note": ""
+  },
+  "206": {
+   "en": "'Off'",
+   "note": ""
+  },
+  "207": {
+   "en": "'Allow building overlap'",
+   "note": ""
+  },
+  "208": {
+   "en": "'Yes'",
+   "note": ""
+  },
+  "209": {
+   "en": "'No'",
+   "note": ""
+  },
+  "210": {
+   "en": "'Wind map'",
+   "note": ""
+  },
+  "211": {
+   "en": "'Wind data source'",
+   "note": ""
+  },
+  "212": {
+   "en": "'EPW automatic'",
+   "note": "Wind source mode name; record 267 quotes it as \"EPW automatic\"."
+  },
+  "213": {
+   "en": "'Manual input'",
+   "note": ""
+  },
+  "214": {
+   "en": "'Base wind speed'",
+   "note": ""
+  },
+  "215": {
+   "en": "'Incoming wind direction'",
+   "note": ""
+  },
+  "216": {
+   "en": "'EPW prevailing wind from'",
+   "note": ""
+  },
+  "217": {
+   "en": "'EPW annual mean wind speed'",
+   "note": ""
+  },
+  "218": {
+   "en": "'Analysis height'",
+   "note": ""
+  },
+  "219": {
+   "en": "'Wind grid resolution'",
+   "note": ""
+  },
+  "220": {
+   "en": "'Wind arrow scale'",
+   "note": ""
+  },
+  "221": {
+   "en": "'Wind arrow density'",
+   "note": ""
+  },
+  "222": {
+   "en": "'Wind direction display'",
+   "note": ""
+  },
+  "223": {
+   "en": "'Local arrows + streamlines around buildings'",
+   "note": ""
+  },
+  "224": {
+   "en": "'Wind environment in score'",
+   "note": ""
+  },
+  "225": {
+   "en": "'Skybridge check'",
+   "note": ""
+  },
+  "226": {
+   "en": "'On (post-processing)'",
+   "note": ""
+  },
+  "227": {
+   "en": "'Skybridge score threshold'",
+   "note": ""
+  },
+  "228": {
+   "en": "'Skybridge max clear span'",
+   "note": ""
+  },
+  "229": {
+   "en": "'Max skybridges per building'",
+   "note": ""
+  },
+  "230": {
+   "en": "'Skybridge width'",
+   "note": ""
+  },
+  "231": {
+   "en": "'Roads in annealing score'",
+   "note": ""
+  },
+  "232": {
+   "en": "'L1 main road / L2 secondary road / L3 building access / L4 green space access'",
+   "note": ""
+  },
+  "233": {
+   "en": "'RoadScore logic'",
+   "note": ""
+  },
+  "234": {
+   "en": "'Enters annealing by road level width and weighted length'",
+   "note": ""
+  },
+  "235": {
+   "en": "'Green space in annealing score'",
+   "note": ""
+  },
+  "236": {
+   "en": "'Annealing spatial resolution'",
+   "note": ""
+  },
+  "237": {
+   "en": "'Low precision'",
+   "note": ""
+  },
+  "238": {
+   "en": "'Final check'",
+   "note": ""
+  },
+  "239": {
+   "en": "'Top-8 high-precision re-ranking'",
+   "note": ""
+  },
+  "240": {
+   "en": "'Comfortable wind speed range'",
+   "note": ""
+  },
+  "241": {
+   "en": "'Iterations'",
+   "note": ""
+  },
+  "242": {
+   "en": "'Iteration slider limit'",
+   "note": ""
+  },
+  "243": {
+   "en": "`<div class=\"参数项\"><span>${r[0]}</span><b>${r[1]}</b></div>`",
+   "note": "Code, not text: 参数项 is a CSS class name also used in the stylesheet (lines 33, 55); left unchanged so the parameter list keeps its styling."
+  },
+  "244": {
+   "en": "' pairs'",
+   "note": ""
+  },
+  "245": {
+   "en": "`Sites ${activeSiteRegions().length} · Roads ${state.roads.length} · Green space ${state.greenSystems?state.greenSystems.reduce((n,g)=>n+(g.regions?g.regions.length:0),0):0} · Buildings ${bs.length} · L1 pink / L2 yellow / L3 cyan / L4 purple · graded roads included in annealing`",
+   "note": ""
+  },
+  "246": {
+   "en": "`<span class=\"status-dot ${running?'run':''}\"></span>${running?'Current annealing scheme':(state.highPrecisionFinalized?'High-precision final scheme':'Best scheme so far')}`",
+   "note": "Only the Chinese string literals inside ${...} were translated; the code is unchanged."
+  },
+  "247": {
+   "en": "'Ⅱ Pause and view best'",
+   "note": ""
+  },
+  "248": {
+   "en": "'▶ Start annealing'",
+   "note": ""
+  },
+  "249": {
+   "en": "'Still in Rhino site selection mode. Select one or more curves first, then click \"Use selected curves to start\".'",
+   "note": "Chinese quotes became plain double quotes, safe inside the single-quoted string."
+  },
+  "250": {
+   "en": "'urban_annealing_scheme.png'",
+   "note": "Download file name for Export image."
+  },
+  "251": {
+   "en": "`Each selected site runs the full algorithm on its own; buildings per site: ${params.number}`",
+   "note": "Value in the exported JSON."
+  },
+  "252": {
+   "en": "'Current scheme'",
+   "note": ""
+  },
+  "253": {
+   "en": "'Top-K high-precision final scheme'",
+   "note": ""
+  },
+  "254": {
+   "en": "'Best so far'",
+   "note": ""
+  },
+  "255": {
+   "en": "`Top-${TOP_K_FINAL} high-precision re-ranking done`",
+   "note": ""
+  },
+  "256": {
+   "en": "'High-precision re-ranking not yet run'",
+   "note": ""
+  },
+  "257": {
+   "en": "'urban_annealing_scheme.json'",
+   "note": "Download file name for Export data."
+  },
+  "258": {
+   "en": "'Initialising the previous selection, please wait.'",
+   "note": ""
+  },
+  "259": {
+   "en": "'Annealing is already running; to change parcels, click \"Reselect parcels\" first.'",
+   "note": ""
+  },
+  "260": {
+   "en": "'Select at least 1 parcel, then press Enter.'",
+   "note": ""
+  },
+  "261": {
+   "en": "'The selected parcels failed to initialise.'",
+   "note": ""
+  },
+  "262": {
+   "en": "'The annealing solver failed to start; check the building count and size limits.'",
+   "note": ""
+  },
+  "263": {
+   "en": "`Confirmed ${result.count||selectedRhinoIds.size} parcels and started annealing · buildings ${result.buildings||workflowCurrentBuildingCount()}/${result.targetBuildings||workflowCurrentTargetCount()}.`",
+   "note": ""
+  },
+  "264": {
+   "en": "'Could not go to annealing: '",
+   "note": "Full-width colon became ': ' (with space); error message follows."
+  },
+  "265": {
+   "en": "'EPW auto'",
+   "note": "Short badge text."
+  },
+  "266": {
+   "en": "`<strong>EPW has taken over wind speed and direction</strong> · prevailing wind from ${Math.round(epwMeta.windDominantFrom)}° · model flow direction ${Math.round(epwMeta.windModelDir)}° · mean speed in prevailing direction ${epwMeta.windDrivingSpeed.toFixed(2)} m/s · annual mean ${epwMeta.windAvgSpeed.toFixed(2)} m/s. Grey settings are locked by the EPW.`",
+   "note": ""
+  },
+  "267": {
+   "en": "`EPW wind data loaded, but <strong>manual mode</strong> is in use. Switch to \"EPW automatic\" to lock base wind speed and incoming direction automatically.`",
+   "note": ""
+  },
+  "268": {
+   "en": "'No EPW wind data loaded. Upload a valid EPW and wind switches to EPW-driven automatically; base wind speed and incoming direction lock and turn grey, and the other wind settings stay manual.'",
+   "note": ""
+  },
+  "269": {
+   "en": "'<strong>Skybridges off</strong><br>The original annealing algorithm is unchanged. Turn on to set skybridge parameters separately.'",
+   "note": ""
+  },
+  "270": {
+   "en": "`<strong>Skybridges on</strong><br>Threshold ${p.bridgeThreshold}% · max clear span ${p.bridgeMaxSpan} m · up to ${p.bridgeMaxDegree} per building · width ${p.bridgeWidth} m`",
+   "note": ""
+  },
+  "271": {
+   "en": "'PolyCurve segments read exactly'",
+   "note": ""
+  },
+  "272": {
+   "en": "'PolyCurve segments sampled'",
+   "note": ""
+  },
+  "273": {
+   "en": "'Native PolylineCurve vertices'",
+   "note": ""
+  },
+  "274": {
+   "en": "'Exact Polyline confirmed by Rhino'",
+   "note": ""
+  },
+  "275": {
+   "en": "'TryGetPolyline exact polyline'",
+   "note": ""
+  },
+  "276": {
+   "en": "'LineCurve true endpoints'",
+   "note": ""
+  },
+  "277": {
+   "en": "'Smooth Curve / NURBS sampled along true curve'",
+   "note": ""
+  },
+  "278": {
+   "en": "'Rhino reader module not loaded. Check that this browser can load rhino3dm/WASM from the internet.'",
+   "note": ""
+  },
+  "279": {
+   "en": "'micrometres'",
+   "note": "Rhino unit name, shown after 'Rhino source unit: '."
+  },
+  "280": {
+   "en": "'millimetres'",
+   "note": ""
+  },
+  "281": {
+   "en": "'centimetres'",
+   "note": ""
+  },
+  "282": {
+   "en": "'metres'",
+   "note": ""
+  },
+  "283": {
+   "en": "'kilometres'",
+   "note": ""
+  },
+  "284": {
+   "en": "'microinches'",
+   "note": ""
+  },
+  "285": {
+   "en": "'mils'",
+   "note": ""
+  },
+  "286": {
+   "en": "'inches'",
+   "note": ""
+  },
+  "287": {
+   "en": "'feet'",
+   "note": ""
+  },
+  "288": {
+   "en": "'miles'",
+   "note": ""
+  },
+  "289": {
+   "en": "'angstroms'",
+   "note": ""
+  },
+  "290": {
+   "en": "'nanometres'",
+   "note": ""
+  },
+  "291": {
+   "en": "'decimetres'",
+   "note": ""
+  },
+  "292": {
+   "en": "'dekametres'",
+   "note": ""
+  },
+  "293": {
+   "en": "'hectometres'",
+   "note": ""
+  },
+  "294": {
+   "en": "'megametres'",
+   "note": ""
+  },
+  "295": {
+   "en": "'gigametres'",
+   "note": ""
+  },
+  "296": {
+   "en": "'yards'",
+   "note": ""
+  },
+  "297": {
+   "en": "'printer points'",
+   "note": ""
+  },
+  "298": {
+   "en": "'printer picas'",
+   "note": ""
+  },
+  "299": {
+   "en": "'nautical miles'",
+   "note": ""
+  },
+  "300": {
+   "en": "'unknown unit'",
+   "note": ""
+  },
+  "301": {
+   "en": "'Reselect parcels'",
+   "note": ""
+  },
+  "302": {
+   "en": "'Select Rhino curves'",
+   "note": ""
+  },
+  "303": {
+   "en": "'Site selection mode: click = select one · Shift+click = add/remove · left-drag = box select · Shift+drag = add to selection · Alt+left-drag to pan · right-drag to rotate · Enter to start'",
+   "note": ""
+  },
+  "304": {
+   "en": "'Click a building / road / green space / region for details · click \"Reselect parcels\" to select again · double-click a region to preview it alone · Esc to leave preview · mouse wheel to zoom · left-drag to pan · right-drag to rotate'",
+   "note": ""
+  },
+  "305": {
+   "en": "'Object '",
+   "note": "Fallback name prefix, followed by the object index."
+  },
+  "306": {
+   "en": "'parcels'",
+   "note": "Lowercase plural: inserted as ${kind} in record 308 ('N parcels selected')."
+  },
+  "307": {
+   "en": "'curves'",
+   "note": "Lowercase plural: inserted as ${kind} in record 308 ('N curves selected')."
+  },
+  "308": {
+   "en": "`Selection mode: ${selectedRhinoIds.size} ${kind} selected · total area about ${totalA.toFixed(1)} m²${names.length?' · '+names.slice(0,5).join(', ')+(names.length>5?'…':''):''}. Click to select one, Shift+click to add/remove, drag a box to select, press Enter to start annealing.`",
+   "note": "Only the Chinese literals inside ${...} were translated (list separator 、 became ', '); the code is unchanged."
+  },
+  "309": {
+   "en": "'Select at least 1 site curve before starting.'",
+   "note": ""
+  },
+  "310": {
+   "en": "'The selected curves do not form a valid site.'",
+   "note": ""
+  },
+  "311": {
+   "en": "`Initialising ${chosen.length} separate sites… 0 / ${chosen.length}. Multiple sites initialise frame by frame so the interface does not freeze.`",
+   "note": ""
+  },
+  "312": {
+   "en": "'Initialisation cancelled by a new action.'",
+   "note": ""
+  },
+  "313": {
+   "en": "`Initialising ${chosen.length} separate sites… ${ri+1} / ${chosen.length}; this site has ${made} / ${params.number} buildings, ${totalMade} buildings in total.`",
+   "note": ""
+  },
+  "314": {
+   "en": "`Buildings initialised; building roads and green space…`",
+   "note": ""
+  },
+  "315": {
+   "en": "`Using ${chosen.length} site curves. Each site gets exactly ${params.number} buildings, ${counts.reduce((a,b)=>a+b,0)} buildings in total. Total input area about ${totalA.toFixed(1)} m².${names.length?' Selected: '+names.slice(0,6).join(', ')+(names.length>6?'…':''):''}`",
+   "note": "Only the Chinese literals inside ${...} were translated (' 已选：' became ' Selected: ', separator 、 became ', '); the code is unchanged."
+  },
+  "316": {
+   "en": "'Select at least 1 site, then press Enter.'",
+   "note": ""
+  },
+  "317": {
+   "en": "'Site initialisation failed.'",
+   "note": ""
+  },
+  "318": {
+   "en": "`The selected parcels are small or narrow; adapting building scale and re-placing… ${attempt}/4`",
+   "note": ""
+  },
+  "319": {
+   "en": "`The ${chosen.length} selected parcels cannot fit all target buildings: currently ${made}/${target}. Reselect parcels, or lower the buildings per site or the building footprint side.`",
+   "note": ""
+  },
+  "320": {
+   "en": "`Confirmed ${chosen.length} selected parcels · buildings ${made}/${target} · total area about ${totalA.toFixed(1)} m²${adapted?' · building scale adapted to small parcels':''}. Starting annealing…`",
+   "note": "Only the Chinese string literal inside ${...} was translated; the code is unchanged."
+  },
+  "321": {
+   "en": "'Reading Rhino file: scanning closed curves and separating true Polyline vertices from smooth NURBS curves…'",
+   "note": ""
+  },
+  "322": {
+   "en": "'Cannot read this 3dm file'",
+   "note": ""
+  },
+  "323": {
+   "en": "'Cannot extract points'",
+   "note": ""
+  },
+  "324": {
+   "en": "'Too few points'",
+   "note": ""
+  },
+  "325": {
+   "en": "'Open curve'",
+   "note": ""
+  },
+  "326": {
+   "en": "'Area too small/degenerate'",
+   "note": ""
+  },
+  "327": {
+   "en": "', '",
+   "note": "Join separator for the object type and filter reason lists (Chinese comma became ', ')."
+  },
+  "328": {
+   "en": "'no objects'",
+   "note": "Fallback shown after 'Object types: '."
+  },
+  "329": {
+   "en": "'none'",
+   "note": "Fallback shown after 'Filter reasons: '."
+  },
+  "330": {
+   "en": "`Read ${count} Rhino objects, but none formed a usable site boundary. Found ${curveLikeCount} objects that can be treated as curves and ${closedLikeCount} closed or nearly closed objects. Object types: ${types}. Filter reasons: ${fails}. NURBS control points are no longer used as boundaries; ordinary closed NURBS / Arc / PolyCurve are sampled along the true curve.`",
+   "note": ""
+  },
+  "331": {
+   "en": "`Found ${importedPolylines.length} selectable closed curves: ${exactN} exact Polyline, ${sampledN} smooth curves sampled, ${autoN} closed automatically within tolerance; Rhino source unit: ${unitName}, converted to m. Recommended curves are preselected; click in the centre view to select more, then start.`",
+   "note": ""
+  },
+  "332": {
+   "en": "'Read failed: '",
+   "note": "Full-width colon became ': ' (with space); error message follows."
+  },
+  "333": {
+   "en": "`Object ${x.objectIndex}`",
+   "note": ""
+  },
+  "334": {
+   "en": "'Exact Polyline'",
+   "note": ""
+  },
+  "335": {
+   "en": "'True curve sampled'",
+   "note": ""
+  },
+  "336": {
+   "en": "`${i===0?'Recommended · ':''}${semantic} · ${x.geoType} · ${mode} · ${x.worldPoints.length} pts · ${x.area.toFixed(1)}m² · score ${x.score.toFixed(0)}`",
+   "note": "Only the Chinese string literal inside ${...} was translated; the code is unchanged."
+  },
+  "337": {
+   "en": "'Not a valid EPW file header'",
+   "note": ""
+  },
+  "338": {
+   "en": "'EPW latitude, longitude or time zone is invalid'",
+   "note": ""
+  },
+  "339": {
+   "en": "'Unknown city'",
+   "note": ""
+  },
+  "340": {
+   "en": "`${epwMeta.city} · lat ${lat.toFixed(3)} · lon ${lon.toFixed(3)} · time zone ${tz} · wind data ${winds.length} h · mean ${windAvgSpeed.toFixed(2)} m/s · prevailing wind from ${Math.round(windDominantFrom)}° · model flow direction ${Math.round(windModelDir)}°`",
+   "note": ""
+  },
+  "341": {
+   "en": "`${epwMeta.city} · lat ${lat.toFixed(3)} · lon ${lon.toFixed(3)} · time zone ${tz}. Not enough valid hourly wind speed/direction data; wind stays in manual mode.`",
+   "note": ""
+  },
+  "342": {
+   "en": "'Reading EPW…'",
+   "note": ""
+  },
+  "343": {
+   "en": "'Using the built-in site; you can upload a .3dm again.'",
+   "note": ""
+  },
+  "344": {
+   "en": "'No valid parcels received.'",
+   "note": ""
+  },
+  "345": {
+   "en": "`Wool parcel ${sourceId}${levelName}`",
+   "note": ""
+  },
+  "346": {
+   "en": "'The incoming parcels do not form a valid closed boundary.'",
+   "note": ""
+  },
+  "347": {
+   "en": "`Received ${candidates.length} parcels from the wool thread workflow, total area about ${totalA.toFixed(1)} m². All are preselected; click to select one, Shift+click to add/remove, drag a box to select, press Enter to start annealing.`",
+   "note": ""
+  },
+  "348": {
+   "en": "'AnnealWorkflowBridge is not ready yet'",
+   "note": ""
+  },
+  "349": {
+   "en": "'Annealing module has no method: '",
+   "note": "Full-width colon became ': ' (with space); method name follows."
+  }
+ },
+ "keep": {
+  "123": "Line 213: class attribute value '参数列表' on #paramList. It must match the CSS selector .参数列表 in the <style> block (line 11). Style blocks are not records, so that selector will never be translated; translating this attribute breaks the parameter-list grid styling.",
+  "243": "Line 2021: the template builds <div class=\"参数项\"> rows for #paramList. The class name must match the CSS selectors .参数项, .参数项 span and .参数项 b at lines 11, 33 and 55, which are not records and stay Chinese. The ${r[0]}/${r[1]} placeholders are the only other content, so the whole literal should stay verbatim.",
+  "252": "Line 2041 only (exportJson): '当前方案' is an enumerated value of the Chinese key 模式 in the exported 城市退火设计方案.json. A reader of his export format that tests 模式 would break. Only used in the export, so keeping it costs no on-screen text.",
+  "253": "Line 2041 only (exportJson): 'Top-K高精度最终方案' is an enumerated value of the exported key 模式, the same case as id 252. Only used in the export.",
+  "254": "Line 2041 only (exportJson): '历史最优' is an enumerated value of the exported key 模式, the same case as id 252. Only used in the export.",
+  "255": "Line 2041 only (exportJson): `Top-${TOP_K_FINAL} 高精度重排序完成` is the 'done' status value of the exported key 最终复核, the counterpart of id 256. A reader checking the re-rank status would break. Only used in the export.",
+  "256": "Line 2041 only (exportJson): '尚未执行高精度重排序' is the 'not done' status value of the exported key 最终复核, the counterpart of id 255. Only used in the export.",
+  "190": "Lines 2020 and 2041: '内置场地' is the fixed marker written as the value of the exported key 场地来源 when no Rhino file was used (otherwise the value is the file name), so a reader could test for it. Borderline: the same record is also the on-screen parameter-list label at line 2020. Keeping it leaves that one label in Chinese. Drop it from the keep list if an English label matters more than export fidelity."
+ }
+}

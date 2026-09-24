@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loop City · three scales</title>
+<!--
+  Loop City v10. Double-click this file.
+
+  Three apps, one window: the whole loop (the growth simulator), one quadrant (the slime mould and the
+  growth simulator on one clock), and one cell (the wool thread). The bar along the top says where you
+  are and takes you back up. A scale you leave stays open behind the one you move to, so nothing is run
+  twice: go down to a cell and come back, and the quadrant's century and its cells are still there.
+
+  Each app still opens on its own -- html support files/loop/index.html, html support files/combined_v10.html,
+  html support files/cell/cell.html -- and then the
+  jump to the next scale opens a new tab instead.
+-->
+<style>
+:root{
+  --paper:#f4f2ee; --card:#ffffff; --line:#e2ded6;
+  --ink:#2b2925; --ink2:#6f6a62; --ink3:#9c968c; --accent:#8f5f38;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink);
+  font:13px/1.4 "DM Sans","Inter","Segoe UI",system-ui,sans-serif;overflow:hidden}
+#bar{flex:0 0 40px;display:flex;align-items:center;gap:12px;padding:0 14px 0 16px;background:var(--card);
+  border-bottom:1px solid var(--line);z-index:5}
+.brand{font-weight:700;letter-spacing:.02em;font-size:13.5px;margin-right:6px;white-space:nowrap}
+.crumbs{display:flex;align-items:center;gap:2px;min-width:0}
+.crumb{appearance:none;border:1px solid transparent;background:none;font:inherit;font-size:12.5px;
+  padding:4px 10px;border-radius:7px;color:var(--ink2);cursor:pointer;white-space:nowrap;
+  display:flex;align-items:baseline;gap:7px;max-width:340px;overflow:hidden;text-overflow:ellipsis}
+.crumb .lv{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.crumb .nm{overflow:hidden;text-overflow:ellipsis}
+.crumb:hover:not(:disabled){border-color:var(--line);background:#fbfaf8;color:var(--ink)}
+.crumb.on{background:#efe7dc;border-color:#e2d3bf;color:#6b4a2c;font-weight:600}
+.crumb.on .lv{color:#a07a55}
+.crumb:disabled{cursor:default;color:#c4bfb6}
+.crumb:disabled .lv{color:#cdc8bf}
+.sep{color:#c4bfb6;font-size:13px;padding:0 1px;user-select:none}
+.aside{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:11px;color:var(--ink3);white-space:nowrap}
+.aside a{color:var(--ink2);text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+.aside a:hover{color:var(--ink);border-color:#c9c4bb}
+#frames{flex:1 1 auto;position:relative;min-height:0}
+/* hidden, not display:none: a frame keeps its size while you are elsewhere, so nothing inside it
+   re-fits or re-lays itself out when you come back */
+#frames iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--paper);
+  visibility:hidden;pointer-events:none}
+#frames iframe.on{visibility:visible;pointer-events:auto}
+</style>
+</head>
+<body>
+<div id="bar">
+  <div class="brand">Loop City</div>
+  <div class="crumbs">
+    <button class="crumb on" data-level="loop"><span class="lv">Loop</span><span class="nm" id="nm_loop">the whole loop</span></button>
+    <span class="sep">›</span>
+    <button class="crumb" data-level="quadrant" disabled><span class="lv">Quadrant</span><span class="nm" id="nm_quadrant">choose one on the key plan</span></button>
+    <span class="sep">›</span>
+    <button class="crumb" data-level="cell" disabled><span class="lv">Cell</span><span class="nm" id="nm_cell">choose one in the quadrant</span></button>
+  </div>
+  <div class="aside">
+    <span id="keep" title="Moving between scales hides a scale, it does not close it">each scale stays as you left it</span>
+    <a id="alone" href="html support files/loop/index.html" target="_blank" title="open this scale in a tab of its own">open on its own ↗</a>
+  </div>
+</div>
+<div id="frames"></div>
+
+<script>
+(function () {
+  "use strict";
+  var ORDER = ["loop", "quadrant", "cell"];
+  var LV = {
+    loop:     { src: "html support files/loop/index.html",  el: null, ready: false, queue: [] },
+    quadrant: { src: "html support files/combined_v10.html", el: null, ready: false, queue: [] },
+    cell:     { src: "html support files/cell/cell.html",   el: null, ready: false, queue: [] }
+  };
+  var current = null;
+  var $ = function (id) { return document.getElementById(id); };
+
+  function frame(level, hash) {
+    var L = LV[level];
+    if (L.el) return L.el;
+    var f = document.createElement("iframe");
+    f.title = level;
+    f.src = L.src + (hash || "");
+    $("frames").appendChild(f);
+    L.el = f;
+    var b = document.querySelector('.crumb[data-level="' + level + '"]');
+    if (b) b.disabled = false;
+    return f;
+  }
+
+  function send(level, msg) {
+    var L = LV[level];
+    msg.lc = 1;
+    if (L.ready && L.el) L.el.contentWindow.postMessage(msg, "*");
+    else L.queue.push(msg);
+  }
+
+  function show(level, fromHash) {
+    if (!LV[level] || !LV[level].el) level = "loop";
+    current = level;
+    ORDER.forEach(function (k) { if (LV[k].el) LV[k].el.classList.toggle("on", k === level); });
+    document.querySelectorAll(".crumb").forEach(function (b) {
+      b.classList.toggle("on", b.dataset.level === level);
+    });
+    $("alone").style.display = level === "cell" ? "none" : "";
+    $("alone").href = LV[level].src;
+    try { LV[level].el.contentWindow.focus(); } catch (e) {}
+    // the browser's own Back goes up a scale
+    if (!fromHash && location.hash.slice(1) !== level) location.hash = level;
+  }
+
+  function setName(level, text) {
+    if (text) $("nm_" + level).textContent = text;
+  }
+
+  window.addEventListener("message", function (e) {
+    var d = e.data;
+    if (!d || d.lc !== 1) return;
+    var from = null;
+    ORDER.forEach(function (k) { if (LV[k].el && LV[k].el.contentWindow === e.source) from = k; });
+    if (!from) return;                                   // only our own three frames
+    var L = LV[from];
+
+    if (d.type === "ready") {
+      L.ready = true;
+      L.el.contentWindow.postMessage({ lc: 1, type: "shell" }, "*");
+      var q = L.queue; L.queue = [];
+      q.forEach(function (m) { L.el.contentWindow.postMessage(m, "*"); });
+      return;
+    }
+    if (d.type === "label") { setName(from, d.text); return; }
+    if (d.type !== "jump") return;
+
+    var ctx = d.ctx || {};
+    if (d.to === "quadrant") {
+      /* The first time, the context rides in the frame's address, so the quadrant's very first
+         century is grown with the loop's settings. After that the frame is alive, and is sent the
+         context instead -- it puts the settings on its sliders and does NOT re-run by itself,
+         because a re-run would throw away the network and the cells made since. */
+      if (!LV.quadrant.el) frame("quadrant", "#lc=" + encodeURIComponent(JSON.stringify(ctx)));
+      else send("quadrant", { type: "enter", ctx: ctx });
+      setName("quadrant", ctx.label);
+      show("quadrant");
+    } else if (d.to === "cell") {
+      frame("cell");
+      send("cell", { type: "enter", ctx: ctx });
+      setName("cell", ctx.label || ctx.id);
+      show("cell");
+    } else if (d.to === "up") {
+      var i = ORDER.indexOf(from);
+      show(ORDER[Math.max(0, i - 1)]);
+    } else if (LV[d.to]) {
+      show(d.to);
+    }
+  });
+
+  document.querySelectorAll(".crumb").forEach(function (b) {
+    b.addEventListener("click", function () { if (!b.disabled) show(b.dataset.level); });
+  });
+  window.addEventListener("hashchange", function () {
+    var h = location.hash.slice(1);
+    if (LV[h] && LV[h].el && h !== current) show(h, true);
+  });
+
+  frame("loop");
+  show("loop");
+})();
+</script>
+</body>
+</html>

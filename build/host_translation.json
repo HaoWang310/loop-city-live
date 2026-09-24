@@ -1,0 +1,209 @@
+{
+ "translations": {
+  "1": {
+   "en": "Wool thread × annealing algorithm · integrated city generation workflow",
+   "note": "The relayed user message (\"you completely missed the logic of green corridor near central spine\") is about the green corridor logic, not this string translation. Nothing in these host strings touches it, so the calling session has to deal with it separately."
+  },
+  "2": {
+   "en": "Select parcels in wool → Enter → in annealing click again / Shift multi-select / box select → Enter to start computing",
+   "note": ""
+  },
+  "3": {
+   "en": "Wool generation",
+   "note": ""
+  },
+  "4": {
+   "en": "Select parcels",
+   "note": ""
+  },
+  "5": {
+   "en": "Annealing optimisation",
+   "note": ""
+  },
+  "6": {
+   "en": "After generating parcels, click, Shift multi-select or box select parcels, then press Enter to go to annealing.",
+   "note": ""
+  },
+  "7": {
+   "en": "Go to annealing (Enter)",
+   "note": ""
+  },
+  "8": {
+   "en": "Select one or more parcels, then go to annealing; or just press Enter",
+   "note": ""
+  },
+  "9": {
+   "en": "Wool thread algorithm",
+   "note": ""
+  },
+  "10": {
+   "en": "Annealing algorithm",
+   "note": ""
+  },
+  "11": {
+   "en": "'Missing embedded module: '",
+   "note": ""
+  },
+  "12": {
+   "en": "'Loading wool and annealing modules…'",
+   "note": ""
+  },
+  "13": {
+   "en": "' module window not created yet'",
+   "note": ""
+  },
+  "14": {
+   "en": "' module response timed out: '",
+   "note": ""
+  },
+  "15": {
+   "en": "'Module call failed'",
+   "note": ""
+  },
+  "16": {
+   "en": "'The current selection could not go to annealing.'",
+   "note": ""
+  },
+  "17": {
+   "en": "`Annealing: confirmed ${c||'所选'} parcels${a?`",
+   "note": "${...} left exactly as it was, so '所选' is still Chinese. Suggested: ${c||'the selected'}. The extractor also missed the nested template on line 118: ` · 总面积 ${a.toFixed(1)} m²` should become ` · total area ${a.toFixed(1)} m²`."
+  },
+  "18": {
+   "en": "`:''} · showing selected areas only · annealing started`",
+   "note": ""
+  },
+  "19": {
+   "en": "'Reselect parcels'",
+   "note": ""
+  },
+  "20": {
+   "en": "'Back to annealing parcel selection mode'",
+   "note": ""
+  },
+  "21": {
+   "en": "`Confirmed ${c||''} parcels, unselected areas hidden, annealing started.`",
+   "note": ""
+  },
+  "22": {
+   "en": "'Go to annealing (Enter)'",
+   "note": ""
+  },
+  "23": {
+   "en": "'Select one or more parcels, then go to annealing; or just press Enter'",
+   "note": ""
+  },
+  "24": {
+   "en": "'Annealing module loading…'",
+   "note": ""
+  },
+  "25": {
+   "en": "`Annealing selection: ${s.selectedCount||0} parcels selected · click / Shift multi-select / box select · Enter to start computing`",
+   "note": ""
+  },
+  "26": {
+   "en": "'Start annealing (Enter)'",
+   "note": ""
+  },
+  "27": {
+   "en": "'Confirm the current selection, show only the selected areas and start annealing'",
+   "note": ""
+  },
+  "28": {
+   "en": "`Annealing: ${s&&s.regions?`",
+   "note": "The extractor missed the nested template on line 148: `当前 ${s.regions} 个所选区域 · ` should become `${s.regions} selected areas · `."
+  },
+  "29": {
+   "en": "`:''}click \"Reselect parcels\" to select again`",
+   "note": ""
+  },
+  "30": {
+   "en": "'Back in parcel selection mode; reselect, then press Enter.'",
+   "note": ""
+  },
+  "31": {
+   "en": "'Select at least one parcel first, then press Enter.'",
+   "note": ""
+  },
+  "32": {
+   "en": "`Confirming ${s.selectedCount} parcels and initialising annealing…`",
+   "note": ""
+  },
+  "33": {
+   "en": "'The current selection cannot go to annealing; check the parcels.'",
+   "note": ""
+  },
+  "34": {
+   "en": "`Annealing: confirmed ${c} parcels${a?`",
+   "note": "The extractor missed the nested template on line 172: ` · 总面积 ${a.toFixed(1)} m²` should become ` · total area ${a.toFixed(1)} m²`."
+  },
+  "35": {
+   "en": "`:''} · showing selected areas only${r.running?' · 退火已启动':''}`",
+   "note": "${...} left exactly as it was, so its Chinese is still there. Suggested: ${r.running?' · annealing started':''}."
+  },
+  "36": {
+   "en": "`In annealing: ${c} parcels; unselected areas hidden${r.running?'，退火已开始':'。'}.`",
+   "note": "${...} left exactly as it was, so its Chinese is still there. Suggested: ${r.running?', annealing started':''}. The original prints a doubled full stop when not running, and the '' branch fixes that."
+  },
+  "37": {
+   "en": "'Could not go to annealing: '",
+   "note": ""
+  },
+  "38": {
+   "en": "'Wool module loading…'",
+   "note": ""
+  },
+  "39": {
+   "en": "', '",
+   "note": ""
+  },
+  "40": {
+   "en": "`Selected ${s.count||1} parcels${idText?' #'+idText:''} · total area ${Number(s.totalArea||s.area||0).toFixed(1)} m² · press Enter to go to annealing`",
+   "note": ""
+  },
+  "41": {
+   "en": "'After generating parcels, click, Shift multi-select or box select parcels, then press Enter to go to annealing.'",
+   "note": ""
+  },
+  "42": {
+   "en": "'Modules still loading; try again shortly.'",
+   "note": ""
+  },
+  "43": {
+   "en": "'Identifying and entering…'",
+   "note": ""
+  },
+  "44": {
+   "en": "`Identifying ${count} parcels (total area ${totalArea.toFixed(1)} m²) and entering annealing selection…`",
+   "note": ""
+  },
+  "45": {
+   "en": "`Annealing selection: ${count} parcels loaded · all preselected · click / Shift multi-select / box select · Enter to start computing`",
+   "note": ""
+  },
+  "46": {
+   "en": "`In annealing selection: ${count} parcels. Select again if needed, then press Enter to start annealing.`",
+   "note": ""
+  },
+  "47": {
+   "en": "`In annealing: ${count} parcels · total area ${totalArea.toFixed(1)} m²${bc!==null?`",
+   "note": "The extractor missed the nested template on line 212: ` · 建筑 ${bc}${tc!==null?'/'+tc:''} 栋` should become ` · buildings ${bc}${tc!==null?'/'+tc:''}`."
+  },
+  "48": {
+   "en": "`Loaded ${count} selected parcels.`",
+   "note": ""
+  },
+  "49": {
+   "en": "'Transfer failed: '",
+   "note": ""
+  },
+  "50": {
+   "en": "'Click, Shift multi-select or box select at least one parcel first, then press Enter.'",
+   "note": ""
+  },
+  "51": {
+   "en": "'Wool module not ready yet.'",
+   "note": ""
+  }
+ },
+ "keep": {}
+}

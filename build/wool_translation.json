@@ -1,0 +1,1609 @@
+{
+ "translations": {
+  "1": {
+   "en": "Wool Thread algorithm",
+   "note": ""
+  },
+  "2": {
+   "en": "algorithm",
+   "note": "Grey subtitle span after the h1 text 'Wool Thread', so it reads 'Wool Thread algorithm'."
+  },
+  "3": {
+   "en": "Segments ",
+   "note": ""
+  },
+  "4": {
+   "en": "Points ",
+   "note": ""
+  },
+  "5": {
+   "en": "Iterations ",
+   "note": ""
+  },
+  "6": {
+   "en": "Movement ",
+   "note": ""
+  },
+  "7": {
+   "en": "Parcels ",
+   "note": ""
+  },
+  "8": {
+   "en": "Move",
+   "note": ""
+  },
+  "9": {
+   "en": "Drag anchors; once parcels exist, left-drag a box to select parcels; right-drag or Alt+left-drag to pan the view",
+   "note": ""
+  },
+  "10": {
+   "en": "Add edge anchor",
+   "note": ""
+  },
+  "11": {
+   "en": "Click to add an edge anchor to the current group",
+   "note": ""
+  },
+  "12": {
+   "en": "Add interior anchor",
+   "note": ""
+  },
+  "13": {
+   "en": "Click to add an interior anchor to the current group",
+   "note": ""
+  },
+  "14": {
+   "en": "Delete",
+   "note": ""
+  },
+  "15": {
+   "en": "Click an anchor to delete it",
+   "note": ""
+  },
+  "16": {
+   "en": "Outline",
+   "note": ""
+  },
+  "17": {
+   "en": "Drag outline vertices",
+   "note": ""
+  },
+  "18": {
+   "en": "Edge anchor",
+   "note": ""
+  },
+  "19": {
+   "en": "Interior anchor",
+   "note": ""
+  },
+  "20": {
+   "en": "Shared anchor",
+   "note": ""
+  },
+  "21": {
+   "en": "Interior line",
+   "note": ""
+  },
+  "22": {
+   "en": "Other groups",
+   "note": ""
+  },
+  "23": {
+   "en": "Fit view",
+   "note": ""
+  },
+  "24": {
+   "en": "Drop a .3dm or .dxf file here",
+   "note": ""
+  },
+  "25": {
+   "en": "Road info",
+   "note": ""
+  },
+  "26": {
+   "en": "Road ID",
+   "note": ""
+  },
+  "27": {
+   "en": "Road length",
+   "note": ""
+  },
+  "28": {
+   "en": "Road level",
+   "note": ""
+  },
+  "29": {
+   "en": "Bundling weight",
+   "note": ""
+  },
+  "30": {
+   "en": "Path control points",
+   "note": ""
+  },
+  "31": {
+   "en": "Reason",
+   "note": "Why the road got its level (default text is e.g. 'L1 main skeleton')."
+  },
+  "32": {
+   "en": "Parcel info",
+   "note": ""
+  },
+  "33": {
+   "en": "Parcel ID",
+   "note": ""
+  },
+  "34": {
+   "en": "Parcel area",
+   "note": ""
+  },
+  "35": {
+   "en": "Zone",
+   "note": "Shows the parcel's distance level name, or not levelled / out of range."
+  },
+  "36": {
+   "en": "Parcel levels by distance",
+   "note": ""
+  },
+  "37": {
+   "en": "Close",
+   "note": ""
+  },
+  "38": {
+   "en": "Distance method",
+   "note": ""
+  },
+  "39": {
+   "en": "Distance to centre point",
+   "note": ""
+  },
+  "40": {
+   "en": "Distance to shared anchor line",
+   "note": ""
+  },
+  "41": {
+   "en": "Show wool threads underneath",
+   "note": ""
+  },
+  "42": {
+   "en": "Number of levels",
+   "note": ""
+  },
+  "43": {
+   "en": "\n        'Distance to centre point' sets levels by the straight-line distance from each parcel centre to the centre anchor; 'Distance to shared anchor line' uses the shortest distance from each parcel centre to the green shared-anchor polyline. Each level's thickness is set separately. Drag the top of the panel to move it anywhere in the window; the canvas updates live when you change distances, level count, names or distance method.\n      ",
+   "note": "Leading newline + 8 spaces and trailing newline + 6 spaces kept; quoted names match the option labels in ids 39 and 40."
+  },
+  "44": {
+   "en": "Space evenly",
+   "note": ""
+  },
+  "45": {
+   "en": "Done",
+   "note": ""
+  },
+  "46": {
+   "en": "Drag left or right to resize the side panel; double-click to restore the default width",
+   "note": ""
+  },
+  "47": {
+   "en": "Simulation",
+   "note": ""
+  },
+  "48": {
+   "en": "Run",
+   "note": ""
+  },
+  "49": {
+   "en": "Reset",
+   "note": ""
+  },
+  "50": {
+   "en": "Return the threads to their starting straight lines",
+   "note": ""
+  },
+  "51": {
+   "en": "Stop at iteration",
+   "note": ""
+  },
+  "52": {
+   "en": "Base",
+   "note": ""
+  },
+  "53": {
+   "en": "Open Rhino file",
+   "note": ""
+  },
+  "54": {
+   "en": "Node cell",
+   "note": ""
+  },
+  "55": {
+   "en": "Load the node cell and preset anchors from wool bake.dxf",
+   "note": ""
+  },
+  "56": {
+   "en": "wool bake.dxf node cell, 49,794 m².",
+   "note": ""
+  },
+  "57": {
+   "en": "Real total area",
+   "note": ""
+  },
+  "58": {
+   "en": "Real total area, square metres",
+   "note": ""
+  },
+  "59": {
+   "en": "Unit: metres (m) · 1 model unit = 1.000 m",
+   "note": ""
+  },
+  "60": {
+   "en": "Fixed steps: ① enter the real total area of the whole region; ② press Enter to confirm and reset old results; ③ click 'Run' to solve again. Pressing Enter scales the outline and all length/area settings to real metres; from then on the wool, roads, parcels and the coordinates passed to annealing all use m / m².",
+   "note": ""
+  },
+  "61": {
+   "en": "Closed curve to use as outline",
+   "note": ""
+  },
+  "62": {
+   "en": "Points in file → edge anchors",
+   "note": ""
+  },
+  "63": {
+   "en": "Points in file → interior anchors",
+   "note": ""
+  },
+  "64": {
+   "en": "Anchors",
+   "note": ""
+  },
+  "65": {
+   "en": " Show anchors",
+   "note": ""
+  },
+  "66": {
+   "en": "Add group",
+   "note": ""
+  },
+  "67": {
+   "en": "Delete group",
+   "note": ""
+  },
+  "68": {
+   "en": " Keep edge anchors on the outline",
+   "note": ""
+  },
+  "69": {
+   "en": "Connection mode",
+   "note": ""
+  },
+  "70": {
+   "en": "Each edge anchor to each interior anchor (cross)",
+   "note": ""
+  },
+  "71": {
+   "en": "Every anchor to every other anchor",
+   "note": ""
+  },
+  "72": {
+   "en": "On outline ",
+   "note": ""
+  },
+  "73": {
+   "en": "Shared anchors ",
+   "note": ""
+  },
+  "74": {
+   "en": "Interior line ",
+   "note": ""
+  },
+  "75": {
+   "en": "Align interior line",
+   "note": ""
+  },
+  "76": {
+   "en": "Space interior anchors evenly on the straight line between the outline-anchor centre and the shared-anchor centre",
+   "note": ""
+  },
+  "77": {
+   "en": "The count sliders respace points evenly along the outline, the shared anchors (common to both groups) or the interior line. 'Align interior line' places the interior anchors between the two centres; you can still drag them freely afterwards, and the threads follow live while the solver runs.",
+   "note": ""
+  },
+  "78": {
+   "en": "Weld across groups within",
+   "note": "Label followed by the weld distance value."
+  },
+  "79": {
+   "en": "Weld anchors",
+   "note": ""
+  },
+  "80": {
+   "en": "A welded anchor becomes one shared anchor that controls the related wool threads and roads together. Dragging one anchor onto another snaps and welds them (hold Alt to turn off snapping); Shift+drag a shared anchor to split off the current group's copy.",
+   "note": ""
+  },
+  "81": {
+   "en": "Threads · Kangaroo goals",
+   "note": ""
+  },
+  "82": {
+   "en": "Points per thread",
+   "note": ""
+  },
+  "83": {
+   "en": "Length strength",
+   "note": ""
+  },
+  "84": {
+   "en": "Extra length (wet wool)",
+   "note": ""
+  },
+  "85": {
+   "en": " Threads resist stretching only (slack allowed)",
+   "note": ""
+  },
+  "86": {
+   "en": "Angle strength",
+   "note": ""
+  },
+  "87": {
+   "en": "Magnet strength",
+   "note": ""
+  },
+  "88": {
+   "en": "Magnet range",
+   "note": ""
+  },
+  "89": {
+   "en": "Solver",
+   "note": ""
+  },
+  "90": {
+   "en": "Anchor strength",
+   "note": ""
+  },
+  "91": {
+   "en": "Momentum",
+   "note": ""
+  },
+  "92": {
+   "en": " Keep threads inside the outline",
+   "note": ""
+  },
+  "93": {
+   "en": " Magnet across groups (single solve)",
+   "note": ""
+  },
+  "94": {
+   "en": "Range from segments",
+   "note": ""
+  },
+  "95": {
+   "en": "Definition defaults",
+   "note": "Restores the defaults of the original Grasshopper definition."
+  },
+  "96": {
+   "en": "Mean segment length × 1.84386, as in the original definition",
+   "note": ""
+  },
+  "97": {
+   "en": "Defaults from the original definition: anchor 1,000,000 · length 409,847 · angle 20,995 · MagnetSnap 350, range = mean segment × 1.84. Click a value to type it in.",
+   "note": ""
+  },
+  "98": {
+   "en": "Parcels",
+   "note": ""
+  },
+  "99": {
+   "en": "Extract parcels",
+   "note": ""
+  },
+  "100": {
+   "en": "Clear parcels",
+   "note": ""
+  },
+  "101": {
+   "en": "Find the regions enclosed by the current thread network",
+   "note": ""
+  },
+  "102": {
+   "en": "Clear the extracted parcels",
+   "note": ""
+  },
+  "103": {
+   "en": "Inset from threads",
+   "note": ""
+  },
+  "104": {
+   "en": "Minimum parcel area",
+   "note": ""
+  },
+  "105": {
+   "en": "Maximum parcel area (larger ones deleted)",
+   "note": ""
+  },
+  "106": {
+   "en": "0 means no limit; parcels larger than this are deleted automatically",
+   "note": ""
+  },
+  "107": {
+   "en": " Straighten parcel edges",
+   "note": ""
+  },
+  "108": {
+   "en": "Straighten tolerance",
+   "note": ""
+  },
+  "109": {
+   "en": " Rebuild whole curve",
+   "note": "The '(Rebuild)' gloss is dropped because the English label already says it. Record 121 refers back to this label."
+  },
+  "110": {
+   "en": "Rebuild strength",
+   "note": ""
+  },
+  "111": {
+   "en": " Also inset from outline",
+   "note": ""
+  },
+  "112": {
+   "en": " Show parcels",
+   "note": ""
+  },
+  "113": {
+   "en": " Enable parcel distance levels",
+   "note": ""
+  },
+  "114": {
+   "en": "Set levels",
+   "note": ""
+  },
+  "115": {
+   "en": "Turn on 'Parcel distance levels', then set the number of levels and the distance for each.",
+   "note": ""
+  },
+  "116": {
+   "en": " Show wool threads underneath",
+   "note": ""
+  },
+  "117": {
+   "en": "Precision",
+   "note": ""
+  },
+  "118": {
+   "en": "Grid cell size",
+   "note": ""
+  },
+  "119": {
+   "en": "Threads are rasterised at this precision. Smaller values are more precise but slower; it is set automatically from the outline size when a base file is opened.",
+   "note": ""
+  },
+  "120": {
+   "en": "Stop or pause the solver, then extract.",
+   "note": ""
+  },
+  "121": {
+   "en": "The inset is applied exactly as set; minimum and maximum parcel areas are measured after the inset. A maximum of 0 means no limit, and regions above the maximum are deleted. With 'Rebuild whole curve' on, each final closed boundary is resampled and rebuilt as one closed line, so sharp corners become continuous smooth curves; this is not a local fillet. Road logic does not affect this feature.",
+   "note": ""
+  },
+  "122": {
+   "en": "Wool road network",
+   "note": ""
+  },
+  "123": {
+   "en": "Build level 1/2 roads",
+   "note": ""
+  },
+  "124": {
+   "en": "Clear roads",
+   "note": ""
+  },
+  "125": {
+   "en": "Merges repeated thread bundles from the wool result into a lean network of level 1/2 road centrelines",
+   "note": ""
+  },
+  "126": {
+   "en": "Clear the current roads",
+   "note": ""
+  },
+  "127": {
+   "en": " Show road network",
+   "note": ""
+  },
+  "128": {
+   "en": " Road diagnostics",
+   "note": ""
+  },
+  "129": {
+   "en": "Diagnostics: grey dot = graph node · green circle = formal road entrance · yellow dot = valid L2 service end · white cross = centre node · red cross = faulty dead end · cyan dashes = auto bridge · red dashes = road removed automatically. Click a road to see why it got its level.",
+   "note": ""
+  },
+  "130": {
+   "en": "Clear road selection",
+   "note": ""
+  },
+  "131": {
+   "en": "Clear the current road selection",
+   "note": ""
+  },
+  "132": {
+   "en": "Once roads are built, hovering over a level 1 / level 2 road only highlights it; click a road to show its details, Shift + click to select several.",
+   "note": ""
+  },
+  "133": {
+   "en": "Bundling distance",
+   "note": ""
+  },
+  "134": {
+   "en": "Simplification strength",
+   "note": ""
+  },
+  "135": {
+   "en": "Level 1 road density",
+   "note": ""
+  },
+  "136": {
+   "en": "Sets the target share of length for level 1 main roads in the L1+L2 skeleton network. Higher values promote more well-supported, continuous level 2 skeleton roads linked to existing L1 to level 1.",
+   "note": ""
+  },
+  "137": {
+   "en": "Target share of length for level 1 main roads in the road skeleton: 10% = sparse, 30% = default, 60% = dense. Only well-supported level 2 skeleton roads linked to existing L1 are promoted; local service roads are never upgraded at random.",
+   "note": ""
+  },
+  "138": {
+   "en": " Auto-connect road breaks / bridge short aligned gaps",
+   "note": "'Short aligned gap' is used for 方向连续短缺口 in every record (138, 140, 142, 153, 197)."
+  },
+  "139": {
+   "en": "Road repair distance",
+   "note": "Records 141 and 153 quote this label."
+  },
+  "140": {
+   "en": "Type 0.5–30 m or drag the slider; the number and slider stay in sync. This value limits both break repair along the wool graph and short aligned gap bridging.",
+   "note": ""
+  },
+  "141": {
+   "en": "Road repair distance, metres",
+   "note": ""
+  },
+  "142": {
+   "en": "Maximum real distance (metres) for repairing breaks along the wool graph and bridging short aligned gaps; nothing further apart is ever connected automatically",
+   "note": ""
+  },
+  "143": {
+   "en": "Advanced road levels (L2 skeleton / direction / branches)",
+   "note": ""
+  },
+  "144": {
+   "en": "Level 2 skeleton strength",
+   "note": ""
+  },
+  "145": {
+   "en": "Sets which level 2 corridors act as skeleton and which as local service branches; all are still output as level 2",
+   "note": ""
+  },
+  "146": {
+   "en": "Min. level 2 skeleton length",
+   "note": ""
+  },
+  "147": {
+   "en": "Real length threshold (metres) for judging level 2 skeleton continuity; no level 3 roads are created",
+   "note": ""
+  },
+  "148": {
+   "en": "Direction tolerance",
+   "note": ""
+  },
+  "149": {
+   "en": "Shortest branch kept",
+   "note": ""
+  },
+  "150": {
+   "en": "Stop or pause the solver, then build roads; if the threads or parcels change, old roads become invalid and must be built again.",
+   "note": ""
+  },
+  "151": {
+   "en": "Level 1: from the Road north / Road south edge entrances along high-weight wool corridors into the centre.　",
+   "note": "The trailing ideographic space (U+3000) is kept, because it separates this segment from the next colour key span."
+  },
+  "152": {
+   "en": "Level 2: merges the former secondary and local access roads; handles shared/hub distribution, parcel service and valid service ends. Internal strength and continuous length still control quality, but all are shown as level 2.　",
+   "note": "The trailing ideographic space (U+3000) is kept as a separator."
+  },
+  "153": {
+   "en": "Level 2 roads also give local access and parcel service: unserved parcels are found by the distance from the parcel edge to real road segments, then joined along the wool graph. Auto-connection and 'short aligned gap bridging' are both strictly limited by 'Road repair distance' and never connect beyond it; a short gap is closed only if it is aligned, the bridge lies inside the site and it does not cross a parcel interior. Only roads connected to the level 1 root network are output, and isolated blue lines are removed automatically. Formal ends are classed as 'entrance / valid L2 service end / bridgeable gap / faulty dead end': L1 may end only at a formal entrance; L2 handles both secondary distribution and local access, and may form a service end only where it truly serves a parcel, joins the main network and has no sensible road to connect to nearby; other faulty dead ends are bridged automatically first, and end branches that still cannot be repaired are removed. Graph node welding and anchor snapping each use their own small tolerance in metres and detect real X / T junctions; the final connectivity check also detects crossings mid-segment, so real intersecting roads are not deleted by mistake.",
+   "note": ""
+  },
+  "154": {
+   "en": "Output",
+   "note": ""
+  },
+  "155": {
+   "en": "Keep current result",
+   "note": ""
+  },
+  "156": {
+   "en": "Parameter catalogue: one parameter, several values",
+   "note": ""
+  },
+  "157": {
+   "en": "Parameter",
+   "note": ""
+  },
+  "158": {
+   "en": "Extra length (%)",
+   "note": ""
+  },
+  "159": {
+   "en": "Outline anchors (current group)",
+   "note": ""
+  },
+  "160": {
+   "en": "Shared anchors (current group)",
+   "note": ""
+  },
+  "161": {
+   "en": "Interior anchors (current group)",
+   "note": ""
+  },
+  "162": {
+   "en": "Values",
+   "note": ""
+  },
+  "163": {
+   "en": " Extract parcels for each result",
+   "note": ""
+  },
+  "164": {
+   "en": "Run catalogue",
+   "note": ""
+  },
+  "165": {
+   "en": "Save settings",
+   "note": ""
+  },
+  "166": {
+   "en": "Load settings",
+   "note": ""
+  },
+  "167": {
+   "en": "Exports save the threads as polylines by group; parcels go on a separate layer as closed polylines, with the outline and anchors kept; DXF / 3DM are both in metres (m).",
+   "note": ""
+  },
+  "168": {
+   "en": "' · strong topology '",
+   "note": ""
+  },
+  "169": {
+   "en": "' raw faces · weak recovery '",
+   "note": ""
+  },
+  "170": {
+   "en": "' raw faces · raw merge '",
+   "note": ""
+  },
+  "171": {
+   "en": "' · weak recovery added '",
+   "note": "The Chinese counter word 个 after the number is dropped. The leading space is kept."
+  },
+  "172": {
+   "en": "' · exact duplicates removed '",
+   "note": "The counter 个 is dropped."
+  },
+  "173": {
+   "en": "''",
+   "note": "The bare counter word 个 has no English equivalent. It becomes an empty string, so the status reads '… 3 · …' without a double space. It is used at lines 1372, 4269 and 4514."
+  },
+  "174": {
+   "en": "' · large weak-recovery leaks dropped '",
+   "note": ""
+  },
+  "175": {
+   "en": "' · after inset '",
+   "note": ""
+  },
+  "176": {
+   "en": "' parcels'",
+   "note": "Used at line 1372 ('after inset N parcels') and line 3230 ('serves N parcels')."
+  },
+  "177": {
+   "en": "' · inset splits +'",
+   "note": ""
+  },
+  "178": {
+   "en": "' · inset collapsed '",
+   "note": ""
+  },
+  "179": {
+   "en": "' · area filtered '",
+   "note": ""
+  },
+  "180": {
+   "en": "' · over max. area deleted '",
+   "note": ""
+  },
+  "181": {
+   "en": "' · final duplicates removed '",
+   "note": ""
+  },
+  "182": {
+   "en": "' · vector rebuilt '",
+   "note": ""
+  },
+  "183": {
+   "en": "' · vector refined '",
+   "note": ""
+  },
+  "184": {
+   "en": "' · raster corner fallback '",
+   "note": ""
+  },
+  "185": {
+   "en": "' · rebuild smoothed '",
+   "note": ""
+  },
+  "186": {
+   "en": "' · strength auto-reduced '",
+   "note": ""
+  },
+  "187": {
+   "en": "' · rebuild safe fallback '",
+   "note": ""
+  },
+  "188": {
+   "en": "' · real intersections '",
+   "note": ""
+  },
+  "189": {
+   "en": "' · strong-topology near welds '",
+   "note": ""
+  },
+  "190": {
+   "en": "' · weak-recovery micro welds '",
+   "note": ""
+  },
+  "191": {
+   "en": "' · endpoint welds '",
+   "note": ""
+  },
+  "192": {
+   "en": "' · junctions closed '",
+   "note": ""
+  },
+  "193": {
+   "en": "'Faulty dead end removed automatically'",
+   "note": ""
+  },
+  "194": {
+   "en": "'Lost main network link after end trimming'",
+   "note": ""
+  },
+  "195": {
+   "en": "'Auto bridge: faulty dead end joined to a nearby formal road'",
+   "note": ""
+  },
+  "196": {
+   "en": "'Proximity bridge: logical near-links within tolerance made real'",
+   "note": ""
+  },
+  "197": {
+   "en": "'Short aligned gap bridge'",
+   "note": ""
+  },
+  "198": {
+   "en": "'L1: south/north edge entrance runs along the high-weight wool skeleton into the centre'",
+   "note": ""
+  },
+  "199": {
+   "en": "'L2: valid service end · serves '",
+   "note": "The next piece is the count, then record 176 (' parcels')."
+  },
+  "200": {
+   "en": "'L2: local access road for an unserved parcel'",
+   "note": ""
+  },
+  "201": {
+   "en": "'L2: secondary distribution / local access road'",
+   "note": ""
+  },
+  "202": {
+   "en": "'Units: metres (m) · 1 model unit = 1.000 m · current outline '",
+   "note": ""
+  },
+  "203": {
+   "en": "'Area not confirmed: press Enter to apply, then click \"Run\" to recalculate'",
+   "note": "Chinese quotes became double quotes, which are safe inside the single-quoted literal."
+  },
+  "204": {
+   "en": "'The current outline has no valid area, so the real total area cannot be applied.'",
+   "note": ""
+  },
+  "205": {
+   "en": "'Area conversion failed. Check the input value.'",
+   "note": ""
+  },
+  "206": {
+   "en": "'Real total area confirmed: '",
+   "note": "Followed by the area number, then id 207."
+  },
+  "207": {
+   "en": "' m²; the geometry and all distance settings are now in metres. Old parcels cleared; click \"Run\" to recalculate.'",
+   "note": ""
+  },
+  "208": {
+   "en": "'Loaded the wool bake.dxf node cell; the original definition has 276 lines in 4 groups. Calibrate the real scale under \"Real total area\".'",
+   "note": ""
+  },
+  "209": {
+   "en": "'The current group needs both outline anchors and shared anchors.'",
+   "note": "The source repeats 'anchor' by mistake (共享锚点锚点). The translation drops the repeat."
+  },
+  "210": {
+   "en": "'Unknown thread network solver error'",
+   "note": "线网 is shown as 'Threads' in the layer map at line 5506, so it is translated as 'thread network' throughout."
+  },
+  "211": {
+   "en": "'Thread network solve failed: '",
+   "note": "Added a trailing space after the colon because the error message is joined on directly."
+  },
+  "212": {
+   "en": "'Level 1'",
+   "note": ""
+  },
+  "213": {
+   "en": "'Level 2'",
+   "note": ""
+  },
+  "214": {
+   "en": "'Level 3'",
+   "note": ""
+  },
+  "215": {
+   "en": "'Level 4'",
+   "note": ""
+  },
+  "216": {
+   "en": "'Road centre anchor'",
+   "note": ""
+  },
+  "217": {
+   "en": "'Centre anchor'",
+   "note": ""
+  },
+  "218": {
+   "en": "'Site geometric centre'",
+   "note": ""
+  },
+  "219": {
+   "en": "'Shared anchor line'",
+   "note": ""
+  },
+  "220": {
+   "en": "'Too few shared anchors; fell back to '",
+   "note": "Added a trailing space because fb.label is joined on directly (line 3994)."
+  },
+  "221": {
+   "en": "' level'",
+   "note": "Used as number+'级' at lines 4026, 4033, 4340 and 6299, so the result reads '5 level'. To get 'Level 5', the code would need to change to 'Level '+n. Added a leading space."
+  },
+  "222": {
+   "en": "'Centre point'",
+   "note": ""
+  },
+  "223": {
+   "en": "'All'",
+   "note": ""
+  },
+  "224": {
+   "en": "'Turn on \"Parcel distance levels\" to set the number of levels and the distance for each.'",
+   "note": "Refers to the checkbox 启用包裹距离分层 (line 456)."
+  },
+  "225": {
+   "en": "'Live · '",
+   "note": ""
+  },
+  "226": {
+   "en": "' · out of range '",
+   "note": "Followed by the count and the ' 个' counter (outside this range)."
+  },
+  "227": {
+   "en": "' levels'",
+   "note": "count+' 级' at lines 4283 and 4517, so it reads '3 levels'."
+  },
+  "228": {
+   "en": "'Distance: '",
+   "note": "Added a trailing space after the colon."
+  },
+  "229": {
+   "en": "'Enter a name for this level, e.g. core, mixed, outer'",
+   "note": "Tooltip on the level name input."
+  },
+  "230": {
+   "en": "'parcel distance level settings changed'",
+   "note": "Lower case because this is the reason passed to invalidateRoadSource, which inserts it after a colon in the middle of a sentence (line 4646)."
+  },
+  "231": {
+   "en": "'Thread network not initialised yet. Please wait.'",
+   "note": ""
+  },
+  "232": {
+   "en": "'Thread network initialising; parcels will be extracted when it is ready…'",
+   "note": ""
+  },
+  "233": {
+   "en": "'Extracting parcels…'",
+   "note": ""
+  },
+  "234": {
+   "en": "'Parcel extraction failed: invalid result format.'",
+   "note": ""
+  },
+  "235": {
+   "en": "'parcels re-extracted/updated'",
+   "note": "Lower case because this is an invalidateRoadSource reason inserted mid-sentence."
+  },
+  "236": {
+   "en": "'Unknown parcel calculation error'",
+   "note": ""
+  },
+  "237": {
+   "en": "'Parcel extraction failed: '",
+   "note": "Added a trailing space after the colon."
+  },
+  "238": {
+   "en": "'No parcels in the selected distance level.'",
+   "note": ""
+  },
+  "239": {
+   "en": "'No parcels found. Reduce the inset or the minimum parcel area.'",
+   "note": "The UI labels 退距 as Inset (line 446)."
+  },
+  "240": {
+   "en": "' parcels · median real area '",
+   "note": ""
+  },
+  "241": {
+   "en": "' · min '",
+   "note": ""
+  },
+  "242": {
+   "en": "' · max '",
+   "note": ""
+  },
+  "243": {
+   "en": "' · total real area '",
+   "note": ""
+  },
+  "244": {
+   "en": "'No parcels to show in the current level range.'",
+   "note": ""
+  },
+  "245": {
+   "en": "'Stop or pause the thread network solve, then extract.'",
+   "note": ""
+  },
+  "246": {
+   "en": "' · largest real area before filtering '",
+   "note": ""
+  },
+  "247": {
+   "en": "' · max area threshold '",
+   "note": ""
+  },
+  "248": {
+   "en": "' · oversized parcels removed '",
+   "note": ""
+  },
+  "249": {
+   "en": "'Distance reference'",
+   "note": ""
+  },
+  "250": {
+   "en": "' split into '",
+   "note": "Line 4517 builds label+'分层 '+count+' 级', which gives 'Centre point split into 3 levels'. Added a leading space because the label is joined on directly."
+  },
+  "251": {
+   "en": "' · showing only '",
+   "note": ""
+  },
+  "252": {
+   "en": "' · from iteration '",
+   "note": ""
+  },
+  "253": {
+   "en": "''",
+   "note": "Deliberately empty. The pattern ' · 来自第 '+n+' 次迭代' becomes ' · from iteration '+n, so this suffix is not needed in English (lines 4520 and 4630)."
+  },
+  "254": {
+   "en": "' ms · grid '",
+   "note": ""
+  },
+  "255": {
+   "en": "' · Hover over a parcel to highlight it, click for its details; Shift+click to add to or remove from the selection.'",
+   "note": ""
+  },
+  "256": {
+   "en": "'Thread network initialising; roads will be generated when it is ready…'",
+   "note": ""
+  },
+  "257": {
+   "en": "'Road settings updated; only the latest settings will be recalculated when the current run ends…'",
+   "note": ""
+  },
+  "258": {
+   "en": "' · road input '",
+   "note": ""
+  },
+  "259": {
+   "en": "' points'",
+   "note": ""
+  },
+  "260": {
+   "en": "'Building roads: bundled centrelines → X/T nodes → graph pre-repair → L1/L2 → parcel service'",
+   "note": ""
+  },
+  "261": {
+   "en": "'Generating…'",
+   "note": ""
+  },
+  "262": {
+   "en": "'Generate level 1/2 roads'",
+   "note": "Button label (bRoads). The same text appears as the static button text at line 473."
+  },
+  "263": {
+   "en": "'Diagnostics: graph nodes '",
+   "note": ""
+  },
+  "264": {
+   "en": "' · entrances '",
+   "note": ""
+  },
+  "265": {
+   "en": "' · valid L2 ends '",
+   "note": ""
+  },
+  "266": {
+   "en": "' · stray dead ends '",
+   "note": ""
+  },
+  "267": {
+   "en": "' · auto bridges '",
+   "note": ""
+  },
+  "268": {
+   "en": "' · removed roads '",
+   "note": ""
+  },
+  "269": {
+   "en": "'. Grey dot = graph node · green circle = entrance · yellow dot = valid service end · white cross = centre · red cross = stray dead end · cyan dashed line = bridge · red dashed line = removed road.'",
+   "note": ""
+  },
+  "270": {
+   "en": "'Road calculation finished, but no L1/L2 roads were formed. Check that the Road north / Road south edge entrances can snap to the current wool thread graph, or increase the road connection repair distance.'",
+   "note": ""
+  },
+  "271": {
+   "en": "'Unknown road calculation error'",
+   "note": ""
+  },
+  "272": {
+   "en": "'Road generation failed: '",
+   "note": "Added a trailing space after the colon."
+  },
+  "273": {
+   "en": "'Stop or pause the thread network solve to generate roads. If the wool thread or parcels change, old roads become invalid and must be regenerated.'",
+   "note": ""
+  },
+  "274": {
+   "en": "'Roads '",
+   "note": ""
+  },
+  "275": {
+   "en": "' · level 1 '",
+   "note": "The ' 条' counter is dropped."
+  },
+  "276": {
+   "en": "' · level 2 '",
+   "note": ""
+  },
+  "277": {
+   "en": "' · level 1 target density '",
+   "note": ""
+  },
+  "278": {
+   "en": "'% · promoted to spine '",
+   "note": ""
+  },
+  "279": {
+   "en": "' segments / '",
+   "note": ""
+  },
+  "280": {
+   "en": "' m · reference parcels '",
+   "note": ""
+  },
+  "281": {
+   "en": "' · covered '",
+   "note": "The ' 个' counter is dropped."
+  },
+  "282": {
+   "en": "' · level 2 service access '",
+   "note": ""
+  },
+  "283": {
+   "en": "' parcels / '",
+   "note": ""
+  },
+  "284": {
+   "en": "' segments · level 2 hubs '",
+   "note": ""
+  },
+  "285": {
+   "en": "' · level 2 spine network strength '",
+   "note": "The ' 个' counter is dropped."
+  },
+  "286": {
+   "en": "' · level 2 spine continuous length threshold '",
+   "note": ""
+  },
+  "287": {
+   "en": "' m · max gap fill '",
+   "note": ""
+  },
+  "288": {
+   "en": "' m · graph pre-repair '",
+   "note": ""
+  },
+  "289": {
+   "en": "' segments (guided by parcel blocks '",
+   "note": ""
+  },
+  "290": {
+   "en": "') · geometry snaps '",
+   "note": ""
+  },
+  "291": {
+   "en": "' · proximity bridges '",
+   "note": "The ' 个' counter is dropped."
+  },
+  "292": {
+   "en": "' segments · interior spine promotion '",
+   "note": ""
+  },
+  "293": {
+   "en": "' segments · spine continuity fill '",
+   "note": ""
+  },
+  "294": {
+   "en": "' segments · interior local service candidates '",
+   "note": ""
+  },
+  "295": {
+   "en": "' segments · interior dead ends joined '",
+   "note": ""
+  },
+  "296": {
+   "en": "' segments · direction/end bridges '",
+   "note": ""
+  },
+  "297": {
+   "en": "' segments (end → road '",
+   "note": ""
+  },
+  "298": {
+   "en": "') · valid L2 service ends '",
+   "note": ""
+  },
+  "299": {
+   "en": "' · stray ends removed '",
+   "note": "The ' 个' counter is dropped."
+  },
+  "300": {
+   "en": "' / '",
+   "note": "The ' 条' counter is dropped. The result reads 'stray ends removed 3 / 45 m'."
+  },
+  "301": {
+   "en": "' m · invalid ends left '",
+   "note": ""
+  },
+  "302": {
+   "en": "' · service check distance '",
+   "note": "Counter word 个 dropped; leading space kept."
+  },
+  "303": {
+   "en": "' m · isolated roads removed '",
+   "note": ""
+  },
+  "304": {
+   "en": "' m · floating short lines deleted '",
+   "note": ""
+  },
+  "305": {
+   "en": "' · north level 1 entries '",
+   "note": ""
+  },
+  "306": {
+   "en": "' · south level 1 entries '",
+   "note": ""
+  },
+  "307": {
+   "en": "' · gaps repaired '",
+   "note": ""
+  },
+  "308": {
+   "en": "' segments · road input '",
+   "note": ""
+  },
+  "309": {
+   "en": "' points · from iteration '",
+   "note": "Followed by the iteration number, then the piece ' 次迭代' (not in this range). That piece should become '' so the line reads 'from iteration 1,234'."
+  },
+  "310": {
+   "en": "'Diagnostic mode on: generate roads first. Grey dot = graph node · green ring = confirmed entry · yellow dot = valid L2 service end · white cross = centre · red X = faulty dead end · cyan dashes = auto bridge · red dashes = removed road.'",
+   "note": ""
+  },
+  "311": {
+   "en": "'Roads out of date: '",
+   "note": "Added a trailing space after the colon to stand in for the full-width colon. The reason strings (348, 350, 351, 353, 360) follow it and start in lower case on purpose."
+  },
+  "312": {
+   "en": "'. Old roads are no longer used; click \"Generate level 1/2 road network\" again.'",
+   "note": "Button name quoted with double quotes, which is safe inside the single-quoted literal. Check it matches the English chosen for the button label (ids 123 and 262)."
+  },
+  "313": {
+   "en": "' backbone strength'",
+   "note": ""
+  },
+  "314": {
+   "en": "'Road network cleared.'",
+   "note": ""
+  },
+  "315": {
+   "en": "'Level 1 road'",
+   "note": ""
+  },
+  "316": {
+   "en": "'Level 2 road'",
+   "note": ""
+  },
+  "317": {
+   "en": "'L1 main backbone'",
+   "note": ""
+  },
+  "318": {
+   "en": "'L2 secondary/service road'",
+   "note": ""
+  },
+  "319": {
+   "en": "'Hover: '",
+   "note": "Added a trailing space after the colon (the full-width colon had none)."
+  },
+  "320": {
+   "en": "' · real length '",
+   "note": ""
+  },
+  "321": {
+   "en": "' m · click for info'",
+   "note": ""
+  },
+  "322": {
+   "en": "'Hover over a road to highlight it; click a road for info, Shift + click to select several.'",
+   "note": ""
+  },
+  "323": {
+   "en": "'Level 1: '",
+   "note": "Colon added so the count reads 'Level 1: 2 / Level 2: 1'. Trailing space kept."
+  },
+  "324": {
+   "en": "'Level 2: '",
+   "note": ""
+  },
+  "325": {
+   "en": "'Selected '",
+   "note": ""
+  },
+  "326": {
+   "en": "' roads · '",
+   "note": ""
+  },
+  "327": {
+   "en": "' · real total length '",
+   "note": ""
+  },
+  "328": {
+   "en": "'No level'",
+   "note": ""
+  },
+  "329": {
+   "en": "'Out of range'",
+   "note": ""
+  },
+  "330": {
+   "en": "'Enter a value'",
+   "note": ""
+  },
+  "331": {
+   "en": "'Spine east'",
+   "note": "Uses the English key already in the source map."
+  },
+  "332": {
+   "en": "'Spine west'",
+   "note": ""
+  },
+  "333": {
+   "en": "'Road south'",
+   "note": ""
+  },
+  "334": {
+   "en": "'Road north'",
+   "note": ""
+  },
+  "335": {
+   "en": "'Threads'",
+   "note": ""
+  },
+  "336": {
+   "en": "'Group '",
+   "note": ""
+  },
+  "337": {
+   "en": "' fully connected'",
+   "note": ""
+  },
+  "338": {
+   "en": "'Group name'",
+   "note": ""
+  },
+  "339": {
+   "en": "' anchors shared between groups.'",
+   "note": ""
+  },
+  "340": {
+   "en": "'No anchors shared between groups.'",
+   "note": ""
+  },
+  "341": {
+   "en": "'edge anchors'",
+   "note": "Lower case because it is joined into '· in edge anchors and interior anchors'."
+  },
+  "342": {
+   "en": "'interior anchors'",
+   "note": ""
+  },
+  "343": {
+   "en": "'· in '",
+   "note": ""
+  },
+  "344": {
+   "en": "' and '",
+   "note": ""
+  },
+  "345": {
+   "en": "'Welded '",
+   "note": ""
+  },
+  "346": {
+   "en": "' pairs. '",
+   "note": "Added a trailing space because the existing weld status text is joined straight after the full stop."
+  },
+  "347": {
+   "en": "'No limit'",
+   "note": ""
+  },
+  "348": {
+   "en": "'parcel settings changed'",
+   "note": "Road-invalidation reason shown after 'Roads out of date: ', so it starts in lower case."
+  },
+  "349": {
+   "en": "'Enter max parcel area (0 = no limit)'",
+   "note": ""
+  },
+  "350": {
+   "en": "'parcel boundary method changed'",
+   "note": ""
+  },
+  "351": {
+   "en": "'parcel distance levels switched on or off'",
+   "note": ""
+  },
+  "352": {
+   "en": "'Enter number of levels (1–8)'",
+   "note": ""
+  },
+  "353": {
+   "en": "'parcels cleared'",
+   "note": "Road-invalidation reason, so lower case."
+  },
+  "354": {
+   "en": "'Parcels cleared.'",
+   "note": ""
+  },
+  "355": {
+   "en": "' (iteration '",
+   "note": "A leading space stands in for the full-width bracket and gives 'N (iteration 1,234)'."
+  },
+  "356": {
+   "en": "')'",
+   "note": "Leading space dropped so the closing bracket follows the number directly."
+  },
+  "357": {
+   "en": "'Pause'",
+   "note": ""
+  },
+  "358": {
+   "en": "'Run'",
+   "note": ""
+  },
+  "359": {
+   "en": "'Real total area not confirmed. Press Enter in the area box first, then click \"Run\".'",
+   "note": "Chinese quotes replaced with double quotes, which is safe inside the single-quoted literal."
+  },
+  "360": {
+   "en": "'wool thread running again, thread geometry changing'",
+   "note": "Road-invalidation reason, so lower case."
+  },
+  "361": {
+   "en": "'Running the wool solver at the confirmed real total area of '",
+   "note": ""
+  },
+  "362": {
+   "en": "' m².'",
+   "note": ""
+  },
+  "363": {
+   "en": "'Reading '",
+   "note": ""
+  },
+  "364": {
+   "en": "'Could not read '",
+   "note": ""
+  },
+  "365": {
+   "en": "'Could not read DXF: '",
+   "note": "Added a trailing space after the colon."
+  },
+  "366": {
+   "en": "'Could not read settings: '",
+   "note": "Added a trailing space after the colon."
+  },
+  "367": {
+   "en": "'Open a .3dm, .dxf or saved .json file.'",
+   "note": ""
+  },
+  "368": {
+   "en": "': '",
+   "note": "A full-width colon becomes a colon plus a space (used at lines 5860 and 5964)."
+  },
+  "369": {
+   "en": "': no closed curve found. Close the outline in Rhino and save again.'",
+   "note": ""
+  },
+  "370": {
+   "en": "'No layer'",
+   "note": ""
+  },
+  "371": {
+   "en": "' vertices'",
+   "note": ""
+  },
+  "372": {
+   "en": "' points → edge anchors'",
+   "note": ""
+  },
+  "373": {
+   "en": "' points → interior anchors'",
+   "note": ""
+  },
+  "374": {
+   "en": "' closed curves, '",
+   "note": "Added a trailing space after the comma to stand in for the full-width comma."
+  },
+  "375": {
+   "en": "' points. Converted from '",
+   "note": ""
+  },
+  "376": {
+   "en": "' to metres; outline area '",
+   "note": ""
+  },
+  "377": {
+   "en": "' m², 16 anchors placed on the boundary to start.'",
+   "note": ""
+  },
+  "378": {
+   "en": "'Magnet strength'",
+   "note": ""
+  },
+  "379": {
+   "en": "'Magnet range'",
+   "note": ""
+  },
+  "380": {
+   "en": "'Length strength'",
+   "note": ""
+  },
+  "381": {
+   "en": "'Extra length'",
+   "note": ""
+  },
+  "382": {
+   "en": "'Angle strength'",
+   "note": ""
+  },
+  "383": {
+   "en": "'Points per thread'",
+   "note": "Catalogue label for the segs key; matches the option text 每条线的点数."
+  },
+  "384": {
+   "en": "'Outline anchors'",
+   "note": ""
+  },
+  "385": {
+   "en": "'Shared anchors'",
+   "note": "The source repeats 锚点 by mistake (共享锚点锚点); translated once."
+  },
+  "386": {
+   "en": "'Interior anchors'",
+   "note": ""
+  },
+  "387": {
+   "en": "'Parameter catalogue done: '",
+   "note": ""
+  },
+  "388": {
+   "en": "' results kept below.'",
+   "note": ""
+  },
+  "389": {
+   "en": "': iteration '",
+   "note": ""
+  },
+  "390": {
+   "en": "' ('",
+   "note": "A leading space stands in for the full-width bracket."
+  },
+  "391": {
+   "en": "')'",
+   "note": ""
+  },
+  "392": {
+   "en": "': extracting parcels ('",
+   "note": ""
+  },
+  "393": {
+   "en": "': starting ('",
+   "note": ""
+  },
+  "394": {
+   "en": "'3DM export: '",
+   "note": "Added a trailing space after the colon."
+  },
+  "395": {
+   "en": "'Settings loaded.'",
+   "note": ""
+  },
+  "396": {
+   "en": "'Show or extract parcels first.'",
+   "note": ""
+  },
+  "397": {
+   "en": "'No parcels yet. Stop or pause the wool solver and extract parcels first.'",
+   "note": ""
+  },
+  "398": {
+   "en": "'Select at least one parcel: click, Shift-click or drag a box.'",
+   "note": ""
+  },
+  "399": {
+   "en": "'Selected parcel data is not valid; select again.'",
+   "note": ""
+  },
+  "400": {
+   "en": "'WoolWorkflowBridge not ready yet'",
+   "note": ""
+  },
+  "401": {
+   "en": "'Wool module has no method: '",
+   "note": "Added a trailing space after the colon."
+  }
+ },
+ "keep": {}
+}

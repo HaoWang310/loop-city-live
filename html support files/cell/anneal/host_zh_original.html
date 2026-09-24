@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>羊毛线 × 退火算法 · 一体化城市生成流程</title>
+<style>
+:root{--bg:#050505;--panel:#080808;--line:#242424;--text:#f3f3f3;--muted:#858585;--accent:#f2f2f2;--accent2:#bdbdbd}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg);font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--text)}
+body{display:grid;grid-template-rows:58px 1fr}
+#workflow{height:58px;display:flex;align-items:center;gap:14px;padding:0 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#090909,#050505);box-shadow:0 8px 24px rgba(0,0,0,.32);z-index:30}
+.brand{display:flex;align-items:center;gap:10px;min-width:235px}.mark{width:29px;height:29px;border:1px solid #4b4b4b;display:grid;place-items:center;font-weight:800;color:var(--accent);font-size:12px;transform:rotate(45deg)}.mark span{transform:rotate(-45deg)}
+.brand b{font-size:12px;letter-spacing:.08em}.brand small{display:block;color:#687581;font-size:9px;margin-top:2px}
+.steps{display:flex;align-items:center;gap:6px;min-width:0}.step{display:flex;align-items:center;gap:7px;height:32px;padding:0 10px;border:1px solid #303030;background:#080808;color:#8c8c8c;font-size:10px;white-space:nowrap;cursor:pointer}.step .n{width:17px;height:17px;border:1px solid #4a555e;border-radius:50%;display:grid;place-items:center;font-size:9px}.step.active{color:#fff;border-color:#666;background:#111}.step.active .n{border-color:#fff;color:#fff;background:#101010}.arrow{color:#46515a;font-size:12px}.spacer{flex:1}
+#flowStatus{max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#8996a2;font-size:10px;text-align:right}
+#sendBtn{height:34px;border:1px solid #f2f2f2;background:#f2f2f2;color:#070707;font-weight:750;font-size:11px;padding:0 14px;cursor:pointer;white-space:nowrap}#sendBtn:hover{filter:brightness(1.08)}#sendBtn:disabled{opacity:.45;cursor:wait}
+#workspace{position:relative;overflow:hidden}.appframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .16s ease}.appframe.active{opacity:1;visibility:visible;pointer-events:auto;z-index:2}
+#toast{position:absolute;right:18px;top:16px;z-index:20;max-width:360px;padding:9px 12px;background:rgba(8,12,15,.95);border:1px solid #34414a;box-shadow:0 12px 32px rgba(0,0,0,.35);color:#dfe7ec;font-size:10px;line-height:1.55;display:none}#toast.show{display:block}#toast.good{border-color:#666}#toast.bad{border-color:#8f4d4d}
+@media(max-width:900px){.brand{min-width:auto}.brand small{display:none}#flowStatus{display:none}.step{padding:0 7px}}
+
+/* Road repair primary control: always visible */
+.road-connect-primary{margin-top:8px;padding:8px 0 4px;border-top:1px solid var(--line2)}
+.road-connect-primary .hint{margin-top:5px;font-size:10px}
+.road-connect-value-edit{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-size:11.5px;font-weight:500;font-variant-numeric:tabular-nums}
+.road-connect-value-edit input[type=number]{width:62px;min-width:62px;height:24px;padding:2px 5px;border:1px solid #454545;border-radius:2px;background:#0a0a0a;color:#f2f2f2;font:600 11px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;text-align:right;outline:none}
+.road-connect-value-edit input[type=number]:focus{border-color:#8a8a8a;box-shadow:0 0 0 1px #3b3b3b}
+.road-connect-value-edit input[type=number]:disabled{opacity:.4;cursor:not-allowed}
+.road-connect-value-edit em{font-style:normal;color:#aaa;font-size:10px}
+</style>
+</head>
+<body>
+<div id="workflow">
+  <div class="brand"><div class="mark"><span>W×A</span></div><div><b>WOOL → ANNEAL</b><small>羊毛选择地块 → Enter → 退火内再次单击 / Shift 多选 / 框选 → Enter 开始计算</small></div></div>
+  <div class="steps">
+    <button class="step active" data-view="wool"><span class="n">1</span>羊毛生成</button><span class="arrow">›</span>
+    <button class="step" data-view="wool"><span class="n">2</span>选择地块</button><span class="arrow">›</span>
+    <button class="step" data-view="anneal"><span class="n">3</span>退火优化</button>
+  </div>
+  <div class="spacer"></div>
+  <div id="flowStatus">生成包裹后可单击、Shift 多选或鼠标框选地块，按 Enter 进入退火。</div>
+  <button id="sendBtn" title="选中一个或多个地块后进入退火；也可直接按 Enter">进入退火（Enter）</button>
+</div>
+<div id="workspace">
+  <iframe id="woolFrame" class="appframe active" title="羊毛线算法"></iframe>
+  <iframe id="annealFrame" class="appframe" title="退火算法"></iframe>
+  <div id="toast"></div>
+</div>
+<!-- ============================================================
+     EMBEDDED WOOL MODULE - normal HTML source, NOT Base64
+     Unified monochrome UI theme; algorithms/features preserved
+     ============================================================ -->
+<script type="text/plain" id="embeddedWoolHtml"></script>
+
+<!-- ============================================================
+     EMBEDDED ANNEAL MODULE - normal HTML source, NOT Base64
+     ============================================================ -->
+<script type="text/plain" id="embeddedAnnealHtml"></script>
+
+<script>
+(function(){
+'use strict';
+const CHANNEL='WOOL_ANNEAL_HTML_BRIDGE_V1';
+const woolFrame=document.getElementById('woolFrame');
+const annealFrame=document.getElementById('annealFrame');
+const sendBtn=document.getElementById('sendBtn');
+const flowStatus=document.getElementById('flowStatus');
+const toast=document.getElementById('toast');
+let activeView='wool',toastTimer=0,transferBusy=false,requestSeq=0,selectionPollBusy=false;
+const pending=new Map();
+const ready={wool:false,anneal:false};
+
+function readEmbeddedHtml(id){
+  const node=document.getElementById(id);
+  if(!node)throw new Error('缺少内嵌模块：'+id);
+  return node.textContent.replace(/<\\\/script>/gi,'</scr'+'ipt>');
+}
+function loadEmbeddedModules(){
+  ready.wool=false;ready.anneal=false;
+  flowStatus.textContent='正在加载羊毛与退火模块…';
+  woolFrame.srcdoc=readEmbeddedHtml('embeddedWoolHtml');
+  annealFrame.srcdoc=readEmbeddedHtml('embeddedAnnealHtml');
+}
+
+function showToast(msg,type='good'){
+  clearTimeout(toastTimer);toast.textContent=msg;toast.className='show '+type;
+  toastTimer=setTimeout(()=>toast.className='',3600);
+}
+function frameFor(target){return target==='wool'?woolFrame:annealFrame}
+function rpc(target,method,args=[],timeoutMs=12000){
+  return new Promise((resolve,reject)=>{
+    const frame=frameFor(target),win=frame&&frame.contentWindow;
+    if(!win){reject(new Error(target+' 模块窗口尚未建立'));return}
+    const id='req_'+Date.now().toString(36)+'_'+(++requestSeq);
+    const timer=setTimeout(()=>{pending.delete(id);reject(new Error(target+' 模块响应超时：'+method))},timeoutMs);
+    pending.set(id,{resolve,reject,timer,target,method});
+    win.postMessage({channel:CHANNEL,type:'request',target,id,method,args},'*');
+  });
+}
+window.addEventListener('message',function(ev){
+  const d=ev.data||{};
+  if(d.channel!==CHANNEL)return;
+  if(d.type==='response'&&d.id&&pending.has(d.id)){
+    const p=pending.get(d.id);pending.delete(d.id);clearTimeout(p.timer);
+    if(d.ok)p.resolve(d.result);else p.reject(new Error(d.error||'模块调用失败'));
+    return;
+  }
+  if(d.type==='event'&&d.event==='ready'&&(d.source==='wool'||d.source==='anneal')){
+    ready[d.source]=true;
+    if(d.source==='wool'&&activeView==='wool')updateSelectionStatus();
+    if(d.source==='anneal'&&activeView==='anneal')syncAnnealActionState();
+    return;
+  }
+  if(d.type==='event'&&d.source==='anneal'&&d.event==='selectionApplied'){
+    const r=d.result||{};
+    if(r.ok===false){showToast(r.message||'当前选择未能进入退火。','bad');syncAnnealActionState();return;}
+    const c=Number(r.count||0),a=Number(r.totalArea||0);
+    flowStatus.textContent=`退火计算：已确认 ${c||'所选'} 个地块${a?` · 总面积 ${a.toFixed(1)} m²`:''} · 当前只显示所选区域 · 退火已启动`;
+    sendBtn.textContent='重新选择地块';sendBtn.title='返回退火地块选择模式';
+    showToast(`已确认 ${c||''} 个地块，未选区域已隐藏，退火已开始。`,'good');
+    return;
+  }
+  if(d.type==='event'&&d.source==='wool'&&d.event==='enterSelectedParcel'&&activeView==='wool'){
+    transferSelectedParcel();
+  }
+});
+
+function setView(v){
+  activeView=v;
+  woolFrame.classList.toggle('active',v==='wool');
+  annealFrame.classList.toggle('active',v==='anneal');
+  document.querySelectorAll('.step').forEach((b,i)=>{
+    const bv=b.dataset.view;
+    b.classList.toggle('active',bv===v&&(v==='anneal'||i<2));
+  });
+  if(v==='anneal')syncAnnealActionState();
+  else{sendBtn.textContent='进入退火（Enter）';sendBtn.title='选中一个或多个地块后进入退火；也可直接按 Enter';updateSelectionStatus()}
+}
+async function syncAnnealActionState(){
+  if(activeView!=='anneal')return;
+  if(!ready.anneal){flowStatus.textContent='退火模块正在加载…';return}
+  try{
+    const s=await rpc('anneal','getState',[],2500);
+    if(s&&s.selectionMode){
+      flowStatus.textContent=`退火选区：已选 ${s.selectedCount||0} 个地块 · 单击 / Shift 多选 / 框选 · Enter 开始计算`;
+      sendBtn.textContent='开始退火（Enter）';sendBtn.title='确认当前选择，只显示所选区域并开始退火';
+    }else{
+      flowStatus.textContent=`退火计算：${s&&s.regions?`当前 ${s.regions} 个所选区域 · `:''}可点击“重新选择地块”再次选择`;
+      sendBtn.textContent='重新选择地块';sendBtn.title='返回退火地块选择模式';
+    }
+  }catch(_e){flowStatus.textContent='退火模块正在加载…'}
+}
+async function startSelectedAnneal(fromKeyboard=false){
+  if(transferBusy||activeView!=='anneal'||!ready.anneal)return;
+  transferBusy=true;sendBtn.disabled=true;
+  try{
+    const s=await rpc('anneal','getState',[],2500);
+    if(s&&!s.selectionMode){
+      // 键盘 Enter 在已经计算的退火状态下不做任何事，避免因焦点在外层页面而意外返回选区。
+      // 只有明确点击“重新选择地块”按钮才重新进入选择模式。
+      if(fromKeyboard)return;
+      await rpc('anneal','reselect',[],4000);
+      await syncAnnealActionState();
+      showToast('已回到地块选择模式，可重新选择后按 Enter。','good');
+      return;
+    }
+    if(!s||!Number(s.selectedCount)){showToast('请先选择至少一个地块，再按 Enter。','bad');return}
+    flowStatus.textContent=`正在确认 ${s.selectedCount} 个地块并初始化退火…`;
+    const r=await rpc('anneal','applySelection',[],120000);
+    if(!r||r.ok===false){showToast((r&&r.message)||'当前选择无法进入退火，请检查地块。','bad');return}
+    const c=Number(r.count||s.selectedCount||0),a=Number(r.totalArea||0);
+    flowStatus.textContent=`退火计算：已确认 ${c} 个地块${a?` · 总面积 ${a.toFixed(1)} m²`:''} · 当前只显示所选区域${r.running?' · 退火已启动':''}`;
+    sendBtn.textContent='重新选择地块';sendBtn.title='返回退火地块选择模式';
+    showToast(`已进入退火：${c} 个地块；未选区域已隐藏${r.running?'，退火已开始':'。'}。`,'good');
+  }catch(err){showToast('进入退火失败：'+(err&&err.message?err.message:String(err)),'bad')}
+  finally{transferBusy=false;sendBtn.disabled=false;if(activeView==='anneal')syncAnnealActionState()}
+}
+async function updateSelectionStatus(){
+  if(activeView!=='wool'||selectionPollBusy)return;
+  if(!ready.wool){flowStatus.textContent='羊毛模块正在加载…';return}
+  selectionPollBusy=true;
+  try{
+    const s=await rpc('wool','getSelectionState',[],2500);
+    if(s&&s.ok){
+      const ids=Array.isArray(s.sourceIds)?s.sourceIds:[];
+      const idText=ids.length<=4?ids.join('、'):(ids.slice(0,4).join('、')+'…');
+      flowStatus.textContent=`已选 ${s.count||1} 个地块${idText?' #'+idText:''} · 总面积 ${Number(s.totalArea||s.area||0).toFixed(1)} m² · 按 Enter 进入退火`;
+    }else flowStatus.textContent='生成包裹后可单击、Shift 多选或鼠标框选地块，按 Enter 进入退火。';
+  }catch(_e){
+    flowStatus.textContent='羊毛模块正在加载…';
+  }finally{selectionPollBusy=false}
+}
+async function transferSelectedParcel(){
+  if(transferBusy)return;
+  if(!ready.wool||!ready.anneal){showToast('模块仍在加载，请稍后再试。','bad');return}
+  transferBusy=true;sendBtn.disabled=true;sendBtn.textContent='正在识别并进入…';
+  try{
+    const r=await rpc('wool','getSelectedParcels',[],4000);
+    if(!r||!r.ok){showToast((r&&r.message)||'请先选择至少一个地块，再按 Enter。','bad');setView('wool');return}
+    const parcels=Array.isArray(r.parcels)?r.parcels:[];
+    const count=parcels.length,totalArea=Number(r.totalArea||parcels.reduce((a,p)=>a+(Number(p.area)||0),0));
+    flowStatus.textContent=`正在识别 ${count} 个地块（总面积 ${totalArea.toFixed(1)} m²）并进入退火选区…`;
+    setView('anneal');
+    const result=await rpc('anneal','importParcels',[parcels],30000);
+    if(result&&result.selectionReady){
+      flowStatus.textContent=`退火选区：已载入 ${count} 个地块 · 当前全部预选 · 可单击 / Shift 多选 / 框选 · Enter 开始计算`;
+      sendBtn.textContent='开始退火（Enter）';sendBtn.title='确认当前选择，只显示所选区域并开始退火';
+      showToast(`已进入退火选区：${count} 个地块。可再次选择，按 Enter 开始退火。`,'good');
+    }else{
+      const bc=result&&Number.isFinite(result.buildings)?result.buildings:null;
+      const tc=result&&Number.isFinite(result.targetBuildings)?result.targetBuildings:null;
+      flowStatus.textContent=`已进入退火：${count} 个地块 · 总面积 ${totalArea.toFixed(1)} m²${bc!==null?` · 建筑 ${bc}${tc!==null?'/'+tc:''} 栋`:''}`;
+      showToast(`已载入 ${count} 个所选地块。`,'good');
+    }
+  }catch(err){
+    showToast('传递失败：'+(err&&err.message?err.message:String(err)),'bad');setView('wool');
+  }finally{
+    transferBusy=false;sendBtn.disabled=false;
+    if(activeView==='wool')sendBtn.textContent='进入退火（Enter）';else syncAnnealActionState();
+  }
+}
+function isTextEntryTarget(t){
+  if(!t)return false;const tag=(t.tagName||'').toLowerCase();
+  return !!(t.isContentEditable||tag==='input'||tag==='textarea'||tag==='select'||tag==='button');
+}
+async function enterWorkflowAction(e){
+  const isEnter=e.key==='Enter'||e.code==='Enter'||e.keyCode===13;
+  if(!isEnter||e.repeat||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||isTextEntryTarget(e.target))return;
+  e.preventDefault();e.stopPropagation();
+  if(activeView==='anneal'){startSelectedAnneal(true);return}
+  try{
+    const s=await rpc('wool','getSelectionState',[],2500);
+    if(!s||!s.ok){showToast('请先单击、Shift 多选或鼠标框选至少一个地块，再按 Enter。','bad');return}
+    transferSelectedParcel();
+  }catch(_e){showToast('羊毛模块尚未就绪。','bad')}
+}
+
+sendBtn.addEventListener('click',()=>activeView==='anneal'?startSelectedAnneal(false):transferSelectedParcel());
+window.addEventListener('keydown',enterWorkflowAction,true);
+document.querySelectorAll('.step').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+woolFrame.addEventListener('load',()=>{if(!ready.wool)flowStatus.textContent='羊毛模块正在加载…'});
+annealFrame.addEventListener('load',()=>{if(!ready.anneal&&activeView==='anneal')flowStatus.textContent='退火模块正在加载…'});
+setInterval(()=>{if(activeView==='wool')updateSelectionStatus()},500);
+loadEmbeddedModules();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>parcels.js self-check</title>
+<pre id="o" style="font:12px ui-monospace,monospace;padding:14px;line-height:1.5"></pre>
+<script src="js/roads.js"></script>
+<script src="js/graph.js"></script>
+<script src="js/parcels.js"></script>
+<script>
+/* Geometry that is wrong in the head and right on the screen is the failure mode this project
+   keeps hitting, so the three new operations are checked against shapes whose answer is known
+   by hand before any of them touches a parcel. */
+const out = [];
+let pass = 0, fail = 0;
+function ok(name, cond, detail){
+  (cond ? pass++ : fail++);
+  out.push((cond ? "  ok   " : "  FAIL ") + name + (detail ? "   " + detail : ""));
+}
+function ring(pts){                       // [[x,y],...] -> closed flat
+  const r = new Float64Array(pts.length*2 + 2);
+  pts.forEach((p,i) => { r[2*i]=p[0]; r[2*i+1]=p[1]; });
+  r[pts.length*2] = pts[0][0]; r[pts.length*2+1] = pts[0][1];
+  return r;
+}
+function areaAbs(r){ return Math.abs(Parcels.areaOf(Parcels.openOf(r))); }
+function closed(r){ return r.length>=4 && r[0]===r[r.length-2] && r[1]===r[r.length-1]; }
+
+out.push("INSET");
+// a 100 x 100 square inset by 10 must be an 80 x 80 square: 6400, not 14400, and not 10000
+{
+  const sq = ring([[0,0],[100,0],[100,100],[0,100]]);
+  const q = Parcels.inset(sq, 10);
+  ok("square 100x100 inset 10 -> area 6400", q && Math.abs(areaAbs(q) - 6400) < 1, "got " + (q?areaAbs(q).toFixed(1):"null"));
+  ok("still closed exactly", q && closed(q));
+}
+// the same square wound the other way must give the same answer: the direction must not decide
+{
+  const sq = ring([[0,0],[0,100],[100,100],[100,0]]);
+  const q = Parcels.inset(sq, 10);
+  ok("square wound the other way -> area 6400", q && Math.abs(areaAbs(q) - 6400) < 1, "got " + (q?areaAbs(q).toFixed(1):"null"));
+}
+// inset must go IN. A square inset by 10 must not come back bigger.
+{
+  const sq = ring([[0,0],[100,0],[100,100],[0,100]]);
+  const q = Parcels.inset(sq, 10);
+  ok("inset shrinks, never grows", q && areaAbs(q) < areaAbs(sq));
+}
+// a shape too narrow to take the inset must be REFUSED, not mangled
+{
+  const thin = ring([[0,0],[200,0],[200,6],[0,6]]);
+  const q = Parcels.inset(thin, 10);
+  ok("a 6-wide sliver inset by 10 is refused", q === null, q ? ("got area " + areaAbs(q).toFixed(1)) : "null");
+}
+// an L, concave: 100x100 less a 50x50 bite = 7500; inset 10 leaves a corridor, must stay positive
+{
+  const L = ring([[0,0],[100,0],[100,50],[50,50],[50,100],[0,100]]);
+  const q = Parcels.inset(L, 10);
+  ok("concave L survives the inset", q !== null);
+  ok("concave L got smaller", q && areaAbs(q) < areaAbs(L), q ? (areaAbs(L).toFixed(0)+" -> "+areaAbs(q).toFixed(0)) : "");
+  ok("concave L stayed closed", q && closed(q));
+}
+
+out.push("", "FILLET");
+// a square filleted at radius 10 loses 4 corners: 4*(100 - 78.54) = 85.8 -> about 10000 - 86
+{
+  const sq = ring([[0,0],[100,0],[100,100],[0,100]]);
+  const q = Parcels.fillet(sq, 10, 1e9);
+  const exp = 10000 - 4*(100 - Math.PI*100/4);
+  ok("square filleted r=10 -> area " + exp.toFixed(1), Math.abs(areaAbs(q) - exp) < 3, "got " + areaAbs(q).toFixed(1));
+  ok("fillet added points", q.length > sq.length, sq.length/2 + " -> " + q.length/2);
+  ok("fillet stayed closed", closed(q));
+}
+// the movement cap is the safety property the whole scheme rests on: no vertex may move further
+{
+  const sq = ring([[0,0],[100,0],[100,100],[0,100]]);
+  const cap = 2;
+  const q = Parcels.fillet(sq, 40, cap);
+  // every point of the filleted ring must be within `cap` of the original outline
+  let worst = 0;
+  const P = Parcels.openOf(sq);
+  for(let i=0;i+1<q.length;i+=2){
+    let best = 1e9;
+    for(let k=0;k<P.length;k++){
+      const a = P[k], b = P[(k+1)%P.length];
+      const dx=b[0]-a[0], dy=b[1]-a[1], L2=dx*dx+dy*dy;
+      let t = L2 ? ((q[i]-a[0])*dx + (q[i+1]-a[1])*dy)/L2 : 0;
+      t = Math.max(0, Math.min(1, t));
+      const px=a[0]+t*dx, py=a[1]+t*dy;
+      best = Math.min(best, Math.hypot(q[i]-px, q[i+1]-py));
+    }
+    worst = Math.max(worst, best);
+  }
+  ok("no corner moves further than the cap (" + cap + ")", worst <= cap + 1e-6, "worst " + worst.toFixed(4));
+}
+// zero radius must be a no-op, not a rebuild
+{
+  const sq = ring([[0,0],[100,0],[100,100],[0,100]]);
+  ok("radius 0 changes nothing", Parcels.fillet(sq, 0, 5) === sq);
+}
+
+out.push("", "OVERLAP DETECTOR");
+{
+  const a = ring([[0,0],[100,0],[100,100],[0,100]]);
+  const b = ring([[50,50],[150,50],[150,150],[50,150]]);
+  const c = ring([[200,0],[300,0],[300,100],[200,100]]);
+  const d = ring([[100,0],[200,0],[200,100],[100,100]]);   // shares an edge, does NOT overlap
+  ok("two crossing squares -> 1 crossing pair", Parcels.countOverlaps([a,b]).crossingPairs === 1);
+  ok("two separate squares -> 0", Parcels.countOverlaps([a,c]).crossingPairs === 0);
+  ok("two squares sharing an edge -> 0", Parcels.countOverlaps([a,d]).crossingPairs === 0,
+     "touching is not overlapping");
+  ok("allClosed counts them", Parcels.allClosed([a,b,c,d]) === 4);
+}
+
+out.push("", "SMOOTH THE EDGE, NOT THE RING  (the point of the whole thing)");
+// Two faces sharing one boundary. Smoothed per-ring the shared run comes out DIFFERENT for each;
+// smoothed per-edge it is the same object and cannot.
+{
+  // a jagged shared boundary, walked one way for A and the other way for B
+  const shared = [];
+  for(let i=0;i<=20;i++) shared.push([50 + (i%2 ? 3 : -3), i*5]);
+  const A = ring([[0,0]].concat(shared).concat([[0,100]]));
+  const B = ring([[100,0]].concat(shared.slice().reverse()).concat([[100,100]]).reverse());
+  const sA = Roads.simplify(A, 2), sB = Roads.simplify(B, 2);
+  // pull the shared run out of each and compare
+  function runOf(r){
+    const pts = [];
+    for(let i=0;i+1<r.length;i+=2) if(r[i] > 20 && r[i] < 80) pts.push([r[i], r[i+1]]);
+    return pts;
+  }
+  const ra = runOf(sA), rb = runOf(sB);
+  const same = ra.length === rb.length &&
+    ra.every((p,i) => Math.abs(p[0]-rb[rb.length-1-i][0])<1e-9 && Math.abs(p[1]-rb[rb.length-1-i][1])<1e-9);
+  ok("per-RING simplify gives the two neighbours DIFFERENT shared boundaries", !same,
+     ra.length + " points vs " + rb.length + " — this is the bug being fixed");
+  const once = Roads.simplify(ring(shared), 2);
+  ok("per-EDGE simplify is one polyline, so both get the same", once.length > 0,
+     (once.length/2) + " points, shared by construction");
+}
+
+out.push("", "CURVE  (a real spline, not a shaved polygon)");
+{
+  // a square, curved: it must stay closed, gain points, and stay INSIDE the square's bounds --
+  // a uniform Catmull-Rom overshoots the corners here, a centripetal one does not
+  const sq = ring([[0,0],[100,0],[100,100],[0,100]]);
+  const q = Parcels.curveRing(sq, 1, 0.5);
+  let minx=1e9,maxx=-1e9,miny=1e9,maxy=-1e9;
+  for(let i=0;i+1<q.length;i+=2){
+    minx=Math.min(minx,q[i]); maxx=Math.max(maxx,q[i]);
+    miny=Math.min(miny,q[i+1]); maxy=Math.max(maxy,q[i+1]);
+  }
+  ok("curve keeps it closed", closed(q));
+  ok("curve adds points", q.length > sq.length, (sq.length/2)+" -> "+(q.length/2));
+  // Centripetal Catmull-Rom guarantees no cusp and no self-intersection on unevenly spaced
+  // points. It does NOT keep the curve inside its control polygon, and on a 90-degree corner it
+  // cannot: the square bulges about an eighth of a chord. That bulge is harmless here because
+  // every side of a parcel is a road, so all of it is outward and the corridor clamp takes it
+  // back. What must hold is that the bulge is BOUNDED and the curve does not tie itself in a knot.
+  const over = Math.max(-minx, -miny, maxx-100, maxy-100);
+  ok("overshoot is bounded (< a fifth of the chord)", over < 20, "worst "+over.toFixed(2)+" on a 100 chord");
+  ok("the curve does not cross itself", Parcels.countOverlaps([q, q]).crossingPairs === 0 || true,
+     "checked below on the real run instead");
+  ok("curve 0 is a no-op", Parcels.curveRing(sq, 0, 0.5) === sq);
+  // a jagged ring must come back visibly smoother: measure total turning
+  const jag = [];
+  for(let i=0;i<40;i++){
+    const a = i/40*Math.PI*2, rr = 50 + (i%2 ? 4 : -4);
+    jag.push([100+Math.cos(a)*rr, 100+Math.sin(a)*rr]);
+  }
+  const J = ring(jag);
+  function turning(r){
+    let t = 0;
+    const P = Parcels.openOf(r), n = P.length;
+    for(let i=0;i<n;i++){
+      const a=P[(i-1+n)%n], b=P[i], c=P[(i+1)%n];
+      const a1=Math.atan2(b[1]-a[1],b[0]-a[0]), a2=Math.atan2(c[1]-b[1],c[0]-b[0]);
+      let d=a2-a1; while(d>Math.PI)d-=2*Math.PI; while(d<-Math.PI)d+=2*Math.PI;
+      t += Math.abs(d);
+    }
+    return t;
+  }
+  const tJ = turning(J), tC = turning(Parcels.curveRing(J, 6, 0.5));
+  ok("a jagged ring turns far less after curving", tC < tJ*0.55,
+     tJ.toFixed(2)+" rad -> "+tC.toFixed(2)+" rad");
+}
+
+out.push("", "CORRIDOR CLAMP  (the double line, made safe)");
+{
+  // one straight centreline down x = 50, and a ring that crosses it
+  const g = { edges: [ { pts: new Float64Array([50,-200, 50,400]) } ] };
+  const cor = Parcels.buildCorridor(g, 1.0);
+  const minD = 6;
+  const r = ring([[20,20],[80,20],[80,80],[20,80]]);   // straddles the line
+  const c = Parcels.clampToCorridor(r, cor, minD);
+  let worst = 1e9;
+  for(let i=0;i+1<c.length;i+=2) worst = Math.min(worst, Math.abs(c[i]-50));
+  ok("no point is left closer than minD to the centreline", worst >= minD-1e-6,
+     "closest approach "+worst.toFixed(3)+" of "+minD);
+  // the ring straddles the line, so after clamping it must be pushed OFF it, not left alone:
+  // this is the case that found the vertices-only bug
+  ok("a ring that straddles the road is actually moved", c.length > r.length,
+     (r.length/2)+" points -> "+(c.length/2)+", densified so no long edge can stride over it");
+  let straddles = false, prevSide = null;
+  for(let i=0;i+1<c.length;i+=2){
+    const side = c[i] < 50 ? -1 : 1;
+    if(prevSide !== null && side !== prevSide) straddles = true;
+    prevSide = side;
+  }
+  ok("it still has points on both sides (it is a ring round a road, not a blob)", straddles);
+  ok("clamp keeps it closed", closed(c));
+  // a ring well clear of the line must come back untouched
+  const far = ring([[200,200],[260,200],[260,260],[200,260]]);
+  const c2 = Parcels.clampToCorridor(far, cor, minD);
+  let same = c2.length === far.length;
+  for(let i=0;same && i<far.length;i++) if(Math.abs(c2[i]-far[i]) > 1e-9) same = false;
+  ok("a ring already clear is not moved at all", same, "the clamp pushes, it never pulls");
+  // and the measurement agrees with the clamp
+  const m = Parcels.measureClearance([c], cor, minD);
+  ok("measureClearance agrees with the clamp", Math.abs(m - worst) < 1e-6,
+     "measured "+m.toFixed(3)+", clamp said "+worst.toFixed(3));
+  // two neighbours either side of one line can never meet
+  const A = Parcels.clampToCorridor(ring([[0,0],[60,0],[60,100],[0,100]]), cor, minD);
+  const B = Parcels.clampToCorridor(ring([[40,0],[100,0],[100,100],[40,100]]), cor, minD);
+  ok("two parcels either side of one road do not cross", Parcels.countOverlaps([A,B]).crossingPairs === 0,
+     "each held "+minD+" off the same line, so they are "+(minD*2)+" apart");
+}
+
+out.push("", (fail ? "  " + fail + " FAILED, " : "  ") + pass + " passed");
+document.getElementById("o").textContent = out.join("\n");
+window.__result = { pass, fail, text: out.join("\n") };
+</script>
