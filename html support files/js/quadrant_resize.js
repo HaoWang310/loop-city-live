@@ -26,9 +26,9 @@
   }
 
   var CFG = {
-    left:   { panel:left,   key:"loopCity.quadrant.leftWidth",   min:180, max:520, def:300, dir: 1 },
-    layers: { panel:layers, key:"loopCity.quadrant.layersWidth", min:180, max:520, def:322, dir:-1 },
-    wool:   { panel:wool,   key:"loopCity.quadrant.woolWidth",   min:190, max:520, def:306, dir:-1 }
+    left:   { panel:left,   key:"loopCity.quadrant.leftWidth",   min:180, max:520, def:330, dir: 1 },
+    layers: { panel:layers, key:"loopCity.quadrant.layersWidth", min:180, max:520, def:330, dir:-1 },
+    wool:   { panel:wool,   key:"loopCity.quadrant.woolWidth",   min:190, max:520, def:330, dir:-1 }
   };
   var MIN_STAGE = 360;
   var HANDLE_W = 8;
@@ -217,4 +217,32 @@
       attachParcelFigures();
     }
   }catch(_){}
+})();
+
+(function(){
+  "use strict";
+  if(document.getElementById("lcUnifiedAnnealLikeQuadrantUI"))return;
+  var st=document.createElement("style");
+  st.id="lcUnifiedAnnealLikeQuadrantUI";
+  st.textContent=`
+:root{--paper:#f4f2ee;--card:#fff;--line:#e2ded6;--line2:#eeebe5;--ink:#2b2925;--ink2:#6f6a62;--ink3:#9c968c;--accent:#8f5f38;--accent2:#b58a68}
+body{background:var(--paper)!important;color:var(--ink)!important}
+#panelL,#panel,#panelW{background:#fff!important;flex-basis:330px;min-width:260px}
+#panelL{border-right:1px solid var(--line)!important}
+#panel,#panelW{border-left:1px solid var(--line)!important}
+#panelScroll,#panelScrollL,#panelScrollW{padding:0 14px 28px!important}
+.panelHead{min-height:48px;display:flex;align-items:center;padding:14px 0 10px!important;margin:0!important;border-bottom:1px solid var(--line2)!important;font-size:13px!important;font-weight:650!important}
+.panelSub{padding:9px 0 12px;margin:0!important;border-bottom:1px solid var(--line2)}
+section{margin:0!important;padding:14px 0 12px!important;border-bottom:1px solid var(--line2)}
+section>h2{margin:0 0 10px!important;color:var(--ink)!important;font-size:10px!important;letter-spacing:.12em!important}
+button.btn,#yearbar button{border-color:var(--line)!important;background:#fbfaf8!important;color:var(--ink)!important;border-radius:7px!important;box-shadow:none!important}
+button.btn:hover,#yearbar button:hover{background:#f2efe9!important;border-color:#d7c8b8!important}
+button.btn.primary,button.btn.running,#yearbar button.on{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important}
+#stage,#canvasWrap{background:radial-gradient(circle at 52% 46%,#fbfaf8 0,#f4f2ee 72%)!important}
+#yearbar{background:#fff!important;border-top:1px solid var(--line)!important;padding:0 14px!important}
+.chip{background:rgba(255,255,255,.94)!important;border-color:var(--line)!important;border-radius:999px!important}
+#keyPlan{border-color:var(--line)!important;border-radius:8px!important;background:#fbfaf8!important}
+input[type=range]{background:#e5e1d9!important;accent-color:var(--accent)!important}
+`;
+  document.head.appendChild(st);
 })();
