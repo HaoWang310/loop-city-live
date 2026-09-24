@@ -14,7 +14,7 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{background:var(--paper);color:var(--ink);overflow:hidden;font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;font-size:13px;display:flex;flex-direction:row}
-#stage{order:3;flex:1 1 auto;position:relative;overflow:hidden;background:var(--paper)}
+#stage{order:1;flex:1 1 auto;position:relative;overflow:hidden;background:var(--paper);min-width:0}
 #view{position:absolute;left:0;top:0;width:100%;height:100%;display:block;touch-action:none}
 #hud{position:absolute;top:18px;left:22px;pointer-events:none;display:flex;flex-direction:column;gap:8px}
 #hud h1{margin:0;font-size:19px;font-weight:700;color:var(--accent)}
@@ -55,7 +55,7 @@ body{background:var(--paper);color:var(--ink);overflow:hidden;font-family:"PingF
   background:transparent;touch-action:none
 }
 #panelResizer::after{
-  content:"";position:absolute;top:0;bottom:0;right:3px;width:1px;
+  content:"";position:absolute;top:0;bottom:0;left:3px;width:1px;
   background:var(--line);transition:background .15s,width .15s
 }
 #panelResizer:hover::after,
@@ -70,9 +70,9 @@ body.panel-resizing *{
   cursor:ew-resize!important
 }
 #panel{
-  order:1;
+  order:3;
   flex:0 0 320px;width:320px;min-width:260px;max-width:720px;
-  height:100%;background:var(--card);border-left:none;border-right:none;
+  height:100%;background:var(--card);border-left:1px solid var(--line);border-right:none;
   display:flex;flex-direction:column
 }
 #panelScroll{overflow-y:auto;padding:20px 20px 40px;flex:1}
@@ -231,7 +231,7 @@ html,body{background:#f4f2ee;color:#2b2925;font-family:"DM Sans","Inter","Segoe 
 #legend{color:#6f6a62}#legend .lg{color:#6f6a62}
 #kept{background:#fbfaf8;border-top-color:#e2ded6}
 .card{background:#ffffff;border-color:#e2ded6;border-radius:8px}.card.on{border-color:#8f5f38}.card .nm{color:#2b2925}.card .ac{color:#9c968c}.card .ac a:hover{color:#2b2925}
-#panel{flex-basis:360px;width:360px;min-width:280px;background:#ffffff;border-right:1px solid #e2ded6}
+#panel{flex-basis:360px;width:360px;min-width:280px;background:#ffffff;border-left:1px solid #e2ded6;border-right:none}
 #panelScroll{padding:18px 16px 40px}
 #panelScroll::-webkit-scrollbar{width:9px}#panelScroll::-webkit-scrollbar-thumb{background:#dcd8d0;border-radius:5px;border:3px solid #fff}
 #panelResizer::after{background:#e2ded6}#panelResizer:hover::after,body.panel-resizing #panelResizer::after{background:#8f5f38}
@@ -4712,7 +4712,7 @@ $('cRoadConnect').onchange=function(){roadP.connect=this.checked;refreshRoadCont
 var cv = document.getElementById('view'), ctx = cv.getContext('2d');
 var view = { cx: 0, cy: 0, s: 1 }, dpr = 1, VW = 0, VH = 0;
 
-// ---------------- 可拖动右侧控制栏 ----------------
+// ---------------- 可拖动右侧控制栏：画布在左，参数栏在右 ----------------
 var panelEl = $('panel');
 var panelResizerEl = $('panelResizer');
 var panelResizeDrag = null;
@@ -4753,7 +4753,7 @@ panelResizerEl.addEventListener('pointerdown',function(e){
 
 panelResizerEl.addEventListener('pointermove',function(e){
   if(!panelResizeDrag||e.pointerId!==panelResizeDrag.pointerId)return;
-  setPanelWidth(panelResizeDrag.w+(e.clientX-panelResizeDrag.x));
+  setPanelWidth(panelResizeDrag.w-(e.clientX-panelResizeDrag.x));
 });
 
 function endPanelResize(e){
