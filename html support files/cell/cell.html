@@ -30,15 +30,15 @@ html,body{height:100%;margin:0}
 body{display:flex;flex-direction:row;background:var(--paper);color:var(--ink);
   font:12.5px/1.4 "DM Sans","Inter","Segoe UI",system-ui,sans-serif;overflow:hidden}
 #bar{
-  order:1;
+  order:3;
   flex:0 0 420px;
   width:420px;
   min-width:300px;
   max-width:720px;
   height:100%;
   background:var(--card);
-  border-left:none;
-  border-right:1px solid var(--line);
+  border-left:1px solid var(--line);
+  border-right:none;
   border-bottom:none;
   z-index:20;
   display:flex;
@@ -61,7 +61,7 @@ body{display:flex;flex-direction:row;background:var(--paper);color:var(--ink);
 #note{flex-basis:100%;font-size:11px;color:var(--ink3);min-height:14px}
 #note b{color:var(--ink2);font-weight:600}
 #wrap{
-  order:3;
+  order:1;
   flex:1 1 auto;
   position:relative;
   min-width:420px;
@@ -164,15 +164,11 @@ body{
   display:flex!important;
   flex-direction:row!important;
 }
-#bar{
+#wrap{
   order:1!important;
-  flex-grow:0!important;
-  flex-shrink:0!important;
-  height:100%!important;
+  flex:1 1 auto!important;
+  min-width:420px!important;
   min-height:0!important;
-  border-left:none!important;
-  border-right:1px solid var(--line)!important;
-  border-bottom:none!important;
 }
 #barResizer{
   order:2!important;
@@ -181,11 +177,15 @@ body{
   height:100%!important;
   display:block!important;
 }
-#wrap{
+#bar{
   order:3!important;
-  flex:1 1 auto!important;
-  min-width:420px!important;
+  flex-grow:0!important;
+  flex-shrink:0!important;
+  height:100%!important;
   min-height:0!important;
+  border-left:1px solid var(--line)!important;
+  border-right:none!important;
+  border-bottom:none!important;
 }
 #barInnerResizer{display:none!important}
 </style>
@@ -273,7 +273,7 @@ body{
     <input type="range" id="lOp" min="0.1" max="1" step="0.05" value="0.75">
   </div>
 </div>
-<div id="barResizer" role="separator" aria-orientation="vertical" title="左右拖动调整左侧主工具栏宽度；双击恢复默认"></div>
+<div id="barResizer" role="separator" aria-orientation="vertical" title="左右拖动调整右侧 Main 工具栏宽度；双击恢复默认"></div>
 <div id="wrap">
   <canvas id="ov"></canvas>
   <div id="measureOut"></div>
@@ -287,7 +287,7 @@ body{
   </div>
 </div>
 <script src="../js/lclink.js"></script>
-<script src="wool/wool_app.js?v=right-panel-20260924-3"></script>
+<script src="wool/wool_app.js?v=swap-sides-20260924-1"></script>
 <script src="anneal/anneal_app.js"></script>
 <script src="rail_v12.js"></script>
 <script src="corridor_edges.js"></script>
@@ -298,6 +298,6 @@ body{
 <script src="measure.js"></script>
 <script src="overview.js"></script>
 <script src="cell.js"></script>
-<script src="cell_resize.js?v=main-left-20260924-1"></script>
+<script src="cell_resize.js?v=swap-sides-20260924-1"></script>
 </body>
 </html>
