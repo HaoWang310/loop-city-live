@@ -88,6 +88,17 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
     f.src = L.src + (hash || "");
     $("frames").appendChild(f);
     L.el = f;
+    if (level === "quadrant") {
+      f.addEventListener("load", function () {
+        try {
+          var d = f.contentDocument;
+          if (!d || (f.contentWindow && f.contentWindow.__LC_QUADRANT_RESIZE__)) return;
+          var s = d.createElement("script");
+          s.src = new URL("html support files/js/quadrant_resize.js", window.location.href).href;
+          d.body.appendChild(s);
+        } catch (e) {}
+      });
+    }
     var b = document.querySelector('.crumb[data-level="' + level + '"]');
     if (b) b.disabled = false;
     return f;
