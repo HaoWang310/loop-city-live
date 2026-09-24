@@ -285,9 +285,146 @@ button.btn.cell:hover{filter:brightness(1.06)}
 #scaleCard .x{position:absolute; right:6px; top:4px; border:0; background:none; font-size:16px;
   color:var(--ink3); cursor:pointer; padding:2px 6px; line-height:1}
 #scaleCard .x:hover{color:var(--ink)}
+
+/* ===== UNIFIED ANNEALING-LIKE WORKFLOW UI · QUADRANT ===== */
+:root{
+  --paper:#f4f2ee;
+  --card:#ffffff;
+  --line:#e2ded6;
+  --line2:#eeebe5;
+  --ink:#2b2925;
+  --ink2:#6f6a62;
+  --ink3:#9c968c;
+  --accent:#8f5f38;
+  --accent2:#b58a68;
+}
+body{background:var(--paper)!important;color:var(--ink)!important}
+#panelL,#panel,#panelW{
+  background:#fff!important;
+  flex-basis:330px;
+  min-width:260px;
+}
+#panelL{border-right:1px solid var(--line)!important}
+#panel,#panelW{border-left:1px solid var(--line)!important}
+#panelScroll,#panelScrollL,#panelScrollW{padding:0 14px 28px!important}
+.panelHead{
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  padding:14px 0 10px!important;
+  margin:0!important;
+  border-bottom:1px solid var(--line2)!important;
+  font-size:13px!important;
+  font-weight:650!important;
+}
+.panelSub{
+  padding:9px 0 12px;
+  margin:0!important;
+  border-bottom:1px solid var(--line2);
+}
+section{
+  margin:0!important;
+  padding:14px 0 12px!important;
+  border-bottom:1px solid var(--line2);
+}
+section>h2{
+  margin:0 0 10px!important;
+  color:var(--ink)!important;
+  font-size:10px!important;
+  letter-spacing:.12em!important;
+}
+button.btn,#yearbar button{
+  border-color:var(--line)!important;
+  background:#fbfaf8!important;
+  color:var(--ink)!important;
+  border-radius:7px!important;
+  box-shadow:none!important;
+}
+button.btn:hover,#yearbar button:hover{background:#f2efe9!important;border-color:#d7c8b8!important}
+button.btn.primary,button.btn.running,#yearbar button.on{
+  background:var(--accent)!important;
+  border-color:var(--accent)!important;
+  color:#fff!important;
+}
+#stage,#canvasWrap{background:radial-gradient(circle at 52% 46%,#fbfaf8 0,#f4f2ee 72%)!important}
+#yearbar{
+  height:58px!important;
+  background:#fff!important;
+  border-top:1px solid var(--line)!important;
+  padding:0 14px!important;
+}
+.chip{
+  background:rgba(255,255,255,.94)!important;
+  border-color:var(--line)!important;
+  border-radius:999px!important;
+}
+#keyPlan{
+  border-color:var(--line)!important;
+  border-radius:8px!important;
+  background:#fbfaf8!important;
+}
+input[type=range]{
+  background:#e5e1d9!important;
+  accent-color:var(--accent)!important;
+}
+input[type=range]::-webkit-slider-thumb{
+  background:var(--accent)!important;
+  border:2px solid #fff!important;
+  box-shadow:0 0 0 1px #c9b79c!important;
+}
+
+
+/* ===== UNIFIED_WORKSPACE_LAYOUT_20260924_2 · annealing-style header ===== */
+.mode-shell-header{
+  flex:0 0 64px;height:64px;min-height:64px;width:100%;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px 0 12px;background:#fff;border-bottom:1px solid var(--line,#e2ded6);
+  color:var(--ink,#2b2925);z-index:100;position:relative
+}
+.mode-shell-brand{display:flex;align-items:center;gap:12px;min-width:0}
+.mode-shell-logo{
+  width:34px;height:34px;display:grid;place-items:center;flex:0 0 34px;
+  border:1px solid #d4c5b5;border-radius:9px;background:#f5eee6;
+  color:#8f5f38;font-weight:800;font-size:15px
+}
+.mode-shell-title{
+  margin:0;font-size:15px;line-height:1.15;font-weight:650;letter-spacing:.02em;
+  color:#2b2925;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.mode-shell-actions{display:flex;align-items:center;gap:8px;margin-left:16px}
+.mode-shell-pill{
+  display:inline-flex;align-items:center;gap:7px;padding:7px 10px;
+  border:1px solid #e2ded6;border-radius:999px;background:#fbfaf8;
+  color:#6f6a62;font-size:11px;white-space:nowrap
+}
+.mode-shell-dot{width:7px;height:7px;border-radius:50%;background:#8f5f38;display:inline-block}
+
+body{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#quadrantMain{
+  flex:1 1 auto;min-height:0;min-width:0;width:100%;
+  display:flex;position:relative;overflow:hidden
+}
+#quadrantMain>#panelL,#quadrantMain>#stage,#quadrantMain>#panel,#quadrantMain>#panelW{height:100%!important;min-height:0}
+#quadrantMain>#stage{min-width:0}
+#quadrantMain>#toggleTab,#quadrantMain>#toggleW{position:absolute}
+#toggleTab{right:330px!important}
+#toggleTab.closed{right:0!important}
+#toggleW.open{right:330px!important}
 </style>
 </head>
 <body>
+<header class="mode-shell-header" aria-label="Quadrant workspace">
+  <div class="mode-shell-brand">
+    <div class="mode-shell-logo">U</div>
+    <h1 class="mode-shell-title">Quadrant network and parcel design lab</h1>
+  </div>
+  <div class="mode-shell-actions">
+    <span class="mode-shell-pill"><i class="mode-shell-dot"></i>Current quadrant scheme</span>
+  </div>
+</header>
+
+<div id="quadrantMain">
+
 
 <div id="panelL"><div id="panelScrollL">
   <div class="panelHead">The two models</div>
@@ -8545,6 +8682,8 @@ window.GROWTH_DATA = {"crs":"EPSG:27700","mPerPx":35.0,"size":[4286,3514],"corne
 
 </script>
 
+
+</div><!-- /#quadrantMain -->
 <script>
 "use strict";
 /* ------------------------------------------------------------------ config */
@@ -12133,8 +12272,9 @@ function attachParcelFigures(){
   for(let p=0;p<S.parcels.length;p++){
     const f = S.parcels[p], a = acc[p];
     f.id = "C" + (p+1);
-    f.areaKm2 = f.areaCells*cellKm2m;
-    f.perimKm = f.perimCells*S.cellE/1000;
+    // Final-ring metrics were recomputed after smoothing; only fall back for legacy calls.
+    if(!Number.isFinite(f.areaKm2)) f.areaKm2 = f.areaCells*cellKm2m;
+    if(!Number.isFinite(f.perimKm)) f.perimKm = f.perimCells*S.cellE/1000;
     // the label goes at the ring's centroid, which for these shapes is inside it
     let cx = 0, cy = 0, m = 0;
     for(let i=0;i+1<f.ring.length;i+=2){ cx += f.ring[i]; cy += f.ring[i+1]; m++; }
@@ -12442,6 +12582,28 @@ function smoothParcelRings(){
   });
   S.insetRefused = refused;
 }
+
+/* Final parcel geometry is the authoritative data contract sent to Cell/Wool.
+   Recompute area and perimeter after inset / fillet / smoothing so the numbers and ring
+   describe exactly the same polygon. East and north cell sizes stay separate. */
+function refreshFinalParcelGeometryMetrics(){
+  const CE=S.cellE, CN=S.cellN;
+  (S.parcels||[]).forEach(f=>{
+    const r=f.ring||[];
+    if(r.length<6)return;
+    let twiceA=0, perM=0;
+    for(let i=0,j=r.length-2;i<r.length;j=i,i+=2){
+      const x0=r[j],y0=r[j+1],x1=r[i],y1=r[i+1];
+      twiceA+=x0*y1-x1*y0;
+      perM+=Math.hypot((x1-x0)*CE,(y1-y0)*CN);
+    }
+    f.areaCells=Math.abs(twiceA)*0.5;
+    f.perimCells=perM/Math.max(CE,1e-9);
+    f.areaKm2=f.areaCells*CE*CN/1e6;
+    f.perimKm=perM/1000;
+  });
+}
+window.__LC_FINAL_PARCEL_METRICS_AFTER_SMOOTH__=true;
 
 /* The two smoothing sliders now change the ROADS, so moving one has to read the faces again.
    Every edge carries its original points, so this is not a smoother applied on top of a smoother
@@ -13374,8 +13536,9 @@ function listParcels(carry){
     for(let i=0;i+1<f.ring.length;i+=2){ cx += f.ring[i]; cy += f.ring[i+1]; m++; }
     f.cx = m ? cx/m : 0; f.cy = m ? cy/m : 0;
   });
-  attachParcelFigures();
   smoothParcelRings();
+  refreshFinalParcelGeometryMetrics();
+  attachParcelFigures();
   renumberParcels();
   // the cells chosen for the wool thread, and the selection, carried over by place
   if(carry.wool && carry.wool.length) list.forEach(p => { const r = p.topoRing; p.wool = carry.wool.some(q => pointInFlatRing(q[0], q[1], r)); });
@@ -15182,5 +15345,5 @@ startImg.onerror = () => fail("The embedded base map could not be decoded.");
 startImg.src = BASEMAP_SRC;
 requestAnimationFrame(frame);
 </script>
-</body>
+<script src="js/quadrant_resize.js"></script>\n</body>
 </html>
