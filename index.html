@@ -99,7 +99,7 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
           var d = f.contentDocument;
           if (!d || (f.contentWindow && f.contentWindow.__LC_QUADRANT_RESIZE__)) return;
           var s = d.createElement("script");
-          s.src = new URL("html support files/js/quadrant_resize.js", window.location.href).href;
+          s.src = new URL("html support files/js/quadrant_resize.js?v=wool-rail-20260924-1", window.location.href).href;
           d.body.appendChild(s);
         } catch (e) {}
       });
