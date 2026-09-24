@@ -4745,8 +4745,9 @@ function attachParcelFigures(){
   for(let p=0;p<S.parcels.length;p++){
     const f = S.parcels[p], a = acc[p];
     f.id = "C" + (p+1);
-    f.areaKm2 = f.areaCells*cellKm2m;
-    f.perimKm = f.perimCells*S.cellE/1000;
+    // Final-ring metrics were recomputed after smoothing; only fall back for legacy calls.
+    if(!Number.isFinite(f.areaKm2)) f.areaKm2 = f.areaCells*cellKm2m;
+    if(!Number.isFinite(f.perimKm)) f.perimKm = f.perimCells*S.cellE/1000;
     // the label goes at the ring's centroid, which for these shapes is inside it
     let cx = 0, cy = 0, m = 0;
     for(let i=0;i+1<f.ring.length;i+=2){ cx += f.ring[i]; cy += f.ring[i+1]; m++; }
@@ -5054,6 +5055,28 @@ function smoothParcelRings(){
   });
   S.insetRefused = refused;
 }
+
+/* Final parcel geometry is the authoritative data contract sent to Cell/Wool.
+   Recompute area and perimeter after inset / fillet / smoothing so the numbers and ring
+   describe exactly the same polygon. East and north cell sizes stay separate. */
+function refreshFinalParcelGeometryMetrics(){
+  const CE=S.cellE, CN=S.cellN;
+  (S.parcels||[]).forEach(f=>{
+    const r=f.ring||[];
+    if(r.length<6)return;
+    let twiceA=0, perM=0;
+    for(let i=0,j=r.length-2;i<r.length;j=i,i+=2){
+      const x0=r[j],y0=r[j+1],x1=r[i],y1=r[i+1];
+      twiceA+=x0*y1-x1*y0;
+      perM+=Math.hypot((x1-x0)*CE,(y1-y0)*CN);
+    }
+    f.areaCells=Math.abs(twiceA)*0.5;
+    f.perimCells=perM/Math.max(CE,1e-9);
+    f.areaKm2=f.areaCells*CE*CN/1e6;
+    f.perimKm=perM/1000;
+  });
+}
+window.__LC_FINAL_PARCEL_METRICS_AFTER_SMOOTH__=true;
 
 /* The two smoothing sliders now change the ROADS, so moving one has to read the faces again.
    Every edge carries its original points, so this is not a smoother applied on top of a smoother
@@ -5986,8 +6009,9 @@ function listParcels(carry){
     for(let i=0;i+1<f.ring.length;i+=2){ cx += f.ring[i]; cy += f.ring[i+1]; m++; }
     f.cx = m ? cx/m : 0; f.cy = m ? cy/m : 0;
   });
-  attachParcelFigures();
   smoothParcelRings();
+  refreshFinalParcelGeometryMetrics();
+  attachParcelFigures();
   renumberParcels();
   // the cells chosen for the wool thread, and the selection, carried over by place
   if(carry.wool && carry.wool.length) list.forEach(p => { const r = p.topoRing; p.wool = carry.wool.some(q => pointInFlatRing(q[0], q[1], r)); });
