@@ -369,6 +369,202 @@ input[type=range]:disabled{opacity:.34;filter:grayscale(1)}
 .bridge-logic-box{border:1px solid #e2ded6;border-radius:8px;background:#fbfaf8;color:#6f6a62}
 .bridge-logic-box b{color:#2b2925}
 .bridge-formula{border:1px solid #eeebe5;border-radius:6px;background:#ffffff;color:#6b4a2c}
+
+/* ===== LOOP CITY UNIFIED LIGHT UI ===== */
+:root{
+  --bg:#f4f2ee;
+  --panel:#ffffff;
+  --panel2:#fbfaf8;
+  --line:#e2ded6;
+  --text:#2b2925;
+  --muted:#9c968c;
+  --accent:#8f5f38;
+  --accent2:#b58a68;
+  --warn:#a36f3f;
+  --bad:#9b5d52;
+  --green:#6f9a58;
+  --road:#8f5f38;
+}
+html,body{background:var(--bg)!important;color:var(--text)!important}
+header{
+  background:#fff!important;
+  border-bottom:1px solid var(--line)!important;
+  box-shadow:none!important
+}
+.logo{
+  border:1px solid #d4c5b5!important;
+  color:var(--accent)!important;
+  background:#f5eee6!important;
+  box-shadow:none!important
+}
+.brand h1{color:var(--text)!important}
+.brand p,.hint,.mini,.file-status,.candidate-note{color:var(--muted)!important}
+.pill{
+  border-color:var(--line)!important;
+  color:var(--ink2,#6f6a62)!important;
+  background:#fbfaf8!important
+}
+button{
+  border-color:var(--line)!important;
+  background:#fbfaf8!important;
+  color:var(--text)!important;
+  border-radius:7px!important;
+  box-shadow:none!important
+}
+button:hover{background:#f2efe9!important;border-color:#d7c8b8!important}
+button.primary{
+  background:var(--accent)!important;
+  border-color:var(--accent)!important;
+  color:#fff!important
+}
+button.primary:hover{background:#7f4f31!important;color:#fff!important}
+button.danger{
+  background:#fff!important;
+  border-color:#d7c8b8!important;
+  color:#805342!important
+}
+.left,.right{
+  background:#fff!important;
+  scrollbar-color:#d8d2ca transparent!important
+}
+.left{border-right:1px solid var(--line)!important}
+.right{border-left:1px solid var(--line)!important}
+.section{border-bottom:1px solid var(--line2,#eeebe5)!important}
+.section-title{color:var(--text)!important}
+.section-title::before{
+  background:var(--accent)!important;
+  width:12px!important;height:1px!important
+}
+.upload-card,.domain,.kpi,.output-grid span,.wind-source-note{
+  background:#fbfaf8!important;
+  border-color:var(--line)!important;
+  border-radius:8px!important
+}
+.file-button,.compact-select,.polyline-picker select,.number-input,
+select,input[type=text],input[type=number]{
+  background:#fff!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+  border-radius:6px!important
+}
+.number-input:focus,select:focus,input[type=text]:focus,input[type=number]:focus{
+  border-color:#b89473!important;
+  box-shadow:0 0 0 2px rgba(143,95,56,.10)!important
+}
+.value-chip,.domain-line b{color:var(--accent)!important}
+.control-head,.domain-title,.switch-row{color:#5f5a54!important}
+.domain-line span,.参数项 span,.kpi .name,.metric-head,.legend,.logic,.tag{color:var(--muted)!important}
+.switch .slider{background:#d8d3ce!important}
+.switch input:checked+.slider{background:var(--accent)!important}
+.switch input:checked+.slider:before{background:#fff!important}
+.progress,.bar{background:#e9e5df!important;border-radius:999px!important}
+.progress>div,.bar>div{
+  background:linear-gradient(90deg,#c6aa90 0%,#8f5f38 100%)!important;
+  box-shadow:none!important
+}
+.layout-resizer::before{background:#ded7cf!important}
+.layout-resizer:hover::before,.layout-resizer.dragging::before{
+  background:var(--accent)!important;
+  box-shadow:none!important
+}
+.layout-resizer:hover,.layout-resizer.dragging{background:rgba(143,95,56,.035)!important}
+.canvas-wrap{
+  background:radial-gradient(circle at 55% 45%,#fbfaf8 0,#f4f2ee 70%)!important
+}
+.toolbtn{
+  background:rgba(255,255,255,.94)!important;
+  border-color:var(--line)!important;
+  color:#6f6a62!important;
+  border-radius:7px!important;
+  box-shadow:0 2px 10px rgba(43,41,37,.06)!important
+}
+.toolbtn:hover{border-color:#cbb8a5!important;color:var(--text)!important}
+.toolbtn.active{
+  background:var(--accent)!important;
+  border-color:var(--accent)!important;
+  color:#fff!important
+}
+.canvas-note{
+  background:rgba(255,255,255,.92)!important;
+  border-color:var(--line)!important;
+  color:var(--muted)!important;
+  border-radius:8px!important
+}
+.site-preview-badge{
+  border-color:#d7c1aa!important;
+  background:rgba(255,255,255,.95)!important;
+  color:#7b5a40!important;
+  box-shadow:0 8px 24px rgba(43,41,37,.10)!important
+}
+.site-preview-badge strong{color:var(--text)!important}
+.site-preview-badge kbd{color:#fff!important;background:var(--accent)!important}
+.building-info,.floating-info{
+  background:rgba(255,255,255,.97)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+  box-shadow:0 14px 36px rgba(43,41,37,.14)!important;
+  backdrop-filter:blur(12px)!important
+}
+.building-info-title,.floating-info h4{color:var(--text)!important}
+.building-info-sub,.floating-info .float-sub{color:var(--muted)!important}
+.building-info-grid span,.monitor-row .label{color:#7d776f!important}
+.building-info-grid b,.monitor-value{color:var(--text)!important}
+.floating-info::before{
+  background:linear-gradient(180deg,#c9b29c 0%,#8f5f38 55%,rgba(143,95,56,0) 100%)!important
+}
+.floating-info h4::after{background:var(--accent)!important;box-shadow:none!important}
+.floating-info .float-sub::before{background:var(--accent)!important;box-shadow:none!important}
+.monitor-bar{background:#e8e3dd!important}
+.monitor-fill,.monitor-fill.hot,.monitor-fill.cool{
+  background:linear-gradient(90deg,#cab39e 0%,#8f5f38 100%)!important;
+  box-shadow:none!important
+}
+.monitor-fill::after,.monitor-fill.hot::after,.monitor-fill.cool::after{background:var(--accent)!important}
+.kpi{background:#fbfaf8!important;border-color:var(--line)!important}
+.kpi .value,.kpi.good .value{color:var(--accent)!important}
+.logic b{color:var(--text)!important}
+.tag{border-color:var(--line)!important;color:#756f68!important;background:#fbfaf8!important}
+.divider{background:var(--line)!important}
+.参数项{border-bottom-color:#eeeae4!important}
+.参数项 b{color:var(--text)!important}
+.output-grid span{color:#756f68!important}
+.status-dot{background:#b9b0a7!important}
+.status-dot.run{background:var(--accent)!important;box-shadow:0 0 0 3px rgba(143,95,56,.12)!important}
+
+/* Range controls match the Cell / Wool UI */
+input[type=range]{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  height:2px!important;
+  background:#ded8d1!important;
+  border-radius:0!important;
+  accent-color:var(--accent)!important
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none!important;
+  width:13px!important;height:13px!important;
+  border-radius:50%!important;
+  background:var(--accent)!important;
+  border:2px solid #fff!important;
+  box-shadow:0 0 0 1px #c4ad97!important
+}
+input[type=range]::-moz-range-thumb{
+  width:11px!important;height:11px!important;
+  border-radius:50%!important;
+  background:var(--accent)!important;
+  border:2px solid #fff!important
+}
+
+/* Popovers / modal cards */
+.bridge-modal-card,.modal-card,.dialog,.popover,[class*="modal-card"]{
+  background:#fff!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+  box-shadow:0 18px 48px rgba(43,41,37,.16)!important
+}
+
+/* Keep WebGL/canvas output untouched by CSS; only the surrounding chrome is unified. */
+
 </style></head><body><div class="app"><header><div class="brand"><div class="logo">U</div><div><h1>Urban form annealing design lab</h1></div></div><div class="header-actions"><span class="pill" id="modePill"><span class="status-dot" id="statusDot"></span>Best scheme so far</span><button id="exportJson">Export data</button><button id="exportPng">Export image</button></div></header>
 <div class="layout-resizer left-resizer" id="leftPanelResizer" title="Drag to resize the left panel · double-click to restore the default"></div><div class="layout-resizer right-resizer" id="rightPanelResizer" title="Drag to resize the right panel · double-click to restore the default"></div>
 <aside class="left">
