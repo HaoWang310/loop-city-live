@@ -188,12 +188,54 @@ body{
   border-bottom:none!important;
 }
 #barInnerResizer{display:none!important}
+
+/* CELL WORKFLOW STEPS */
+.cell-workflow{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 0 2px;
+  color:var(--ink3)
+}
+.cell-workflow>i{font-style:normal;color:#c5beb5;font-size:13px}
+.wf-step{
+  min-width:0;
+  display:grid;
+  grid-template-columns:18px 1fr;
+  grid-template-rows:auto auto;
+  column-gap:6px;
+  align-items:center;
+  color:var(--ink3)
+}
+.wf-step>b{
+  grid-row:1/3;
+  width:18px;height:18px;
+  display:grid;place-items:center;
+  border:1px solid #d8d0c7;
+  border-radius:50%;
+  font-size:9px;
+  font-weight:600
+}
+.wf-step>span{font-size:10.5px;font-weight:600;line-height:1.05;white-space:nowrap}
+.wf-step>small{font-size:8px;line-height:1.05;color:#aaa39a;white-space:nowrap}
+.wf-step.on{color:var(--accent)}
+.wf-step.on>b{background:var(--accent);border-color:var(--accent);color:#fff}
+.wf-step.done{color:#6f6a62}
+.wf-step.done>b{border-color:#b9aa9a;color:#7b5b42;background:#f4eee7}
 </style>
 </head>
 <body>
 <div id="bar">
   <div id="barTop">
   <div class="id"><span class="kick">Cell</span><b id="cId">no cell yet</b><span class="sub" id="cSub"></span></div>
+  <div id="cellWorkflowSteps" class="cell-workflow" aria-label="Cell workflow">
+    <span class="wf-step on" data-wf="wool"><b>1</b><span>Wool</span><small>羊毛线</small></span>
+    <i>›</i>
+    <span class="wf-step" data-wf="parcel"><b>2</b><span>Parcels</span><small>地块</small></span>
+    <i>›</i>
+    <span class="wf-step" data-wf="anneal"><b>3</b><span>Annealing</span><small>退火优化</small></span>
+  </div>
   <div class="grp" title="The anchors the cell starts with. Afterwards, add, move and delete them with the wool thread's own tools.">
     <span class="kick">Starting anchors</span>
     <span class="kind" id="cKind"></span>
@@ -288,7 +330,7 @@ body{
 </div>
 <script src="../js/lclink.js"></script>
 <script src="wool/wool_app.js?v=swap-sides-20260924-1"></script>
-<script src="anneal/anneal_app.js"></script>
+<script src="anneal/anneal_app.js?v=unified-anneal-20260924-1"></script>
 <script src="rail_v12.js"></script>
 <script src="corridor_edges.js"></script>
 <script src="corridor.js"></script>
