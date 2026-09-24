@@ -250,6 +250,11 @@
   function annealShow(on) {
     ANN.on = !!on;
     if (ANN.frame) ANN.frame.classList.toggle("on", ANN.on);
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ lc: 1, type: "annealState", on: ANN.on }, "*");
+      }
+    } catch (_) {}
     $("bAnnealBack").style.display = ANN.on ? "" : "none";
     $("bAnneal").classList.toggle("primary", !ANN.on);
     document.body.classList.toggle("isAnneal", ANN.on);
@@ -922,7 +927,17 @@
   CellOverview.init(ov, function () { return SLOTS; }, function () { return SHOW; }, function (s) { activate(s); });
 
   // the demonstration copy, until a cell arrives
-  activate(makeSlot(null));
+  activate(makeSlot(null));  // Global top navigation can open the Annealing workspace directly.
+  window.addEventListener("message", function (e) {
+    var d = e.data || {};
+    if (d.lc !== 1 || d.type !== "openAnnealing") return;
+    try {
+      if (window.parent && window.parent !== window && e.source !== window.parent) return;
+    } catch (_) {}
+    annealSend();
+  });
+
+
 
   /* ================================================================== the link to the other scales */
   if (window.LoopCity) {
@@ -935,6 +950,8 @@
     add: function (ctx) { setPacks(packsOf(ctx), false); },
     activate: function (i) { activate(i === "all" ? "all" : SLOTS[i]); },
     mode: applyMode, runAll: runAll,
+    openAnnealing: annealSend,
+    closeAnnealing: function () { annealShow(false); },
     get slots() { return SLOTS; }, get active() { return ACT; },
     get pack() { return ACT && ACT.pack; }, get built() { return ACT && ACT.built; }
   };
