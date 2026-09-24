@@ -262,7 +262,7 @@
   }
   function annealReady(cb, t0) {
     var w = annealWin();
-    if (w && w.AnnealWorkflowBridge && w.document.readyState === "complete") return cb(w);
+    if (w && w.AnnealWorkflowBridge) return cb(w);
     if (Date.now() - (t0 || Date.now()) > 20000) { note("<b>The annealing lab did not start.</b>"); ANN.busy = false; return; }
     setTimeout(function () { annealReady(cb, t0 || Date.now()); }, 150);
   }
@@ -317,18 +317,33 @@
   }
   function annealSend() {
     if (ANN.busy) return;
-    if (!ACT || ACT === "all" || !ACT.built) { note("Open one cell and run the wool thread first, then select parcels in it."); return; }
-    var w0 = ACT.win(), B = w0 && w0.WoolWorkflowBridge;
-    if (!B) { note("The wool thread in this cell is not ready yet."); return; }
+
+    // Any active Wool slot may transfer selected parcels, including the built-in demo.
+    if (!ACT || ACT === "all") {
+      annealPreviewOpen();
+      return;
+    }
+
+    var w0 = ACT.win && ACT.win(), B = w0 && w0.WoolWorkflowBridge;
+    if (!B) {
+      annealPreviewOpen();
+      note("<b>Annealing demo opened.</b> The current Wool workspace is not ready for parcel transfer yet.");
+      return;
+    }
     /* What is selected on his drawing NOW is what goes, every press: the parcels are read again each time,
        never held from the press before. (Held ones were the bug: his payload ids are positions in the parcel
        list, so a list re-extracted in between turned a held parcel into a different one -- "it showed random
        parcels, not the ones I picked".) Only the note of WHICH of them have already gone is kept, so pressing
        again sends the next group of a like size rather than the same one. */
     var r = B.getSelectedParcels();
-    if (!r.ok) { note("<b>" + r.message + "</b> Extract the parcels in the wool thread, then click the ones to build on (Shift+click or a box for several)."); return; }
-    var key = function (p) { return (ACT.pack ? ACT.pack.id : "-") + "#" + (p.sourceId || p.id); };
-    var sig = ACT.pack.id + "|" + r.parcels.map(key).sort().join(",");
+    if (!r.ok) {
+      note("<b>" + r.message + "</b> Extract parcels, select one or more, then press <b>Enter</b> or click <b>Annealing →</b>.");
+      return;
+    }
+
+    var cellId = ACT.pack && ACT.pack.id ? ACT.pack.id : "demo";
+    var key = function (p) { return cellId + "#" + (p.sourceId || p.id); };
+    var sig = cellId + "|" + r.parcels.map(key).sort().join(",");
     if (sig !== ANN.sig) { ANN.sig = sig; ANN.done = {}; }
     var waiting = r.parcels.filter(function (p) { return !ANN.done[key(p)]; });
     var again = !waiting.length;
@@ -336,7 +351,7 @@
     var groups = annealGroups(waiting), g = groups[0];
     var area = g.reduce(function (a, p) { return a + (p.area || 0); }, 0), left = waiting.length - g.length;
     g.forEach(function (p) { ANN.done[key(p)] = 1; });
-    ANN.busy = true; ANN.selCell = ACT.pack.id;
+    ANN.busy = true; ANN.selCell = cellId;
     note("Taking " + g.length + " parcel" + (g.length === 1 ? "" : "s") + " (" + num(area / 10000, 1) + " ha) into the annealing lab…");
     annealMake(); annealShow(true);
     annealReady(function (w) {
@@ -961,9 +976,16 @@
   window.addEventListener("message", function (e) {
     var d = e.data || {};
     if (d.lc !== 1 || (d.type !== "openAnnealing" && d.type !== "openAnnealingDemo")) return;
+
     try {
       if (window.parent && window.parent !== window && e.source !== window.parent) return;
     } catch (_) {}
+
+    if (d.type === "openAnnealingDemo") {
+      annealPreviewOpen();
+      return;
+    }
+
     annealSend();
   });
 
