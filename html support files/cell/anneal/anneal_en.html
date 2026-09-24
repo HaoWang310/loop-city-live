@@ -638,6 +638,62 @@ input[type=range]::-moz-range-thumb{
   }
 }
 
+
+/* ===== PERFORMANCE MONITOR SIZE XL ===== */
+#floatingInfo{
+  width:460px!important;
+  max-width:calc(100% - 44px)!important;
+  padding:22px 22px 20px!important;
+}
+#floatingInfo h4{
+  font-size:20px!important;
+  line-height:1.08!important;
+  letter-spacing:.11em!important;
+  margin-bottom:7px!important;
+}
+#floatingInfo .float-sub{
+  font-size:10px!important;
+  line-height:1.35!important;
+  margin-bottom:14px!important;
+}
+#floatingInfo .monitor-row{
+  grid-template-columns:155px minmax(120px,1fr) 112px!important;
+  column-gap:12px!important;
+  min-height:32px!important;
+  padding:3px 0!important;
+}
+#floatingInfo .monitor-row .label{
+  font-size:12px!important;
+  line-height:1.2!important;
+}
+#floatingInfo .monitor-row .label .metric-unit{
+  font-size:9.5px!important;
+}
+#floatingInfo .monitor-value{
+  font-size:12px!important;
+  line-height:1.2!important;
+}
+#floatingInfo .monitor-bar{
+  height:3px!important;
+}
+#floatingInfo .monitor-fill{
+  height:3px!important;
+}
+@media (max-width:1180px){
+  #floatingInfo{
+    width:420px!important;
+    padding:20px 20px 18px!important;
+  }
+  #floatingInfo .monitor-row{
+    grid-template-columns:142px minmax(100px,1fr) 102px!important;
+    column-gap:10px!important;
+    min-height:30px!important;
+  }
+  #floatingInfo .monitor-row .label,
+  #floatingInfo .monitor-value{
+    font-size:11px!important;
+  }
+}
 </style></head><body><div class="app"><header><div class="brand"><div class="logo">U</div><div><h1>Urban form annealing design lab</h1></div></div><div class="header-actions"><span class="pill" id="modePill"><span class="status-dot" id="statusDot"></span>Best scheme so far</span><button id="exportJson">Export data</button><button id="exportPng">Export image</button></div></header>
 <div class="layout-resizer left-resizer" id="leftPanelResizer" title="Drag to resize the left panel · double-click to restore the default"></div><div class="layout-resizer right-resizer" id="rightPanelResizer" title="Drag to resize the right panel · double-click to restore the default"></div>
 <aside class="left">
