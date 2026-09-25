@@ -10,7 +10,9 @@ on:
       - "assets/**"
       - "build/build_app.py"
       - "build/build_cell.py"
+      - "build/build_anneal.py"
       - "html support files/cell/wool/wool_en.html"
+      - "html support files/cell/anneal/anneal_en.html"
       - ".github/workflows/rebuild-loop-city.yml"
   workflow_dispatch:
 
@@ -41,6 +43,9 @@ jobs:
       - name: Rebuild embedded Wool app
         run: python build/build_cell.py
 
+      - name: Rebuild embedded Annealing app
+        run: python build/build_anneal.py
+
       - name: Rebuild combined app
         env:
           LOOP_CITY_NO_ARCHIVE: "1"
@@ -49,12 +54,12 @@ jobs:
       - name: Commit generated live page
         shell: bash
         run: |
-          if git diff --quiet -- "html support files/combined_v10.html" "html support files/cell/wool/wool_app.js"; then
+          if git diff --quiet -- "html support files/combined_v10.html" "html support files/cell/wool/wool_app.js" "html support files/cell/anneal/anneal_app.js"; then
             echo "Generated pages are already current."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "html support files/combined_v10.html" "html support files/cell/wool/wool_app.js"
+          git add "html support files/combined_v10.html" "html support files/cell/wool/wool_app.js" "html support files/cell/anneal/anneal_app.js"
           git commit -m "Auto-rebuild Loop City live pages"
           git push
