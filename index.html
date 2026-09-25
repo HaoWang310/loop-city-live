@@ -78,9 +78,9 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
   "use strict";
   var ORDER = ["loop", "quadrant", "cell"];
   var LV = {
-    loop:     { src: "html support files/loop/index.html?v=unified-layout-20260925-1",  el: null, ready: false, queue: [] },
-    quadrant: { src: "html support files/combined_v10.html?v=unified-layout-20260925-1", el: null, ready: false, queue: [] },
-    cell:     { src: "html support files/cell/cell.html?v=unified-layout-20260925-1",   el: null, ready: false, queue: [] }
+    loop:     { src: "html support files/loop/index.html?v=719b91843dbce5947acb64f7156e3f40",  el: null, ready: false, queue: [] },
+    quadrant: { src: "html support files/combined_v10.html?v=719b91843dbce5947acb64f7156e3f40", el: null, ready: false, queue: [] },
+    cell:     { src: "html support files/cell/cell.html?v=719b91843dbce5947acb64f7156e3f40",   el: null, ready: false, queue: [] }
   };
   var current = null;
   var $ = function (id) { return document.getElementById(id); };
@@ -99,7 +99,7 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
           var d = f.contentDocument;
           if (!d || (f.contentWindow && f.contentWindow.__LC_QUADRANT_RESIZE__)) return;
           var s = d.createElement("script");
-          s.src = new URL("html support files/js/quadrant_resize.js?v=workspace-20260925-1", window.location.href).href;
+          s.src = new URL("html support files/js/quadrant_resize.js?v=719b91843dbce5947acb64f7156e3f40", window.location.href).href;
           d.body.appendChild(s);
         } catch (e) {}
       });
