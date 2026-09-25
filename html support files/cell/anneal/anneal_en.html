@@ -2766,6 +2766,20 @@ if(workflowCoordinateFrame){
   payload.场地曲线_BNG=activeSiteRegions().map(workflowBNGPolygon);
   payload.建筑_BNG=bs.map(workflowBNGBuilding).filter(Boolean);
   payload.道路_BNG=state.roads.map(workflowBNGRoad);
+  payload.绿地_BNG=state.greenSystems.map(g=>({
+    region:g.region,
+    regions:(g.regions||[]).map(x=>({tier:x.tier,cells:(x.cells||[]).map(c=>workflowLocalPointToBNG(c.p)).filter(Boolean)}))
+  }));
+  payload.桥接_BNG=computeBridgeSystem().links.map(link=>({
+    region:link.region,
+    buildingA:link.a&&link.a.id,
+    buildingB:link.b&&link.b.id,
+    from:workflowLocalPointToBNG(link.a),
+    to:workflowLocalPointToBNG(link.b),
+    elevation:Number(link.z)||0,
+    width:Number(link.width)||0,
+    height:Number(link.h)||0
+  }));
 }
 let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');a.download='urban_annealing_scheme.json';a.href=URL.createObjectURL(blob);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 canvas.addEventListener('wheel',e=>{e.preventDefault();markInteraction(115);let rect=canvas.getBoundingClientRect(),mx=e.clientX-rect.left,my=e.clientY-rect.top,old=view.zoom,factor=e.deltaY>0?.90:1.11,next=clamp(old*factor,.18,8);if(Math.abs(next-old)<1e-9)return;let cx=wrap.clientWidth/2+view.panX,cy=(view.mode==='top'?wrap.clientHeight/2:wrap.clientHeight*.54)+view.panY,ratio=next/old;view.panX=mx-(mx-cx)*ratio-(wrap.clientWidth/2);view.panY=my-(my-cy)*ratio-(view.mode==='top'?wrap.clientHeight/2:wrap.clientHeight*.54);view.zoom=next;requestInteractiveDraw()},{passive:false});
@@ -2840,6 +2854,7 @@ async function workflowCommitSelectedParcels(){
         return{...result,ok:false,message};
       }
       result.running=true;
+      if(workflowCoordinateFrame)result.coordinateFrame={...workflowCoordinateFrame};
       if($('rhinoStatus'))$('rhinoStatus').textContent=`Confirmed ${result.count||selectedRhinoIds.size} parcels and started annealing · buildings ${result.buildings||workflowCurrentBuildingCount()}/${result.targetBuildings||workflowCurrentTargetCount()}.`;
     }
     try{window.parent&&window.parent!==window&&window.parent.postMessage({channel:'WOOL_ANNEAL_HTML_BRIDGE_V1',source:'anneal',type:'event',event:'selectionApplied',result},'*')}catch(_e){}
