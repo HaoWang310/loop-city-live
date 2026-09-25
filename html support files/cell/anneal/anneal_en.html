@@ -966,6 +966,7 @@ class RNG{constructor(seed=1){this.s=seed>>>0||1} next(){let x=this.s;x^=x<<13;x
 let params={}, site=[], siteRegions=[], state=null, timer=null, running=false, algorithmRegionIndex=null;
 let importedPolylines=[], importedPolylinesPool=[], importedSite=null, importedSites=[], selectedRhinoIds=new Set(), rhinoSelectionMode=false, rhinoFileName='', rhinoModule=null;
 let rhinoSelectionMarquee=null, workflowWoolSource=false;
+let workflowCoordinateFrame=null; // Loop City BNG frame; solver itself stays in local metres
 let epwMeta={city:'London default',lat:51.5,lon:0.0,tz:0.0,fileName:'',windValid:false,windRecords:0,windAvgSpeed:null,windDominantFrom:null,windModelDir:null,windDrivingSpeed:null,windCalmRatio:null};
 let manualWind={speed:5,dir:0}, lastWindSource='manual';
 let SUNS=[], SUNS_FULL=[], SUNS_VIS=[];
@@ -3124,7 +3125,17 @@ function cleanWorldPolyline(points,scale=1,epsOverride=null){
   let closedByPoints=false,closureGap=Infinity;if(out.length>2){let a=out[0],b=out[out.length-1];closureGap=Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);if(closureGap<=eps*8){out.pop();closedByPoints=true}}
   return{points:out,closedByPoints,closureGap}
 }
-function normalizeWorldPolylines(candidates){if(!candidates||!candidates.length)return[];let pts=candidates.flatMap(c=>c.worldPoints||[]);if(!pts.length)return[];let minX=Math.min(...pts.map(p=>p.x)),minY=Math.min(...pts.map(p=>p.y));return candidates.map(c=>(c.worldPoints||[]).map(p=>({x:p.x-minX,y:p.y-minY,z:p.z??0}))).filter(poly=>poly.length>=3)}
+function normalizeWorldPolylines(candidates){
+  if(!candidates||!candidates.length)return[];
+  let pts=candidates.flatMap(c=>c.worldPoints||[]);
+  if(!pts.length)return[];
+  let minX=Math.min(...pts.map(p=>p.x)),minY=Math.min(...pts.map(p=>p.y));
+  if(workflowWoolSource&&workflowCoordinateFrame){
+    workflowCoordinateFrame.annealOffsetX=minX;
+    workflowCoordinateFrame.annealOffsetY=minY;
+  }
+  return candidates.map(c=>(c.worldPoints||[]).map(p=>({x:p.x-minX,y:p.y-minY,z:p.z??0}))).filter(poly=>poly.length>=3)
+}
 function listPointsFromPolyline(pl){
   if(!pl)return null;
   if(Array.isArray(pl)||ArrayBuffer.isView(pl))return Array.from(pl);
@@ -3345,6 +3356,7 @@ function screenPointInProjectedPoly(x,y,poly){let sp=poly.map(p=>project(p,.02))
 function rhinoCandidateAtScreen(x,y){projectionCache=null;prepareProjectionCache();let best=null,bd=1e9;for(const c of importedPolylines){let poly=c.previewPoints||c.worldPoints;if(!poly||poly.length<2)continue;for(let i=0;i<poly.length;i++){let a=project(poly[i],.02),b=project(poly[(i+1)%poly.length],.02),d=pointSegDist({x,y},a,b);if(d<bd){bd=d;best=c}}}if(best&&bd<=14)return best;let inside=importedPolylines.filter(c=>screenPointInProjectedPoly(x,y,c.previewPoints||c.worldPoints)).sort((a,b)=>a.area-b.area);return inside[0]||null}
 async function loadRhinoFile(file){
   workflowWoolSource=false;
+  workflowCoordinateFrame=null;
   haltComputation();focusedSiteIndex=null;updateSitePreviewBadge();$('rhinoStatus').textContent='Reading Rhino file: scanning closed curves and separating true Polyline vertices from smooth NURBS curves…';
   try{
     const rh=await getRhino(),bytes=new Uint8Array(await file.arrayBuffer()),doc=rh.File3dm.fromByteArray(bytes);if(!doc)throw new Error('Cannot read this 3dm file');
@@ -3406,11 +3418,48 @@ $('applyCurvesBtn').addEventListener('click',applySelectedRhinoCurvesSmart);
 $('clearCurvesBtn').addEventListener('click',()=>{selectedRhinoIds.clear();enterRhinoSelectionMode(false);syncRhinoSelectionUI();draw()});
 $('selectCurvesBtn').addEventListener('click',()=>enterRhinoSelectionMode(false));
 $('selectCurvesView').addEventListener('click',()=>enterRhinoSelectionMode(false));
-$('usePreset').addEventListener('click',()=>{focusedSiteIndex=null;updateSitePreviewBadge();importedSite=null;importedSites=[];importedPolylines=[];importedPolylinesPool=[];selectedRhinoIds.clear();rhinoSelectionMode=false;workflowWoolSource=false;rhinoFileName='';$('rhinoFile').value='';$('rhinoStatus').textContent='Using the built-in site; you can upload a .3dm again.';$('polylineSelect').closest('.polyline-picker').style.display='none';syncRhinoSelectionUI();resetViewState(false);initialize()});
+$('usePreset').addEventListener('click',()=>{workflowCoordinateFrame=null;focusedSiteIndex=null;updateSitePreviewBadge();importedSite=null;importedSites=[];importedPolylines=[];importedPolylinesPool=[];selectedRhinoIds.clear();rhinoSelectionMode=false;workflowWoolSource=false;rhinoFileName='';$('rhinoFile').value='';$('rhinoStatus').textContent='Using the built-in site; you can upload a .3dm again.';$('polylineSelect').closest('.polyline-picker').style.display='none';syncRhinoSelectionUI();resetViewState(false);initialize()});
 
 
 // ===== INTEGRATED WORKFLOW BRIDGE: Wool -> Annealing =====
 let workflowWoolAutoTuning=null;
+function workflowFrameFromParcel(src){
+  src=src||{};
+  let f=src.coordinateFrame||src;
+  let E0=Number(f.E0),N0=Number(f.N0),crs=String(f.crs||src.crs||'');
+  if(!Number.isFinite(E0)||!Number.isFinite(N0)||!crs)return null;
+  return{
+    crs:crs,
+    E0:E0,
+    N0:N0,
+    cellId:src.cellId||null,
+    localAxes:'x east, y north',
+    relation:'E = E0 + annealOffsetX + x; N = N0 + annealOffsetY + y',
+    annealOffsetX:0,
+    annealOffsetY:0
+  };
+}
+function workflowLocalPointToBNG(p){
+  if(!workflowCoordinateFrame||!p)return null;
+  let ox=Number(workflowCoordinateFrame.annealOffsetX)||0,oy=Number(workflowCoordinateFrame.annealOffsetY)||0;
+  return{
+    E:workflowCoordinateFrame.E0+ox+(Number(p.x)||0),
+    N:workflowCoordinateFrame.N0+oy+(Number(p.y)||0),
+    Z:Number(p.z)||0
+  };
+}
+function workflowBNGBuilding(b){
+  let q=workflowLocalPointToBNG(b);
+  return q?{region:b.region,id:b.id,E:q.E,N:q.N,Z:0,side:Number(b.s)||0,height:Number(b.h)||0}:null;
+}
+function workflowBNGRoad(r){
+  let rr=roadSerializable(r);
+  return{region:rr.region,level:rr.level,type:rr.type,name:rr.name,width:rr.width,length:rr.length,
+    points:rr.points.map(p=>workflowLocalPointToBNG(p)).filter(Boolean)};
+}
+function workflowBNGPolygon(poly){
+  return (poly||[]).map(p=>workflowLocalPointToBNG(p)).filter(Boolean);
+}
 function workflowSetRangeValue(id,value,opt={}){
   const el=$(id);if(!el)return;
   if(Number.isFinite(opt.min))el.min=String(opt.min);
@@ -3472,6 +3521,18 @@ async function workflowImportParcelsFromWool(input){
   list=list.filter(Boolean);
   if(!list.length)throw new Error('No valid parcels received.');
 
+  let incomingFrames=list.map(workflowFrameFromParcel).filter(Boolean);
+  workflowCoordinateFrame=incomingFrames.length?incomingFrames[0]:null;
+  if(workflowCoordinateFrame){
+    for(const f of incomingFrames){
+      if(f.crs!==workflowCoordinateFrame.crs||
+         Math.abs(f.E0-workflowCoordinateFrame.E0)>1e-6||
+         Math.abs(f.N0-workflowCoordinateFrame.N0)>1e-6){
+        throw new Error('Selected parcels do not share one Loop City BNG coordinate frame.');
+      }
+    }
+  }
+
   let candidates=[];
   for(let i=0;i<list.length;i++){
     let src=list[i]||{},raw=Array.isArray(src.points)?src.points:[],pts=[],incomingScale=workflowIncomingUnitScaleToMeters(src.units||'m');
@@ -3531,10 +3592,11 @@ async function workflowImportParcelsFromWool(input){
   resetViewState(false);
   updateRhinoSelectionStatus();
   draw();
-  if($('rhinoStatus'))$('rhinoStatus').textContent=`Received ${candidates.length} parcels from Wool, total area about ${totalA.toFixed(1)} m². All selected parcels from the previous level are here. They are preselected now, but you can click one, Shift+click to add/remove, or drag a box to choose the final subset. Press Enter only after this second selection to start annealing.`;
+  if($('rhinoStatus'))$('rhinoStatus').textContent=`Received ${candidates.length} parcels from Wool, total area about ${totalA.toFixed(1)} m².${workflowCoordinateFrame?' BNG '+workflowCoordinateFrame.crs+' · origin E '+workflowCoordinateFrame.E0.toFixed(1)+' / N '+workflowCoordinateFrame.N0.toFixed(1)+'.':''} All selected parcels from the previous level are here. They are preselected now, but you can click one, Shift+click to add/remove, or drag a box to choose the final subset. Press Enter only after this second selection to start annealing.`;
   return {ok:true,count:candidates.length,totalArea:totalA,selectionReady:true,selectedCount:selectedRhinoIds.size,allTransferred:true,requiresSecondSelection:true};
 }
 function workflowShowBuiltInDemo(){
+  workflowCoordinateFrame=null;
   haltComputation();
   focusedSiteIndex=null;
   updateSitePreviewBadge();
@@ -3568,7 +3630,7 @@ window.AnnealWorkflowBridge={
   applySelection:workflowCommitSelectedParcels,
   reselect:function(){enterRhinoSelectionMode(false);return {ok:true,selectionMode:true,selectedCount:selectedRhinoIds.size,candidateCount:importedPolylines.length,totalCandidateCount:(importedPolylinesPool.length||importedPolylines.length)}},
   getState:function(){
-    return {ready:true,running:!!running,iteration:state?state.iteration:0,regions:state&&state.regions?state.regions.length:0,selectionMode:!!rhinoSelectionMode,selectedCount:selectedRhinoIds.size,candidateCount:importedPolylines.length,totalCandidateCount:(importedPolylinesPool.length||importedPolylines.length),commitBusy:!!workflowSelectionCommitBusy};
+    return {ready:true,running:!!running,iteration:state?state.iteration:0,regions:state&&state.regions?state.regions.length:0,selectionMode:!!rhinoSelectionMode,selectedCount:selectedRhinoIds.size,candidateCount:importedPolylines.length,totalCandidateCount:(importedPolylinesPool.length||importedPolylines.length),commitBusy:!!workflowSelectionCommitBusy,coordinateFrame:workflowCoordinateFrame?{...workflowCoordinateFrame}:null};
   }
 };
 // ===== END INTEGRATED WORKFLOW BRIDGE =====
