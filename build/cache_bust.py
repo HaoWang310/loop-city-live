@@ -42,9 +42,16 @@ write_if_changed(p, s, out)
 for rel in (
     "html support files/cell/cell.html",
     "html support files/loop/index.html",
-    "html support files/combined_v10.html",
 ):
     p, s = read(rel)
     pat = re.compile(r'(<script\b[^>]*\bsrc=")(?!https?://)([^"?]+)(?:\?v=[^"]*)?(")', re.I)
     out = pat.sub(lambda m: m.group(1) + m.group(2) + "?v=" + TOKEN + m.group(3), s)
     write_if_changed(p, s, out)
+
+# combined_v10.html contains the inlined source code of many modules.  A broad
+# "<script src=" regex would also rewrite documentation/error strings inside
+# that JavaScript.  Only the one real post-load tag at the very end is external.
+p, s = read("html support files/combined_v10.html")
+pat = re.compile(r'(<script\s+src="js/quadrant_resize\.js)(?:\?v=[^"]*)?("></script>)', re.I)
+out = pat.sub(lambda m: m.group(1) + "?v=" + TOKEN + m.group(2), s)
+write_if_changed(p, s, out)
