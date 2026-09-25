@@ -5,15 +5,16 @@ on:
     branches:
       - main
     paths:
+      - "index.html"
       - "app/template_combined_v10.html"
       - "html support files/js/**"
+      - "html support files/loop/**"
+      - "html support files/cell/**"
       - "assets/**"
       - "build/build_app.py"
       - "build/build_cell.py"
       - "build/build_anneal.py"
       - "build/cache_bust.py"
-      - "html support files/cell/wool/wool_en.html"
-      - "html support files/cell/anneal/anneal_en.html"
       - ".github/workflows/rebuild-loop-city.yml"
   workflow_dispatch:
 
@@ -26,6 +27,9 @@ concurrency:
 
 jobs:
   rebuild:
+    # Generated/cache-token commits are pushed by this workflow itself.  They may
+    # match the broad source paths above, but must not recursively rebuild again.
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
