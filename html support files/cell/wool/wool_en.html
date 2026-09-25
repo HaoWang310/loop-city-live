@@ -529,7 +529,7 @@ input[type=range]::-webkit-slider-thumb{
       <label class="check"><input type="checkbox" id="cMagAll"> Magnet across groups (single solve)</label>
       <div class="row"><button class="btn sm" id="bDefRange" title="Mean segment length × a scale-adaptive factor for Loop City cells; original definition = 1.84386">Range from segments</button><button class="btn sm" id="bDefaults">Definition defaults</button></div>
     </details>
-    <p class="hint">Loop City cells use a balanced scale-adaptive profile: moderate wet-wool slack, soft two-way length control, curvature smoothing and distance-decaying cross-group magnetism. This keeps bundles visible without hard snapping or local over-tightening. Original reference values remain available through Definition defaults.</p>
+    <p class="hint">Loop City cells use a soft scale-adaptive wool profile: moderate surplus length, stronger curvature smoothing, local distance-decaying attraction and reduced cross-group pull. The aim is a rounded woven network rather than tight bundles. Original reference values remain available through Definition defaults.</p>
   </section>
 
   <section>
@@ -747,8 +747,12 @@ function step() {
           // towards nearby threads. This removes the hard "snap" at magR.
           var dist = Math.sqrt(d2);
           var u = 1 - dist / rg;
-          var fall = u * u * (3 - 2 * u); // smoothstep, 0..1
-          var mw = w * fall;
+
+          // Fifth-order smooth falloff, then localise it once more with *u.
+          // This keeps the capture boundary invisible and prevents long-range bunching.
+          var fall = u*u*u*(10 - 15*u + 6*u*u) * u;
+          var crossGroup = (TG[tj] !== gi) ? 0.52 : 1.0;
+          var mw = w * fall * crossGroup;
           if (mw <= 1e-9) continue;
 
           M[2 * i] += mw * 0.5 * dx; M[2 * i + 1] += mw * 0.5 * dy;
@@ -3482,14 +3486,14 @@ function scaleAdaptiveMechanicalProfile(areaM2){
   var scale=Math.sqrt(Math.max(1,Number(areaM2)||refArea)/refArea);
   var lg=Math.max(0,Math.min(5.5,Math.log(scale)/Math.LN2));
 
-  // Balanced urban profile:
-  // enough surplus length to curve, but not enough magnet force/range to collapse bundles.
-  // Absolute weights are deliberately kept moderate; their ratios matter more than large raw values.
-  var len=Math.round(22000/(1+0.05*lg));
-  var ang=Math.round(len*(0.12+0.010*Math.min(lg,5)));
-  var mag=Math.round(len*(0.22+0.025*lg));
-  var over=Math.round(Math.min(14,7+1.1*lg)*10)/10;
-  var rangeK=Math.min(3.25,2.15+0.18*lg);
+  // Soft urban wool profile, tuned to preserve visible deformation without hard bundling.
+  // More curvature regularisation + a smaller attraction radius produces the rounded,
+  // petal-like transitions of the reference result.
+  var len=Math.round(26000/(1+0.035*lg));
+  var ang=Math.round(len*(0.18+0.010*Math.min(lg,5)));
+  var mag=Math.round(len*(0.14+0.012*Math.min(lg,5)));
+  var over=Math.round(Math.min(9,4.5+0.65*lg)*10)/10;
+  var rangeK=Math.min(2.40,1.75+0.12*lg);
 
   return {scale:scale,log2Scale:lg,lenS:len,angS:ang,magS:mag,over:over,rangeK:rangeK};
 }
@@ -3520,7 +3524,7 @@ function applyScaleAdaptiveMechanics(){
   // Use a soft two-way length goal. The extra length creates curvature, while compression
   // resistance prevents MagnetSnap from collapsing neighbouring threads into hard bundles.
   params.tension=false;
-  params.mom=0.78;
+  params.mom=0.68;
   if(meanSeg>0)params.magR=Math.max(0.01,meanSeg*p.rangeK);
   ensureRangeContains('sMag',params.magS);
   ensureRangeContains('sRange',params.magR);
