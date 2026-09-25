@@ -1424,6 +1424,13 @@ function aggregateRegionMetrics(useBest=false){
 function refreshCombinedState(){
   if(!state||!state.regions)return;state.current=state.regions.flatMap(r=>r.current);state.best=state.regions.flatMap(r=>r.best);state.currentFH=state.regions.map(r=>r.currentFH);state.bestFH=state.regions.map(r=>r.bestFH);state.currentMetrics=aggregateRegionMetrics(false);state.bestMetrics=aggregateRegionMetrics(true);state.currentScore=state.regions.reduce((a,r)=>a+r.currentScore,0);state.bestScore=state.regions.reduce((a,r)=>a+r.bestScore,0);state.bestIteration=Math.max(0,...state.regions.map(r=>r.bestIteration||0));
 }
+function refreshCurrentVisualState(){
+  if(!state||!state.regions)return;
+  // Intra-iteration display only: flatten the regions that have already advanced.
+  // Do not recompute aggregate metrics, roads or green space here; those remain generation-level work.
+  state.current=state.regions.flatMap(r=>r.current);
+  state.currentFH=state.regions.map(r=>r.currentFH);
+}
 const TOP_K_FINAL=8;
 let finalizingTopK=false;
 function candidateSignature(bs,fh){return Number(fh).toFixed(3)+'|'+(bs||[]).map(b=>[b.x,b.y,b.s,b.h].map(v=>Number(v).toFixed(2)).join(',')).join(';')}
@@ -1438,12 +1445,21 @@ function adjustGap(bs,idx,rng){if(bs.length<2)return null;let b=bs[idx],nearest=
 function annealRegionOne(rs,ri){if(!rs||!rs.current||!rs.current.length)return false;return withRegionContext(ri,()=>{let rng=rs.rng,accepted=false,hc=heightCandidates();for(let attempt=0;attempt<8;attempt++){let bs=deepBuildings(rs.current),fh=rs.currentFH,idx=rng.int(0,bs.length-1),action=rng.next(),changed=false;if(!params.allowIntersect&&action<.30){let c=adjustGap(bs,idx,rng);if(c){bs[idx]=c;changed=true}}else if(action<.52){let c=randomPointFor(bs[idx],bs,idx,rng);if(c){bs[idx]=c;changed=true}}else if(action<.72){let nh=rng.pick(hc);if(Math.abs(nh-bs[idx].h)>1e-8){bs[idx].h=nh;changed=true}}else if(action<.90){let ns=rng.range(params.sMin,params.sMax),c={...bs[idx],s:ns};if(Math.abs(ns-bs[idx].s)>.001&&validBuildingAt(c,bs,idx)){bs[idx]=c;changed=true}}else if(params.fhMax>params.fhMin){fh=rng.range(params.fhMin,params.fhMax);changed=true}if(!changed)continue;let farFeasible=minPossibleFar(bs.length)<=params.farMax+1e-9,quickFar=computeFAR(bs,fh).far;if(farFeasible&&quickFar>params.farMax+1e-9)continue;let metrics=evaluate(bs,fh,false),temp=Math.max(.01,1-state.iteration/params.maxIter),delta=metrics.score-rs.currentScore,accept=delta>=0||rng.next()<Math.exp(delta/Math.max(1,Math.abs(rs.currentScore))/temp);if(accept){metrics=attachActualWindMetrics(bs,metrics,false);rs.current=bs;rs.currentFH=fh;rs.currentScore=metrics.score;rs.currentMetrics=metrics;accepted=true;pushTopCandidate(rs,bs,fh,metrics,state.iteration+1);if(metrics.score>rs.bestScore){rs.best=deepBuildings(bs);rs.bestFH=fh;rs.bestScore=metrics.score;rs.bestMetrics=metrics;rs.bestIteration=state.iteration+1}break}}return accepted})}
 function annealOne(){if(!state||state.iteration>=params.maxIter)return false;for(let ri=0;ri<state.regions.length;ri++)annealRegionOne(state.regions[ri],ri);state.iteration++;state.temp=Math.max(.01,1-state.iteration/params.maxIter);refreshCombinedState();return true}
 function annealFrameChunk(){
- if(!state||state.iteration>=params.maxIter)return{did:false,cycleDone:false};
+ if(!state||state.iteration>=params.maxIter)return{did:false,cycleDone:false,accepted:0,cursor:0,total:0};
  let n=Math.max(1,state.regions.length);if(!Number.isInteger(state._annealRegionCursor)||state._annealRegionCursor<0||state._annealRegionCursor>=n)state._annealRegionCursor=0;
- let start=performance.now(),budget=n>=8?6:n>=4?7.5:9,maxOps=n>=10?2:n>=5?3:4,ops=0,did=false;
- while(state._annealRegionCursor<n&&ops<maxOps){let ri=state._annealRegionCursor;annealRegionOne(state.regions[ri],ri);state._annealRegionCursor++;ops++;did=true;if(performance.now()-start>=budget)break}
- if(state._annealRegionCursor>=n){state._annealRegionCursor=0;state.iteration++;state.temp=Math.max(.01,1-state.iteration/params.maxIter);refreshCombinedState();return{did:true,cycleDone:true}}
- return{did,cycleDone:false}
+ let start=performance.now(),budget=n>=8?6:n>=4?7.5:9,maxOps=n>=10?2:n>=5?3:4,ops=0,did=false,accepted=0;
+ while(state._annealRegionCursor<n&&ops<maxOps){
+   let ri=state._annealRegionCursor;
+   if(annealRegionOne(state.regions[ri],ri))accepted++;
+   state._annealRegionCursor++;ops++;did=true;
+   if(performance.now()-start>=budget)break
+ }
+ if(state._annealRegionCursor>=n){
+   state._annealRegionCursor=0;state.iteration++;state.temp=Math.max(.01,1-state.iteration/params.maxIter);refreshCombinedState();
+   return{did:true,cycleDone:true,accepted:accepted,cursor:n,total:n}
+ }
+ if(did)refreshCurrentVisualState();
+ return{did,cycleDone:false,accepted:accepted,cursor:state._annealRegionCursor,total:n}
 }
 async function finalizeTopKHighPrecision(){if(!state||state.highPrecisionFinalized||finalizingTopK)return;finalizingTopK=true;let sub=$('floatSub');try{if(sub)sub.textContent=`Top-${TOP_K_FINAL} high-precision re-ranking · ${state.regions.length} independent sites`;for(let ri=0;ri<state.regions.length;ri++){let rs=state.regions[ri],pool=(rs.topCandidates||[]).slice(0,TOP_K_FINAL),bestSig=candidateSignature(rs.best,rs.bestFH);if(!pool.some(c=>c.sig===bestSig))pool.push({sig:bestSig,buildings:deepBuildings(rs.best),fh:rs.bestFH,lowScore:rs.bestScore,iteration:rs.bestIteration});let winner=null;for(let ci=0;ci<pool.length;ci++){let c=pool[ci],hm=withRegionContext(ri,()=>evaluate(c.buildings,c.fh,true));if(!winner||hm.score>winner.highScore)winner={...c,highScore:hm.score,highMetrics:hm};if(sub)sub.textContent=`Top-${TOP_K_FINAL} high-precision re-ranking · site ${ri+1}/${state.regions.length} · candidate ${ci+1}/${pool.length}`;await nextFrame()}if(winner){let finalMetrics=attachActualWindMetrics(winner.buildings,winner.highMetrics,true);rs.best=deepBuildings(winner.buildings);rs.bestFH=winner.fh;rs.bestMetrics=finalMetrics;rs.bestLowPrecisionScore=winner.lowScore;rs.bestScore=winner.highScore;rs.bestIteration=winner.iteration;rs.highPrecisionScore=winner.highScore;rs.rerankedFromTopK=true}}state.highPrecisionFinalized=true;refreshCombinedState();rebuildSpatial();enableFinalAnalysisLayers();ensureFinalAnalysisCache(true);updateMetrics();draw()}finally{finalizingTopK=false}}
 async function finishAnnealing(){running=false;if(timer){cancelAnimationFrame(timer);timer=null}await finalizeTopKHighPrecision()}
@@ -1801,9 +1817,14 @@ function refreshSpatialFromAcceptedMetrics(useBest=false){
   }
   if(!complete)return false;state.roads=allRoads;state.greenSystems=greenSystems;state.greens={systems:greenSystems,regions:greenSystems.flatMap(g=>g.regions||[])};state._lastSpatialIteration=state.iteration||0;return true
 }
-function updateIterationVisualOnly(){
-  if(!state||!params)return;let iter=state.iteration,max=Math.max(params.maxIter,1),pct=clamp(iter/max*100,0,100),p=$('progressFill'),t=$('iterText'),mi=$('mIter'),bi=$('bIter');
-  if(p)p.style.width=pct+'%';if(t)t.textContent='Iteration '+iter+' / '+params.maxIter+' · '+activeSiteRegions().length+' sites computed independently in parallel';if(mi)mi.textContent=iter+' / '+params.maxIter+' iterations';if(bi)bi.style.width=pct+'%'
+function updateIterationVisualOnly(cursor=0,total=0){
+  if(!state||!params)return;
+  let iter=state.iteration,max=Math.max(params.maxIter,1),pct=clamp(iter/max*100,0,100),p=$('progressFill'),t=$('iterText'),mi=$('mIter'),bi=$('bIter');
+  let live=(running&&total>1&&cursor>0&&cursor<total)?' · live sites '+cursor+' / '+total:' · '+activeSiteRegions().length+' sites computed independently in parallel';
+  if(p)p.style.width=pct+'%';
+  if(t)t.textContent='Iteration '+iter+' / '+params.maxIter+live;
+  if(mi)mi.textContent=iter+' / '+params.maxIter+' iterations';
+  if(bi)bi.style.width=pct+'%'
 }
 
 
@@ -2689,13 +2710,36 @@ function updateParamList(){const p=params||readParams(),rows=[
  const host=$('paramList');if(host)host.innerHTML=rows.map(r=>`<div class="参数项"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
 }
 function updateMetrics(){if(!state)return;let bs=displayBuildings(),m=displayMetrics()||{far:0,avgSun:0,windComfort:0,inter:{overlap:0,pairs:0}},iter=running?state.iteration:state.bestIteration;let areas=bs.map(b=>b.s*b.s),hs=bs.map(b=>b.h),g=nearestGaps(bs);$('kFar').textContent=m.far.toFixed(2);$('kSun').innerHTML=Math.round(m.avgSun*100)+'<span class="unit">%</span>';$('kWind').innerHTML=Math.round(m.windComfort*100)+'<span class="unit">%</span>';$('mIter').textContent=iter+' / '+params.maxIter+' iterations';$('mArea').textContent=areas.length?Math.min(...areas).toFixed(0)+' / '+Math.max(...areas).toFixed(0)+' m²':'—';$('mHeight').textContent=hs.length?Math.min(...hs).toFixed(1)+' / '+Math.max(...hs).toFixed(1)+' m':'—';$('mGap').textContent=g.length?Math.min(...g).toFixed(1)+' / '+Math.max(...g).toFixed(1)+' m':'—';$('mInter').textContent=m.inter.overlap+' / '+m.inter.pairs+' pairs';$('bIter').style.width=(iter/params.maxIter*100)+'%';$('bArea').style.width=Math.min(100,(areas.length?Math.max(...areas)/(params.sMax*params.sMax)*100:0))+'%';$('bHeight').style.width=Math.min(100,(hs.length?Math.max(...hs)/Math.max(params.hMax,1)*100:0))+'%';$('bGap').style.width=Math.min(100,(g.length?Math.max(0,Math.min(...g))/Math.max(params.gapMax,1)*100:0))+'%';$('bInter').style.width=(m.inter.pairs?m.inter.overlap/m.inter.pairs*100:0)+'%';$('progressFill').style.width=(state.iteration/params.maxIter*100)+'%';$('iterText').textContent='Iteration '+state.iteration+' / '+params.maxIter+' · '+activeSiteRegions().length+' sites computed independently in parallel';$('networkStats').textContent=`Sites ${activeSiteRegions().length} · Roads ${state.roads.length} · Green space ${state.greenSystems?state.greenSystems.reduce((n,g)=>n+(g.regions?g.regions.length:0),0):0} · Buildings ${bs.length} · L1 pink / L2 yellow / L3 cyan / L4 purple · graded roads included in annealing`;$('modePill').innerHTML=`<span class="status-dot ${running?'run':''}"></span>${running?'Current annealing scheme':(state.highPrecisionFinalized?'High-precision final scheme':'Best scheme so far')}`;$('runBtn').textContent=running?'Ⅱ Pause and view best':'▶ Start annealing';updateBridgeStatus();updateFloatingInfo()}
-function tick(now=performance.now()){if(!running)return;if(state.iteration>=params.maxIter){finishAnnealing();return}if(interactionActive(now)){timer=requestAnimationFrame(tick);return}let chunk=annealFrameChunk();if(chunk.cycleDone){
-  // 每一代都显示：优先复用本代 Metropolis 接受方案在 evaluate 中已经生成的道路 / 绿地。
-  // 只有缓存异常时才回退到重新生成，避免多场地时重复高成本计算。
-  if(!refreshSpatialFromAcceptedMetrics(false))rebuildSpatial(true);
-  updateIterationVisualOnly();draw(false);
+function tick(now=performance.now()){
+  if(!running)return;
+  if(state.iteration>=params.maxIter){finishAnnealing();return}
+  if(interactionActive(now)){timer=requestAnimationFrame(tick);return}
+
+  let chunk=annealFrameChunk();
+
+  if(chunk.did&&!chunk.cycleDone){
+    // Real-time intra-generation preview:
+    // the regions already processed in this chunk are drawn immediately.
+    // Roads / green space / aggregate metrics intentionally stay on the last completed
+    // generation so live drawing remains responsive even with hundreds of buildings.
+    updateIterationVisualOnly(chunk.cursor,chunk.total);
+    draw(true);
+  }
+
+  if(chunk.cycleDone){
+    // At the completed generation boundary, synchronise all expensive spatial layers and metrics.
+    if(!refreshSpatialFromAcceptedMetrics(false))rebuildSpatial(true);
+    updateIterationVisualOnly(0,chunk.total);
+    draw(false);
+  }
+
+  let uiEvery=uiRefreshInterval();
+  if(chunk.cycleDone&&(now-perfState.lastUiTime>=uiEvery||state.iteration>=params.maxIter)){
+    updateMetrics();perfState.lastUiTime=now
+  }
+  if(state.iteration>=params.maxIter){finishAnnealing();return}
+  timer=requestAnimationFrame(tick)
 }
-let uiEvery=uiRefreshInterval();if(chunk.cycleDone&&(now-perfState.lastUiTime>=uiEvery||state.iteration>=params.maxIter)){updateMetrics();perfState.lastUiTime=now}if(state.iteration>=params.maxIter){finishAnnealing();return}timer=requestAnimationFrame(tick)}
 function start(){if(finalizingTopK)return;if(!state||state.iteration>=params.maxIter)initialize();if(!ensureInitializationFeasible())return;if(state){state.analysisCache=null;state.finalAnalysisReady=false}running=true;state._annealRegionCursor=0;perfState.lastUiTime=0;perfState.lastFloatTime=0;updateMetrics();draw(false);timer=requestAnimationFrame(tick)}
 function setAnalysisLayerState(layer,enabled){view[layer]=!!enabled;let btn=document.querySelector(`[data-layer="${layer}"]`);if(btn)btn.classList.toggle('active',!!enabled)}
 function enableFinalAnalysisLayers(){if(!params)return;setAnalysisLayerState('sun',!!params.sunCalc);setAnalysisLayerState('wind',!!params.windCalc)}
