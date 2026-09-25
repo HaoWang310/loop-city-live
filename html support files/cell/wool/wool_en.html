@@ -150,10 +150,18 @@ details[open] summary::after{content:"−"}
 #parcelLevelModal.show{display:block}
 #parcelLevelCard{
   position:absolute;left:24px;top:24px;
-  width:min(520px,calc(100% - 48px));max-height:calc(100% - 48px);overflow:auto;
+  width:min(520px,calc(100% - 48px));max-width:calc(100% - 16px);
+  height:auto;max-height:calc(100% - 16px);min-width:300px;min-height:240px;
+  overflow:auto;box-sizing:border-box;container-type:inline-size;
   pointer-events:auto;
   background:rgba(255,255,255,.985);border:1px solid var(--line);border-radius:12px;
   box-shadow:0 18px 44px rgba(43,40,38,.20);padding:16px 18px
+}
+#parcelLevelCard::after{
+  content:"";position:sticky;float:right;right:-12px;bottom:-11px;
+  width:15px;height:15px;margin:-4px -12px -10px 0;pointer-events:none;
+  background:
+    linear-gradient(135deg,transparent 0 48%,rgba(143,95,56,.28) 49% 55%,transparent 56% 66%,rgba(143,95,56,.46) 67% 73%,transparent 74%);
 }
 #parcelLevelCard .plHead{
   display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-6px -8px 12px;
@@ -205,7 +213,36 @@ details[open] summary::after{content:"−"}
 .plSwitchWrap input:focus-visible + .plSwitchTrack{
   outline:2px solid var(--accent2);outline-offset:2px
 }
-.plFooter{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.plFooter{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
+#parcelLevelCard .lab,
+#parcelLevelCard .plRangeHead,
+#parcelLevelCard .plBigSwitch{min-width:0}
+#parcelLevelCard .lab span:first-child,
+#parcelLevelCard .plRangeHead>*,
+#parcelLevelCard .plBigSwitch>span:first-child,
+#parcelLevelCard .plHint{overflow-wrap:anywhere}
+#parcelLevelCard select,
+#parcelLevelCard input,
+#parcelLevelCard button{max-width:100%}
+
+@container (max-width:430px){
+  #parcelLevelCard{padding:14px}
+  #parcelLevelCard .plHead{margin:-4px -4px 10px}
+  #parcelLevelCard .plRangeHead{align-items:flex-start;flex-wrap:wrap;gap:6px}
+  #parcelLevelCard .plRangeHead span:last-child{margin-left:auto}
+  #parcelLevelCard .plBigSwitch{gap:10px;padding:9px 10px}
+  #parcelLevelCard .plNameInput{width:min(100%,190px);flex:1 1 140px}
+  #parcelLevelCard .plHint{font-size:10px;line-height:1.45}
+  #parcelLevelCard .plFooter>*{flex:1 1 120px}
+}
+@container (max-width:350px){
+  #parcelLevelCard .lab,
+  #parcelLevelCard .plRangeHead{display:grid;grid-template-columns:1fr;gap:4px}
+  #parcelLevelCard .plRangeHead span:last-child{margin-left:0}
+  #parcelLevelCard .plBigSwitch{align-items:flex-start}
+  #parcelLevelCard .plSwitchWrap{margin-left:auto}
+  #parcelLevelCard .plFooter{display:grid;grid-template-columns:1fr}
+}
 
 
 /* ===== Loop City v9: our colours in place of the dark theme. Visual only -- no rule here changes logic. ===== */
@@ -3944,7 +3981,9 @@ var parcelLevelP={
   visibleLevel:0         // 0 = 全部层；1..N = 只显示某一层
 };
 var parcelLevelPanelPos=null;
+var parcelLevelPanelSize=null;
 var parcelLevelDrag=null;
+var parcelLevelResize=null;
 
 function autoCell() {
   var b = bbox(model.boundary), m = Math.max(b[2] - b[0], b[3] - b[1]);
@@ -4562,6 +4601,25 @@ function setParcelLevelPanelPosition(x,y){
   card.style.top=p.y+'px';
 }
 
+function clampParcelLevelPanelSize(w,h){
+  var stage=$('stage');
+  var maxW=Math.max(300,stage.clientWidth-16);
+  var maxH=Math.max(240,stage.clientHeight-16);
+  return {
+    w:Math.max(Math.min(300,maxW),Math.min(maxW,Number(w)||520)),
+    h:Math.max(Math.min(240,maxH),Math.min(maxH,Number(h)||500))
+  };
+}
+function setParcelLevelPanelSize(w,h){
+  var card=$('parcelLevelCard'),q=clampParcelLevelPanelSize(w,h);
+  parcelLevelPanelSize={w:q.w,h:q.h};
+  card.style.width=Math.round(q.w)+'px';
+  card.style.height=Math.round(q.h)+'px';
+  card.style.maxWidth='none';
+  card.style.maxHeight='none';
+  if(parcelLevelPanelPos)setParcelLevelPanelPosition(parcelLevelPanelPos.x,parcelLevelPanelPos.y);
+}
+
 function centerParcelLevelPanel(){
   var stage=$('stage'),card=$('parcelLevelCard');
   var x=(stage.clientWidth-card.offsetWidth)/2;
@@ -4578,6 +4636,9 @@ function openParcelLevelPanel(){
 
   // 第一次打开居中；之后保持用户拖动后的位置。
   requestAnimationFrame(function(){
+    if(parcelLevelPanelSize){
+      setParcelLevelPanelSize(parcelLevelPanelSize.w,parcelLevelPanelSize.h);
+    }
     if(parcelLevelPanelPos){
       setParcelLevelPanelPosition(parcelLevelPanelPos.x,parcelLevelPanelPos.y);
     }else{
@@ -5863,12 +5924,85 @@ $('bParcelLevelApply').onclick=function(){
   closeParcelLevelPanel();
 };
 
-// ---------------- 分层面板拖动 ----------------
+// ---------------- 分层面板移动 + 四边/四角缩放 ----------------
 (function(){
   var card=$('parcelLevelCard'),head=card.querySelector('.plHead');
+  var EDGE=10;
+
+  function edgeAt(e){
+    var r=card.getBoundingClientRect();
+    var x=e.clientX-r.left,y=e.clientY-r.top;
+    var L=x<=EDGE,R=x>=r.width-EDGE,T=y<=EDGE,B=y>=r.height-EDGE;
+    if(T&&L)return 'nw'; if(T&&R)return 'ne';
+    if(B&&L)return 'sw'; if(B&&R)return 'se';
+    if(L)return 'w'; if(R)return 'e'; if(T)return 'n'; if(B)return 's';
+    return '';
+  }
+  function edgeCursor(edge){
+    return ({n:'ns-resize',s:'ns-resize',e:'ew-resize',w:'ew-resize',
+      ne:'nesw-resize',sw:'nesw-resize',nw:'nwse-resize',se:'nwse-resize'})[edge]||'';
+  }
+
+  // Capture phase makes border resizing win over the header's move gesture.
+  card.addEventListener('pointerdown',function(e){
+    if(e.button!==0)return;
+    var edge=edgeAt(e);
+    if(!edge)return;
+    e.preventDefault();e.stopPropagation();
+
+    var r=card.getBoundingClientRect(),sr=$('stage').getBoundingClientRect();
+    parcelLevelResize={
+      pointerId:e.pointerId,edge:edge,
+      startX:e.clientX,startY:e.clientY,
+      x:r.left-sr.left,y:r.top-sr.top,w:r.width,h:r.height
+    };
+    card.setPointerCapture(e.pointerId);
+    document.body.style.userSelect='none';
+    document.body.style.cursor=edgeCursor(edge);
+  },true);
+
+  card.addEventListener('pointermove',function(e){
+    if(parcelLevelResize&&e.pointerId===parcelLevelResize.pointerId){
+      e.preventDefault();
+      var d=parcelLevelResize,dx=e.clientX-d.startX,dy=e.clientY-d.startY;
+      var x=d.x,y=d.y,w=d.w,h=d.h;
+      if(d.edge.indexOf('e')>=0)w=d.w+dx;
+      if(d.edge.indexOf('s')>=0)h=d.h+dy;
+      if(d.edge.indexOf('w')>=0){w=d.w-dx;x=d.x+dx;}
+      if(d.edge.indexOf('n')>=0){h=d.h-dy;y=d.y+dy;}
+
+      var q=clampParcelLevelPanelSize(w,h);
+      // When resizing from left/top, keep the opposite edge visually fixed.
+      if(d.edge.indexOf('w')>=0)x=d.x+d.w-q.w;
+      if(d.edge.indexOf('n')>=0)y=d.y+d.h-q.h;
+
+      setParcelLevelPanelSize(q.w,q.h);
+      setParcelLevelPanelPosition(x,y);
+      return;
+    }
+    if(!parcelLevelDrag){
+      var edge=edgeAt(e);
+      card.style.cursor=edgeCursor(edge);
+    }
+  });
+
+  function endResize(e){
+    if(!parcelLevelResize||e.pointerId!==parcelLevelResize.pointerId)return;
+    var pid=parcelLevelResize.pointerId;
+    parcelLevelResize=null;
+    document.body.style.userSelect='';
+    document.body.style.cursor='';
+    card.style.cursor='';
+    try{if(card.hasPointerCapture(pid))card.releasePointerCapture(pid);}catch(_){}
+  }
+  card.addEventListener('pointerup',endResize);
+  card.addEventListener('pointercancel',endResize);
+  card.addEventListener('pointerleave',function(){
+    if(!parcelLevelResize&&!parcelLevelDrag)card.style.cursor='';
+  });
 
   head.addEventListener('pointerdown',function(e){
-    if(e.button!==0)return;
+    if(e.button!==0||parcelLevelResize)return;
     if(e.target.closest('.plClose'))return;
     e.preventDefault();
 
@@ -5906,9 +6040,9 @@ $('bParcelLevelApply').onclick=function(){
   head.addEventListener('pointercancel',endDrag);
 
   window.addEventListener('resize',function(){
-    if(parcelLevelPanelPos&&$('parcelLevelModal').classList.contains('show')){
-      setParcelLevelPanelPosition(parcelLevelPanelPos.x,parcelLevelPanelPos.y);
-    }
+    if(!$('parcelLevelModal').classList.contains('show'))return;
+    if(parcelLevelPanelSize)setParcelLevelPanelSize(parcelLevelPanelSize.w,parcelLevelPanelSize.h);
+    if(parcelLevelPanelPos)setParcelLevelPanelPosition(parcelLevelPanelPos.x,parcelLevelPanelPos.y);
   });
 })();
 $('cShowThreads').onchange = function () {
