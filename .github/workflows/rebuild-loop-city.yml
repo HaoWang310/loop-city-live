@@ -11,6 +11,7 @@ on:
       - "build/build_app.py"
       - "build/build_cell.py"
       - "build/build_anneal.py"
+      - "build/cache_bust.py"
       - "html support files/cell/wool/wool_en.html"
       - "html support files/cell/anneal/anneal_en.html"
       - ".github/workflows/rebuild-loop-city.yml"
@@ -51,15 +52,20 @@ jobs:
           LOOP_CITY_NO_ARCHIVE: "1"
         run: python build/build_app.py
 
+      - name: Bust live resource caches
+        env:
+          LOOP_CITY_CACHE_TOKEN: ${{ github.sha }}
+        run: python build/cache_bust.py
+
       - name: Commit generated live page
         shell: bash
         run: |
-          if git diff --quiet -- "html support files/combined_v10.html" "html support files/cell/wool/wool_app.js" "html support files/cell/anneal/anneal_app.js"; then
+          if git diff --quiet -- "index.html" "html support files/loop/index.html" "html support files/cell/cell.html" "html support files/combined_v10.html" "html support files/cell/wool/wool_app.js" "html support files/cell/anneal/anneal_app.js"; then
             echo "Generated pages are already current."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "html support files/combined_v10.html" "html support files/cell/wool/wool_app.js" "html support files/cell/anneal/anneal_app.js"
+          git add "index.html" "html support files/loop/index.html" "html support files/cell/cell.html" "html support files/combined_v10.html" "html support files/cell/wool/wool_app.js" "html support files/cell/anneal/anneal_app.js"
           git commit -m "Auto-rebuild Loop City live pages"
           git push
