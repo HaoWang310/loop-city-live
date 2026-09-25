@@ -9777,7 +9777,9 @@ function simplifyRing(r, eps){
 
 function metresPerPx(){
   const ex = CFG.map.extentBNG;
-  return [(ex.e1 - ex.e0)/S.mapW, (ex.n1 - ex.n0)/S.mapH];
+  const w = S.mapW || (CFG.map.size&&CFG.map.size[0]) || 1;
+  const h = S.mapH || (CFG.map.size&&CFG.map.size[1]) || 1;
+  return [(ex.e1 - ex.e0)/w, (ex.n1 - ex.n0)/h];
 }
 function meanMapMetresPerPx(){
   const m=metresPerPx();
