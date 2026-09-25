@@ -3501,6 +3501,7 @@ var siteAreaInputPending = false; // 输入框改动后，必须按 Enter 确认
 var siteAreaAwaitingRun = false; // Enter 确认面积后，求解器已重置，等待用户主动点击运行
 var scaleAdaptiveMechanics = false;
 var lastAutoMechanics = null;
+var loopCityContext = null; // {cell, kind, E0, N0, crs, frame, ...} when geometry came from Loop City
 function siteUnitScaleToMeters(u){
   u=String(u||'m').trim().toLowerCase().replace(/μ/g,'µ');
   var map={
@@ -3699,6 +3700,7 @@ function bindSiteAreaControl(){
   });
 }
 function loadNodeCell() {
+  loopCityContext = null;
   model = { boundary: DEF.boundary.map(function (p) { return [p[0], p[1]]; }), anchors: {}, nextId: 1, groups: [], active: 2, units: 'm' };
   var byKey = {};
   function idFor(p) {
@@ -6257,6 +6259,7 @@ function deBoor(deg, knots, ctrl, weights, n) {
 }
 
 function useGeometry(name, geo, units) {
+  loopCityContext = null;
   var sourceUnits=units||'m',unitScale=siteUnitScaleToMeters(sourceUnits);
   // 入口统一米制：曲线和点在进入模型前全部转换到 m。
   var curves=(geo.curves||[]).map(function(c){return{pts:(c.pts||[]).map(function(p){return[Number(p[0])*unitScale,Number(p[1])*unitScale];}),closed:!!c.closed,layer:c.layer||''};});
@@ -6543,7 +6546,7 @@ $('bSaveSet').onclick = function () {
     boundaries:parcelLevelP.boundaries.slice(),
     names:parcelLevelP.names.slice()
   };
-  var data = { app: 'Wool Thread', version: 5, params: params, parcelParams: pp, parcelLevelParams: levelSettings, roadParams: roadP, model: model, siteAreaTargetM2:siteAreaTargetM2, siteAreaCalibrationManual:siteAreaCalibrationManual };
+  var data = { app: 'Wool Thread', version: 5, params: params, parcelParams: pp, parcelLevelParams: levelSettings, roadParams: roadP, model: model, siteAreaTargetM2:siteAreaTargetM2, siteAreaCalibrationManual:siteAreaCalibrationManual, loopCity:loopCityContext };
   download('wool-thread-settings-' + stamp() + '.json', new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' }));
 };
 $('bLoadSet').onclick = function () { $('fileIn').click(); };
@@ -6576,7 +6579,13 @@ function loadSettings(d) {
   ensureParcelLevelNames();
   if (d.roadParams) { for (var rk in roadP) if (d.roadParams[rk] !== undefined) roadP[rk] = d.roadParams[rk]; }
   var savedTarget=(Number.isFinite(Number(d.siteAreaTargetM2))&&Number(d.siteAreaTargetM2)>0)?Number(d.siteAreaTargetM2):null;
-  scaleAdaptiveMechanics=!!d.loopCity&&d.loopCity.autoMechanics!==false;
+  loopCityContext=d.loopCity?JSON.parse(JSON.stringify(d.loopCity)):null;
+  if(loopCityContext){
+    if(!loopCityContext.crs)loopCityContext.crs='EPSG:27700';
+    loopCityContext.E0=Number(loopCityContext.E0)||0;
+    loopCityContext.N0=Number(loopCityContext.N0)||0;
+  }
+  scaleAdaptiveMechanics=!!loopCityContext&&loopCityContext.autoMechanics!==false;
   normalizeCurrentWoolModelToMeters();
   var loadedArea=rawSiteAreaModelUnits2();
   if(savedTarget&&loadedArea>0){var lf=Math.sqrt(savedTarget/loadedArea);scaleWoolGeometryAndMetricParams(lf);}
@@ -6630,7 +6639,18 @@ function workflowParcelPayloadAt(index){
     points:pts,
     units:'m',
     sourceUnits:'m',
-    iteration:(parcelSet&&parcelSet.iter)||iter||0
+    iteration:(parcelSet&&parcelSet.iter)||iter||0,
+    crs:loopCityContext&&loopCityContext.crs||null,
+    E0:loopCityContext&&Number.isFinite(Number(loopCityContext.E0))?Number(loopCityContext.E0):null,
+    N0:loopCityContext&&Number.isFinite(Number(loopCityContext.N0))?Number(loopCityContext.N0):null,
+    cellId:loopCityContext&&loopCityContext.cell||null,
+    coordinateFrame:loopCityContext?{
+      crs:loopCityContext.crs||'EPSG:27700',
+      E0:Number(loopCityContext.E0)||0,
+      N0:Number(loopCityContext.N0)||0,
+      localAxes:'x east, y north',
+      relation:'E = E0 + x; N = N0 + y'
+    }:null
   };
 }
 window.WoolWorkflowBridge={
