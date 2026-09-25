@@ -1488,12 +1488,13 @@ function chamfer(SW, SH, mark){
 function buildSpineDist(SW, SH){
   const sp = CFG.map.spine || [];
   const sx = SW/CFG.map.size[0], sy = SH/CFG.map.size[1];
-  const mpp = CFG.map.mPerPx;
+  const ex=CFG.map.extentBNG;
+  const mapE=(ex.e1-ex.e0)/CFG.map.size[0], mapN=(ex.n1-ex.n0)/CFG.map.size[1];
 
-  // Segment lengths along the polyline, in km on the sheet.
+  // Segment lengths use the exact BNG east/north scales, not the rounded metadata ruler.
   const seg = [];
   for(let i=0;i<sp.length-1;i++)
-    seg.push(Math.hypot(sp[i+1][0]-sp[i][0], sp[i+1][1]-sp[i][1])*mpp/1000);
+    seg.push(Math.hypot((sp[i+1][0]-sp[i][0])*mapE, (sp[i+1][1]-sp[i][1])*mapN)/1000);
   const srt = seg.slice().sort((p,q) => p-q);
   const med = srt.length ? srt[srt.length >> 1] : 0;
 
@@ -1540,7 +1541,7 @@ function stationDents(){
   const SW = S.SW, SH = S.SH;
   const str = parseFloat(iNodePush.value);
   if(!(str > 0)) return;
-  const mPerCell = S.mPerPx*(S.mapW/SW);
+  const mPerCell = meanSimCellMetres();
   const fx = SW/S.mapW, fy = SH/S.mapH;
   const RK = { P: [1.00, parseFloat(iClrP.value)],
                S: [0.75, parseFloat(iClrS.value)],
@@ -1574,7 +1575,7 @@ function rebuildWeights(){
   const n = S.SW*S.SH;
   if(!S.weight) S.weight = new Float32Array(n);
   if(!S.zone)   S.zone   = new Uint8Array(n);
-  const mPerCell = S.mPerPx * (S.mapW/S.SW);
+  const mPerCell = meanSimCellMetres();
   const inner = parseFloat(iCorrIn.value)*1000/mPerCell;
   const fall  = Math.max(1e-6, parseFloat(iCorrFall.value)*1000/mPerCell);
   const grip  = parseFloat(iCorrGrip.value);
@@ -1606,7 +1607,7 @@ function buildFood(){
   if(!SW) return;
   const idx = [], val = [];
   const fx = SW/S.mapW, fy = SH/S.mapH;
-  const mPerCell = S.cellE || (S.mPerPx*(S.mapW/SW));
+  const mPerCell = meanSimCellMetres();
 
   // ---- the stations, as before.
   // The early return used to sit here and guarded the WHOLE function. With the city and the
@@ -2387,6 +2388,15 @@ function metresPerPx(){
   const ex = CFG.map.extentBNG;
   return [(ex.e1 - ex.e0)/S.mapW, (ex.n1 - ex.n0)/S.mapH];
 }
+function meanMapMetresPerPx(){
+  const m=metresPerPx();
+  return Math.sqrt(m[0]*m[1]);
+}
+function meanSimCellMetres(){
+  const e=Number(S.cellE)||meanMapMetresPerPx()*(S.mapW/Math.max(1,S.SW));
+  const n=Number(S.cellN)||meanMapMetresPerPx()*(S.mapH/Math.max(1,S.SH));
+  return Math.sqrt(e*n);
+}
 
 function extractCells(){
   if(!S.trail) return;
@@ -2397,7 +2407,9 @@ function extractCells(){
   const t0 = performance.now();
   const SW = S.SW, SH = S.SH, n = SW*SH, T = S.trail, Z = S.zone;
   const thr = parseFloat(iThr.value);
-  const cellM = S.mPerPx*(S.mapW/SW), km2 = (cellM/1000)*(cellM/1000);
+  const cellE = Number(S.cellE)||meanMapMetresPerPx()*(S.mapW/SW);
+  const cellN = Number(S.cellN)||meanMapMetresPerPx()*(S.mapH/SH);
+  const cellM = Math.sqrt(cellE*cellN), km2 = cellE*cellN/1e6;
   const [mx, my] = metresPerPx();
   const minKm2 = parseFloat(iCellMin.value), minCells = Math.max(4, minKm2/km2);
   const sigma = parseFloat(iCellSmooth.value)/cellM, eps = parseFloat(iCellSimp.value)/cellM;
@@ -2583,8 +2595,8 @@ function worldXY(x, y, bng){
 function railRuns(){
   // The railway as the runs of the spine, split where the polyline leaves the sheet and comes back: the
   // chord buildSpineDist drops is not rail.
-  const sp = CFG.map.spine || [], mpp = CFG.map.mPerPx, seg = [];
-  for(let i=0;i<sp.length-1;i++) seg.push(Math.hypot(sp[i+1][0]-sp[i][0], sp[i+1][1]-sp[i][1])*mpp/1000);
+  const sp = CFG.map.spine || [], mm = metresPerPx(), seg = [];
+  for(let i=0;i<sp.length-1;i++) seg.push(Math.hypot((sp[i+1][0]-sp[i][0])*mm[0], (sp[i+1][1]-sp[i][1])*mm[1])/1000);
   const srt = seg.slice().sort((p, q) => p - q), med = srt.length ? srt[srt.length >> 1] : 0;
   const lim = Math.max(2.0, med*20), runs = [];
   let cur = sp.length ? [sp[0]] : [];
@@ -2623,14 +2635,14 @@ function networkOutline(){
   // The veins' edges over the whole sheet: the trail, blurred by one cell so the wisps do not each become
   // an outline, traced at the vein edge. Outlines round veins and round the gaps between them alike.
   const SW = S.SW, SH = S.SH, w = SW + 2, h = SH + 2, T = S.trail;
-  const thr = parseFloat(iThr.value), cellM = S.mPerPx*(S.mapW/SW);
+  const thr = parseFloat(iThr.value), cellM = meanSimCellMetres(), cellKm2 = (Number(S.cellE)||cellM)*(Number(S.cellN)||cellM)/1e6;
   const F = new Float32Array(w*h);
   for(let y=0;y<SH;y++){
     const r = y*SW, lr = (y+1)*w + 1;
     for(let x=0;x<SW;x++) F[lr+x] = T[r+x];
   }
   const B = blurField(F, w, h, 1.0), eps = parseFloat(iCellSimp.value)/cellM;
-  const minA = 0.05/((cellM/1000)*(cellM/1000));          // specks under 0.05 km2 are left out
+  const minA = 0.05/cellKm2;          // specks under 0.05 km2 are left out
   return traceRings(B, w, h, thr)
     .filter(r => Math.abs(ringArea(r)) >= minA)
     .map(r => {
@@ -2831,7 +2843,9 @@ function export3DS(){
   const mask = bridgeAndClose(raw, SW, SH, detail);
 
   // metres per simulation cell, so the export lands in Rhino at true scale
-  const cellM = S.mPerPx * (S.mapW/SW);
+  const cellE = Number(S.cellE)||meanMapMetresPerPx()*(S.mapW/SW);
+  const cellN = Number(S.cellN)||meanMapMetresPerPx()*(S.mapH/SH);
+  const cellM = Math.sqrt(cellE*cellN);
   const cube  = parseFloat(iCube.value);
   const stepC = detail<=1 ? 3 : (detail<=2 ? 2 : 1);
   const voxel = Math.max(cellM*0.5, cube*0.95);
@@ -2842,7 +2856,7 @@ function export3DS(){
       for(let xx=0; xx<stepC && x+xx<SW; xx++)
         if(mask[(y+yy)*SW+(x+xx)]){ hit=true; break; }
     if(!hit) continue;
-    const px=(x+stepC*0.5)*cellM, py=(SH-(y+stepC*0.5))*cellM;
+    const px=(x+stepC*0.5)*cellE, py=(SH-(y+stepC*0.5))*cellN;
     const vX=Math.round(px/voxel), vY=Math.round(py/voxel);
     const key=vX+","+vY;
     if(used.has(key)) continue;
@@ -4107,7 +4121,7 @@ function smoothPolys(polys, closed){
    So the app does what a map does -- the level of detail follows the zoom. Far out you see an
    abstraction of the network at a weight you can read; close in you see the carriageway at its
    real width. The switch is at the zoom where a main road first covers about two pixels. */
-function roadPx(widthM){ return widthM/S.mPerPx*S.view.k; }
+function roadPx(widthM){ return widthM/meanMapMetresPerPx()*S.view.k; }
 function trueWidthNow(){ return roadPx(35) >= 2.0; }
 
 function drawRoads(polys, cellE, cellN, widthM, ink, dash, minPx){
@@ -4124,7 +4138,7 @@ function drawRoads(polys, cellE, cellN, widthM, ink, dash, minPx){
   vx.save();
   vx.strokeStyle = ink;
   vx.lineJoin = "round"; vx.lineCap = "round";
-  vx.lineWidth = real ? Math.max(0.4/k, widthM/S.mPerPx) : (minPx || 1.1)/k;
+  vx.lineWidth = real ? Math.max(0.4/k, widthM/meanMapMetresPerPx()) : (minPx || 1.1)/k;
   if(dash) vx.setLineDash(dash.map(v => v/k)); else vx.setLineDash([]);
   vx.beginPath();
   for(let p=0;p<polys.length;p++){
@@ -4268,7 +4282,7 @@ function drawCityEdge(){
 // are looking at an abstraction or at the carriageway.
 function showViewNote(){
   const el = $("viewNote"); if(!el) return;
-  const mpp = S.mPerPx/S.view.k;
+  const mpp = meanMapMetresPerPx()/S.view.k;
   const real = trueWidthNow();
   const mode = S.roadView || "auto";
   el.innerHTML = mode === "paths"
@@ -6961,7 +6975,7 @@ function drawKeyPlan(){
 function updateScaleBarV3(){
   const host = $("scalebar");
   if(!host) return;
-  const mPerPx = S.mPerPx/S.view.k;                       // metres a screen pixel
+  const mPerPx = meanMapMetresPerPx()/S.view.k;             // exact mean metres a screen pixel
   const nice = [200,500,1000,2000,5000,10000,20000,50000,100000];
   let m = nice[nice.length-1];
   for(let i=0;i<nice.length;i++){
@@ -7883,6 +7897,9 @@ function boot(img, label){
        own drawing is self-consistent either way; anything crossing to the growth model is not.
        So every metre in this app comes from the extent, and 92.584 never appears again. */
     const ex = CFG.map.extentBNG;
+    S.mapE = (ex.e1 - ex.e0)/r.W0;
+    S.mapN = (ex.n1 - ex.n0)/r.H0;
+    S.mPerPx = Math.sqrt(S.mapE*S.mapN);
     S.cellE = (ex.e1 - ex.e0)/r.SW;
     S.cellN = (ex.n1 - ex.n0)/r.SH;
     S.SW2 = r.SW >> 1; S.SH2 = r.SH >> 1;       // the coarse grid: exactly half, never extent/433
@@ -7899,16 +7916,16 @@ function boot(img, label){
     S.trailImg = S.trailCx.createImageData(r.SW, r.SH);
 
     let inZone=0; for(let i=0;i<S.zone.length;i++) inZone+=S.zone[i];
-    const cellM = S.mPerPx*(S.mapW/S.SW);
+    const cellM = Math.sqrt(S.cellE*S.cellN);
     $("sGrid").textContent = r.SW+"×"+r.SH;
     $("sRes").textContent  = Math.round(cellM)+" m";
     $("mapNote").innerHTML =
       "<b>"+(label||CFG.map.name||"Zone 05")+"</b><br>"+
-      r.W0+" × "+r.H0+" px at "+S.mPerPx+" m/px · "+
-      (( (CFG.map.extentBNG.e1-CFG.map.extentBNG.e0)/1000 ).toFixed(0))+" × "+
-      (( (CFG.map.extentBNG.n1-CFG.map.extentBNG.n0)/1000 ).toFixed(0))+" km<br>"+
+      r.W0+" × "+r.H0+" px at "+S.mapE.toFixed(3)+" m/px E × "+S.mapN.toFixed(3)+" m/px N · "+
+      (((CFG.map.extentBNG.e1-CFG.map.extentBNG.e0)/1000).toFixed(0))+" × "+
+      (((CFG.map.extentBNG.n1-CFG.map.extentBNG.n0)/1000).toFixed(0))+" km<br>"+
       "British National Grid · zone covers "+
-      (inZone*cellM*cellM/1e6).toFixed(0)+" km²";
+      (inZone*S.cellE*S.cellN/1e6).toFixed(0)+" km²";
 
     S._fitted = false;
     resize();                                  // fits now, or as soon as the page has a size
