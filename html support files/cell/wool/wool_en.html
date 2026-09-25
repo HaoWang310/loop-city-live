@@ -3734,6 +3734,21 @@ function polyLength(poly, closed) {
   return L;
 }
 function polyArea(poly) { var a = 0; for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) a += poly[j][0] * poly[i][1] - poly[i][0] * poly[j][1]; return Math.abs(a / 2); }
+// Parcel areas are always derived from the FINAL polygon geometry, never from a stale
+// raster/grid cache. The polygon is in the same world coordinates that are drawn/exported.
+function parcelFlatAreaModelUnits2(pl) {
+  if(!pl||pl.length<6)return 0;
+  var a=0,n=pl.length>>1;
+  for(var i=0,j=n-1;i<n;j=i++)a+=Number(pl[2*j])*Number(pl[2*i+1])-Number(pl[2*i])*Number(pl[2*j+1]);
+  return Math.abs(a*0.5);
+}
+function parcelGeometryAreaM2(pl) {
+  return parcelFlatAreaModelUnits2(pl)*siteAreaScaleFactor();
+}
+function parcelAreaSecondaryLabel(m2) {
+  if(!(m2>=0)||!Number.isFinite(m2))return '';
+  return m2>=1000000?(m2/1000000).toFixed(3)+' km²':(m2/10000).toFixed(1)+' ha';
+}
 function bbox(poly) {
   var b = [1e300, 1e300, -1e300, -1e300];
   poly.forEach(function (p) { if (p[0] < b[0]) b[0] = p[0]; if (p[1] < b[1]) b[1] = p[1]; if (p[0] > b[2]) b[2] = p[0]; if (p[1] > b[3]) b[3] = p[1]; });
@@ -4722,7 +4737,8 @@ pWorker.onmessage = function (e) {
     return;
   }
   hoverParcel=-1;clearParcelSelection();hideParcelInfoPopup();
-  parcelRawSet = { polys: d.polys, areas: d.areas, iter: pSnap ? pSnap.iter : iter, maxCandidateArea: d.maxCandidateArea||0, maxFiltered: d.maxFiltered||0 };
+  var geometryAreas=d.polys.map(function(pl){return parcelFlatAreaModelUnits2(pl);});
+  parcelRawSet = { polys: d.polys, areas: geometryAreas, iter: pSnap ? pSnap.iter : iter, maxCandidateArea: d.maxCandidateArea||0, maxFiltered: d.maxFiltered||0 };
 
   // Keep custom layer boundaries when possible; otherwise initialise evenly.
   ensureParcelLevelBoundaries(!(parcelLevelP.boundaries&&parcelLevelP.boundaries.length===parcelLevelP.count));
@@ -4756,7 +4772,7 @@ function parcelSummary(ps) {
     if(parcelRawSet&&parcelLevelP.enabled)return 'No parcels in the selected distance level.';
     return 'No parcels found. Reduce the inset or the minimum parcel area.';
   }
-  var a = ps.areas.slice().map(siteAreaToM2).sort(function (x, y) { return x - y; }), tot = a.reduce(function (x, y) { return x + y; }, 0), u = 'm²';
+  var a = ps.polys.map(parcelGeometryAreaM2).sort(function (x, y) { return x - y; }), tot = a.reduce(function (x, y) { return x + y; }, 0), u = 'm²';
   return ps.polys.length + ' parcels · median real area ' + fmtNum(a[Math.floor(a.length / 2)]) + ' ' + u + ' · min ' + fmtNum(a[0]) + ' · max ' + fmtNum(a[a.length - 1]) + ' · total real area ' + fmtNum(tot) + ' ' + u;
 }
 function parcelStatus(ms, grid) {
@@ -5339,10 +5355,10 @@ function hideParcelInfoPopup(){
 }
 function showParcelInfoPopup(idx,sx,sy){
   if(!parcelSet||!parcelSet.polys||idx<0||idx>=parcelSet.polys.length){hideParcelInfoPopup();return;}
-  var area=(parcelSet.areas&&parcelSet.areas[idx]!=null)?parcelSet.areas[idx]:0;
+  var areaM2=parcelGeometryAreaM2(parcelSet.polys[idx]);
   var displaySourceId=(parcelSet.sourceIds&&parcelSet.sourceIds[idx]!=null)?parcelSet.sourceIds[idx]:(idx+1);
   $('piId').textContent='#'+displaySourceId;
-  $('piArea').textContent=fmtNum(siteAreaToM2(area))+' m²';
+  $('piArea').textContent=fmtNum(areaM2)+' m² · '+parcelAreaSecondaryLabel(areaM2);
   var zone='No level';
   if(parcelLevelP&&parcelLevelP.enabled&&parcelSet&&parcelSet.levels){
     var lv=parcelSet.levels[idx]||0;
@@ -6627,7 +6643,7 @@ function workflowParcelPayloadAt(index){
     if(Number.isFinite(x)&&Number.isFinite(y))pts.push({x:x*scale,y:y*scale,z:0});
   }
   if(pts.length<3)return null;
-  var rawArea=(parcelSet.areas&&Number(parcelSet.areas[index]))||0;
+  var areaM2=parcelGeometryAreaM2(pl);
   var sourceId=(parcelSet.sourceIds&&parcelSet.sourceIds[index])||index+1;
   var level=(parcelSet.levels&&parcelSet.levels[index])||1;
   return {
@@ -6635,7 +6651,7 @@ function workflowParcelPayloadAt(index){
     sourceId:sourceId,
     level:level,
     levelName:(typeof parcelLevelName==='function'?parcelLevelName(level):(level+' level')),
-    area:siteAreaToM2(rawArea),
+    area:areaM2,
     points:pts,
     units:'m',
     sourceUnits:'m',
