@@ -205,11 +205,15 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
       }
     }
     b.addEventListener("click", go);
-    b.addEventListener("dblclick", go);
-  });  function openAnnealingFromTop() {
+  });
+
+  function openAnnealingFromTop() {
     if (!LV.cell.el) frame("cell");
     show("cell");
-    send("cell", { type: "openAnnealingDemo" });
+    // Resume the existing Annealing workspace if it has already been created.
+    // Only the Cell layer decides whether a first-time demo is needed; the top
+    // breadcrumb must never reset an existing imported/optimised scheme.
+    send("cell", { type: "openAnnealingWorkspace" });
     var ac = $("annealCrumb");
     var cc = document.querySelector('.crumb[data-level="cell"]');
     if (ac) ac.classList.add("on");
@@ -219,11 +223,6 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
   var annealCrumb = $("annealCrumb");
   if (annealCrumb) {
     annealCrumb.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      openAnnealingFromTop();
-    });
-    annealCrumb.addEventListener("dblclick", function (e) {
       e.preventDefault();
       e.stopPropagation();
       openAnnealingFromTop();
