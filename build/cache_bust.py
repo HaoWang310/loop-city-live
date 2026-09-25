@@ -39,7 +39,11 @@ write_if_changed(p, s, out)
 
 # Standalone/sub-frame pages: version every local script, including scripts which
 # previously had no ?v=.  Remote http(s) dependencies are intentionally untouched.
-for rel in ("html support files/cell/cell.html", "html support files/loop/index.html"):
+for rel in (
+    "html support files/cell/cell.html",
+    "html support files/loop/index.html",
+    "html support files/combined_v10.html",
+):
     p, s = read(rel)
     pat = re.compile(r'(<script\b[^>]*\bsrc=")(?!https?://)([^"?]+)(?:\?v=[^"]*)?(")', re.I)
     out = pat.sub(lambda m: m.group(1) + m.group(2) + "?v=" + TOKEN + m.group(3), s)
