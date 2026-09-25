@@ -1284,7 +1284,10 @@ const LAYERS_INLINE = /*__LAYERS__*/{"manifest":null,"png":{}}/*__END__*/;
 
 /* ------------------------------------------------------------------ state */
 const S = {
-  mapW:0, mapH:0, mPerPx:CFG.map.mPerPx || 35,
+  mapW:0, mapH:0, mPerPx:(CFG.map.extentBNG&&CFG.map.size
+    ? Math.sqrt(((CFG.map.extentBNG.e1-CFG.map.extentBNG.e0)/CFG.map.size[0])*
+                ((CFG.map.extentBNG.n1-CFG.map.extentBNG.n0)/CFG.map.size[1]))
+    : (CFG.map.mPerPx || 35)),
   SW:0, SH:0, sx:1, sy:1,          // sim grid and map->sim scale
   trail:null, next:null,           // Float32 fields
   weight:null, zone:null, cls:null,
@@ -1789,7 +1792,7 @@ function simStep(){
   // as forbidden across all of it, the agents are repelled a whole sensor distance and the
   // "road" stands two to three kilometres off the town. Clamping the sensor inside the collar
   // puts the frontage back inside their view, so they hug it instead.
-  const D = S.DCITY, mPerCell = S.cellE || (S.mPerPx*(S.mapW/SW));
+  const D = S.DCITY, mPerCell = meanSimCellMetres();
   const collar = D && typeof iCollar !== "undefined" ? parseFloat(iCollar.value) : 0;
   const collarSD = D && typeof iCollarSD !== "undefined" ? parseFloat(iCollarSD.value) : sd;
 
@@ -2035,7 +2038,7 @@ function drawSeeds(){
   vx.restore();
 }
 function updateScaleBar(){
-  const mpp = S.mPerPx / S.view.k;                    // metres per screen px
+  const mpp = meanMapMetresPerPx() / S.view.k;        // exact mean metres per screen px
   const dpr = Math.min(2, window.devicePixelRatio||1);
   const targets = [1,2,5,10,20,50,100];
   let km = targets[0];
