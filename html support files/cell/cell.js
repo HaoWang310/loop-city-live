@@ -267,6 +267,19 @@
     setTimeout(function () { annealReady(cb, t0 || Date.now()); }, 150);
   }
 
+  function annealWorkspaceOpen() {
+    // Navigation-only open: reveal the existing iframe exactly as it was left.
+    // Creating the iframe for the first time is safe because the Annealing app
+    // initialises its own built-in site; we deliberately do NOT call showDemo()
+    // here, because that would erase imported parcels or an optimisation run.
+    annealMake();
+    annealShow(true);
+    workflowStepUI("anneal");
+    annealReady(function (w) {
+      try { if (w && w.dispatchEvent) w.dispatchEvent(new Event("resize")); } catch (_) {}
+    });
+  }
+
   function annealPreviewOpen() {
     annealMake();
     annealShow(true);
@@ -1011,12 +1024,19 @@
   // Global top navigation can open the Annealing workspace directly.
   window.addEventListener("message", function (e) {
     var d = e.data || {};
-    if (d.lc !== 1 || (d.type !== "openAnnealing" && d.type !== "openAnnealingDemo")) return;
+    if (d.lc !== 1 ||
+        (d.type !== "openAnnealing" &&
+         d.type !== "openAnnealingDemo" &&
+         d.type !== "openAnnealingWorkspace")) return;
 
     try {
       if (window.parent && window.parent !== window && e.source !== window.parent) return;
     } catch (_) {}
 
+    if (d.type === "openAnnealingWorkspace") {
+      annealWorkspaceOpen();
+      return;
+    }
     if (d.type === "openAnnealingDemo") {
       annealPreviewOpen();
       return;
