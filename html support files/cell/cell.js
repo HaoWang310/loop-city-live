@@ -353,6 +353,26 @@
 
     var parcels = r.parcels.slice();
     var cellId = ACT.pack && ACT.pack.id ? ACT.pack.id : "demo";
+
+    // Belt-and-braces coordinate frame: Wool normally carries this already, but the
+    // Cell knows the authoritative BNG bbox as well.  Never let a parcel reach
+    // Annealing without its EPSG:27700 origin when it came from Loop City.
+    if (ACT.pack && ACT.pack.bbox) {
+      var E0 = Number(ACT.pack.bbox.E0), N0 = Number(ACT.pack.bbox.N0);
+      if (Number.isFinite(E0) && Number.isFinite(N0)) {
+        parcels.forEach(function (p) {
+          if (!p.crs) p.crs = "EPSG:27700";
+          if (!Number.isFinite(Number(p.E0))) p.E0 = E0;
+          if (!Number.isFinite(Number(p.N0))) p.N0 = N0;
+          if (!p.cellId) p.cellId = cellId;
+          if (!p.coordinateFrame) p.coordinateFrame = {
+            crs: "EPSG:27700", E0: E0, N0: N0,
+            localAxes: "x east, y north",
+            relation: "E = E0 + x; N = N0 + y"
+          };
+        });
+      }
+    }
     var sig = cellId + "|" + parcels.map(function (p) {
       return p.sourceId || p.id;
     }).sort().join(",");
