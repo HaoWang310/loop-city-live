@@ -548,7 +548,7 @@ input[type=range]::-webkit-slider-thumb{
         <span style="flex:0 0 auto;color:var(--ink3);font-size:11px">m²</span>
       </div>
       <div class="status" id="siteScaleStatus" style="margin-top:5px">Unit: metres (m) · 1 model unit = 1.000 m</div>
-      <p class="hint">Fixed steps: ① enter the real total area of the whole region; ② press Enter to confirm and reset old results; ③ click 'Run' to solve again. Pressing Enter scales the outline and all length/area settings to real metres; from then on the wool, roads, parcels and the coordinates passed to annealing all use m / m².</p>
+      <p class="hint">Fixed steps: ① enter the real total area of the whole region; ② press Enter to confirm and reset old results; ③ click 'Run' to solve again. Pressing Enter restores only the reference geometry to the real total area. Inset, parcel area limits, straighten tolerance and road distances stay exactly as entered in m / m²; only solver mechanics and the computational grid may adapt automatically.</p>
     </div>
     <div id="curvePick" style="display:none">
       <div class="f"><div class="lab"><span>Closed curve to use as outline</span><span></span></div><select id="curveSel"></select></div>
@@ -3602,30 +3602,30 @@ function applyScaleAdaptiveMechanics(){
 
 function scaleWoolGeometryAndMetricParams(f){
   if(!Number.isFinite(f)||!(f>0)||Math.abs(f-1)<1e-12)return;
+
+  // Real-scale restoration has one job: put the reference geometry back into true metres.
+  // User-authored design thresholds stay literal m / m² values and are NEVER multiplied by f.
+  // Only internal solver mechanics and the computational grid are allowed to adapt to scale.
   var B=model&&model.boundary||[],cx=0,cy=0;
   if(B.length){for(var i=0;i<B.length;i++){cx+=B[i][0];cy+=B[i][1];}cx/=B.length;cy/=B.length;}
   for(var j=0;j<B.length;j++){B[j][0]=cx+(B[j][0]-cx)*f;B[j][1]=cy+(B[j][1]-cy)*f;}
-  if(model&&model.anchors)Object.keys(model.anchors).forEach(function(id){var a=model.anchors[id];if(a){a.x=cx+(a.x-cx)*f;a.y=cy+(a.y-cy)*f;}});
+  if(model&&model.anchors)Object.keys(model.anchors).forEach(function(id){
+    var a=model.anchors[id];
+    if(a){a.x=cx+(a.x-cx)*f;a.y=cy+(a.y-cy)*f;}
+  });
+
+  // Solver mechanic: attraction/search range follows the restored geometry scale.
   if(params&&Number.isFinite(Number(params.magR)))params.magR*=f;
-  if(pp){
-    if(Number.isFinite(Number(pp.inset)))pp.inset*=f;
-    if(Number.isFinite(Number(pp.minArea)))pp.minArea*=f*f;
-    if(Number.isFinite(Number(pp.maxArea))&&pp.maxArea>0)pp.maxArea*=f*f;
-    if(Number.isFinite(Number(pp.straightenTol)))pp.straightenTol*=f;
-    if(Number.isFinite(Number(pp.cell)))pp.cell*=f;
-  }
-  if(typeof parcelLevelP!=='undefined'&&parcelLevelP&&Array.isArray(parcelLevelP.boundaries))parcelLevelP.boundaries=parcelLevelP.boundaries.map(function(x){return Number(x)*f;});
-  if(typeof roadP!=='undefined'&&roadP){
-    if(Number.isFinite(Number(roadP.radius)))roadP.radius*=f;
-    if(Number.isFinite(Number(roadP.minRun)))roadP.minRun*=f;
-    if(Number.isFinite(Number(roadP.secondaryLength)))roadP.secondaryLength*=f;
-    if(Number.isFinite(Number(roadP.connectTol)))roadP.connectTol*=f;
-  }
-  var weld=$('sWeld');if(weld){var wv=Number(weld.value);if(Number.isFinite(wv))weld.value=String(wv*f);ensureRangeContains('sWeld',Number(weld.value));}
+
+  // Computational grid: raster resolution follows the restored geometry scale.
+  // inset / minArea / maxArea / straightenTol remain exactly as entered by the user.
+  if(pp&&Number.isFinite(Number(pp.cell)))pp.cell*=f;
+
+  // Deliberately NOT scaled here:
+  // parcelLevelP.boundaries, weld tolerance, road radius, minRun,
+  // secondaryLength and connectTol. These are real-world design inputs.
   ensureRangeContains('sRange',params&&params.magR);
-  ensureRangeContains('sInset',pp&&pp.inset);ensureRangeContains('sMinArea',pp&&pp.minArea);ensureRangeContains('sMaxArea',pp&&pp.maxArea);
-  ensureRangeContains('sStrTol',pp&&pp.straightenTol);ensureRangeContains('sCell',pp&&pp.cell);
-  ensureRangeContains('sRoadRadius',roadP&&roadP.radius);ensureRangeContains('sRoadMinRun',roadP&&roadP.minRun);ensureRangeContains('sRoadSecondaryLength',roadP&&roadP.secondaryLength);ensureRangeContains('sRoadConnectTol',roadP&&roadP.connectTol);
+  ensureRangeContains('sCell',pp&&pp.cell);
   model.units='m';
 }
 function normalizeCurrentWoolModelToMeters(){
@@ -3671,8 +3671,8 @@ function applySiteAreaTarget(){
   if(!(current>0)){setStatus('The current outline has no valid area, so the real total area cannot be applied.');return false;}
   var f=Math.sqrt(target/current);
   if(!Number.isFinite(f)||!(f>0)){setStatus('Area conversion failed. Check the input value.');return false;}
-  // 物理缩放几何和所有“长度/面积型”求解参数，使内部坐标本身就是米。
-  // 这样磁吸、Inset、网格、道路距离以及传给退火的坐标都使用同一米制，不再依赖虚拟比例尺。
+  // 只把参考几何恢复到真实米制；设计参数继续保持用户输入的 m / m²。
+  // 只有 solver mechanics 与 computational grid 随尺度做明确的内部适配。
   scaleWoolGeometryAndMetricParams(f);
   model.units='m';
   siteAreaTargetM2=target;
@@ -3688,7 +3688,7 @@ function applySiteAreaTarget(){
   refreshSliders();refreshParcelControls();refreshRoadControls();
   syncSiteAreaControl(true);
   fit();
-  setStatus('Real total area confirmed: '+Math.round(target).toLocaleString('en-GB')+' m²; the geometry and all distance settings are now in metres. Old parcels cleared; click "Run" to recalculate.');
+  setStatus('Real total area confirmed: '+Math.round(target).toLocaleString('en-GB')+' m²; geometry restored to true metres. Design thresholds remain unchanged; solver/grid adaptation is recalculated on the next run. Old parcels cleared; click "Run" to recalculate.');
   return true;
 }
 function bindSiteAreaControl(){
