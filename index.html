@@ -78,9 +78,9 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
   "use strict";
   var ORDER = ["loop", "quadrant", "cell"];
   var LV = {
-    loop:     { src: "html support files/loop/index.html?v=f111e505be31ee2ff1284e6fd1948b3c",  el: null, ready: false, queue: [] },
-    quadrant: { src: "html support files/combined_v10.html?v=f111e505be31ee2ff1284e6fd1948b3c", el: null, ready: false, queue: [] },
-    cell:     { src: "html support files/cell/cell.html?v=f111e505be31ee2ff1284e6fd1948b3c",   el: null, ready: false, queue: [] }
+    loop:     { src: "html support files/loop/index.html?v=7e4323a35d408792c8345cb7966ddc77",  el: null, ready: false, queue: [] },
+    quadrant: { src: "html support files/combined_v10.html?v=7e4323a35d408792c8345cb7966ddc77", el: null, ready: false, queue: [] },
+    cell:     { src: "html support files/cell/cell.html?v=7e4323a35d408792c8345cb7966ddc77",   el: null, ready: false, queue: [] }
   };
   var current = null;
   var $ = function (id) { return document.getElementById(id); };
@@ -99,7 +99,7 @@ body{display:flex;flex-direction:column;background:var(--paper);color:var(--ink)
           var d = f.contentDocument;
           if (!d || (f.contentWindow && f.contentWindow.__LC_QUADRANT_RESIZE__)) return;
           var s = d.createElement("script");
-          s.src = new URL("html support files/js/quadrant_resize.js?v=f111e505be31ee2ff1284e6fd1948b3c", window.location.href).href;
+          s.src = new URL("html support files/js/quadrant_resize.js?v=7e4323a35d408792c8345cb7966ddc77", window.location.href).href;
           d.body.appendChild(s);
         } catch (e) {}
       });
