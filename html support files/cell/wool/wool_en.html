@@ -158,10 +158,23 @@ details[open] summary::after{content:"−"}
   box-shadow:0 18px 44px rgba(43,40,38,.20);padding:16px 18px
 }
 #parcelLevelCard::after{
-  content:"";position:sticky;float:right;right:-12px;bottom:-11px;
-  width:15px;height:15px;margin:-4px -12px -10px 0;pointer-events:none;
+  content:"";position:absolute;right:5px;bottom:5px;
+  width:18px;height:18px;pointer-events:none;z-index:8;
   background:
-    linear-gradient(135deg,transparent 0 48%,rgba(143,95,56,.28) 49% 55%,transparent 56% 66%,rgba(143,95,56,.46) 67% 73%,transparent 74%);
+    linear-gradient(135deg,transparent 0 46%,rgba(143,95,56,.22) 47% 53%,transparent 54% 64%,rgba(143,95,56,.52) 65% 72%,transparent 73%);
+}
+.plResizeHandle{position:absolute;z-index:20;touch-action:none;user-select:none}
+.plResizeHandle[data-edge="n"]{left:12px;right:12px;top:-5px;height:12px;cursor:ns-resize}
+.plResizeHandle[data-edge="s"]{left:12px;right:12px;bottom:-5px;height:12px;cursor:ns-resize}
+.plResizeHandle[data-edge="w"]{top:12px;bottom:12px;left:-5px;width:12px;cursor:ew-resize}
+.plResizeHandle[data-edge="e"]{top:12px;bottom:12px;right:-5px;width:12px;cursor:ew-resize}
+.plResizeHandle[data-edge="nw"]{left:-7px;top:-7px;width:20px;height:20px;cursor:nwse-resize}
+.plResizeHandle[data-edge="ne"]{right:-7px;top:-7px;width:20px;height:20px;cursor:nesw-resize}
+.plResizeHandle[data-edge="sw"]{left:-7px;bottom:-7px;width:20px;height:20px;cursor:nesw-resize}
+.plResizeHandle[data-edge="se"]{right:-7px;bottom:-7px;width:28px;height:28px;cursor:nwse-resize}
+.plResizeHandle[data-edge="se"]::after{
+  content:"";position:absolute;right:7px;bottom:7px;width:12px;height:12px;
+  border-right:2px solid rgba(143,95,56,.72);border-bottom:2px solid rgba(143,95,56,.72);
 }
 #parcelLevelCard .plHead{
   display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-6px -8px 12px;
@@ -456,6 +469,14 @@ input[type=range]::-webkit-slider-thumb{
         <div class="plTitle">Parcel levels by distance</div>
         <button class="plClose" id="bParcelLevelClose" title="Close">×</button>
       </div>
+      <span class="plResizeHandle" data-edge="n" aria-hidden="true"></span>
+      <span class="plResizeHandle" data-edge="s" aria-hidden="true"></span>
+      <span class="plResizeHandle" data-edge="w" aria-hidden="true"></span>
+      <span class="plResizeHandle" data-edge="e" aria-hidden="true"></span>
+      <span class="plResizeHandle" data-edge="nw" aria-hidden="true"></span>
+      <span class="plResizeHandle" data-edge="ne" aria-hidden="true"></span>
+      <span class="plResizeHandle" data-edge="sw" aria-hidden="true"></span>
+      <span class="plResizeHandle" data-edge="se" aria-hidden="true"></span>
 
       <div class="f">
         <div class="lab"><span>Distance method</span><span></span></div>
@@ -5927,78 +5948,62 @@ $('bParcelLevelApply').onclick=function(){
 // ---------------- 分层面板移动 + 四边/四角缩放 ----------------
 (function(){
   var card=$('parcelLevelCard'),head=card.querySelector('.plHead');
-  var EDGE=10;
+  var handles=Array.prototype.slice.call(card.querySelectorAll('.plResizeHandle'));
 
-  function edgeAt(e){
-    var r=card.getBoundingClientRect();
-    var x=e.clientX-r.left,y=e.clientY-r.top;
-    var L=x<=EDGE,R=x>=r.width-EDGE,T=y<=EDGE,B=y>=r.height-EDGE;
-    if(T&&L)return 'nw'; if(T&&R)return 'ne';
-    if(B&&L)return 'sw'; if(B&&R)return 'se';
-    if(L)return 'w'; if(R)return 'e'; if(T)return 'n'; if(B)return 's';
-    return '';
-  }
-  function edgeCursor(edge){
+  function cursorFor(edge){
     return ({n:'ns-resize',s:'ns-resize',e:'ew-resize',w:'ew-resize',
-      ne:'nesw-resize',sw:'nesw-resize',nw:'nwse-resize',se:'nwse-resize'})[edge]||'';
+      ne:'nesw-resize',sw:'nesw-resize',nw:'nwse-resize',se:'nwse-resize'})[edge]||'default';
   }
 
-  // Capture phase makes border resizing win over the header's move gesture.
-  card.addEventListener('pointerdown',function(e){
-    if(e.button!==0)return;
-    var edge=edgeAt(e);
-    if(!edge)return;
-    e.preventDefault();e.stopPropagation();
+  handles.forEach(function(handle){
+    handle.addEventListener('pointerdown',function(e){
+      if(e.button!==0)return;
+      e.preventDefault();e.stopPropagation();
 
-    var r=card.getBoundingClientRect(),sr=$('stage').getBoundingClientRect();
-    parcelLevelResize={
-      pointerId:e.pointerId,edge:edge,
-      startX:e.clientX,startY:e.clientY,
-      x:r.left-sr.left,y:r.top-sr.top,w:r.width,h:r.height
-    };
-    card.setPointerCapture(e.pointerId);
-    document.body.style.userSelect='none';
-    document.body.style.cursor=edgeCursor(edge);
-  },true);
+      var edge=handle.getAttribute('data-edge')||'se';
+      var r=card.getBoundingClientRect(),sr=$('stage').getBoundingClientRect();
 
-  card.addEventListener('pointermove',function(e){
-    if(parcelLevelResize&&e.pointerId===parcelLevelResize.pointerId){
+      parcelLevelResize={
+        pointerId:e.pointerId,edge:edge,handle:handle,
+        startX:e.clientX,startY:e.clientY,
+        x:r.left-sr.left,y:r.top-sr.top,w:r.width,h:r.height
+      };
+
+      handle.setPointerCapture(e.pointerId);
+      document.body.style.userSelect='none';
+      document.body.style.cursor=cursorFor(edge);
+    });
+
+    handle.addEventListener('pointermove',function(e){
+      if(!parcelLevelResize||e.pointerId!==parcelLevelResize.pointerId||parcelLevelResize.handle!==handle)return;
       e.preventDefault();
+
       var d=parcelLevelResize,dx=e.clientX-d.startX,dy=e.clientY-d.startY;
       var x=d.x,y=d.y,w=d.w,h=d.h;
+
       if(d.edge.indexOf('e')>=0)w=d.w+dx;
       if(d.edge.indexOf('s')>=0)h=d.h+dy;
-      if(d.edge.indexOf('w')>=0){w=d.w-dx;x=d.x+dx;}
-      if(d.edge.indexOf('n')>=0){h=d.h-dy;y=d.y+dy;}
+      if(d.edge.indexOf('w')>=0)w=d.w-dx;
+      if(d.edge.indexOf('n')>=0)h=d.h-dy;
 
       var q=clampParcelLevelPanelSize(w,h);
-      // When resizing from left/top, keep the opposite edge visually fixed.
       if(d.edge.indexOf('w')>=0)x=d.x+d.w-q.w;
       if(d.edge.indexOf('n')>=0)y=d.y+d.h-q.h;
 
       setParcelLevelPanelSize(q.w,q.h);
       setParcelLevelPanelPosition(x,y);
-      return;
-    }
-    if(!parcelLevelDrag){
-      var edge=edgeAt(e);
-      card.style.cursor=edgeCursor(edge);
-    }
-  });
+    });
 
-  function endResize(e){
-    if(!parcelLevelResize||e.pointerId!==parcelLevelResize.pointerId)return;
-    var pid=parcelLevelResize.pointerId;
-    parcelLevelResize=null;
-    document.body.style.userSelect='';
-    document.body.style.cursor='';
-    card.style.cursor='';
-    try{if(card.hasPointerCapture(pid))card.releasePointerCapture(pid);}catch(_){}
-  }
-  card.addEventListener('pointerup',endResize);
-  card.addEventListener('pointercancel',endResize);
-  card.addEventListener('pointerleave',function(){
-    if(!parcelLevelResize&&!parcelLevelDrag)card.style.cursor='';
+    function finishResize(e){
+      if(!parcelLevelResize||e.pointerId!==parcelLevelResize.pointerId||parcelLevelResize.handle!==handle)return;
+      var pid=parcelLevelResize.pointerId;
+      parcelLevelResize=null;
+      document.body.style.userSelect='';
+      document.body.style.cursor='';
+      try{if(handle.hasPointerCapture(pid))handle.releasePointerCapture(pid);}catch(_){}
+    }
+    handle.addEventListener('pointerup',finishResize);
+    handle.addEventListener('pointercancel',finishResize);
   });
 
   head.addEventListener('pointerdown',function(e){
@@ -6027,13 +6032,11 @@ $('bParcelLevelApply').onclick=function(){
   });
 
   function endDrag(e){
-    if(!parcelLevelDrag)return;
+    if(!parcelLevelDrag||e.pointerId!==parcelLevelDrag.pointerId)return;
     var pid=parcelLevelDrag.pointerId;
     parcelLevelDrag=null;
     document.body.style.userSelect='';
-    try{
-      if(head.hasPointerCapture(pid))head.releasePointerCapture(pid);
-    }catch(_){}
+    try{if(head.hasPointerCapture(pid))head.releasePointerCapture(pid);}catch(_){}
   }
 
   head.addEventListener('pointerup',endDrag);
