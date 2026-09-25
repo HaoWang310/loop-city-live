@@ -529,7 +529,7 @@ input[type=range]::-webkit-slider-thumb{
       <label class="check"><input type="checkbox" id="cMagAll"> Magnet across groups (single solve)</label>
       <div class="row"><button class="btn sm" id="bDefRange" title="Mean segment length × a scale-adaptive factor for Loop City cells; original definition = 1.84386">Range from segments</button><button class="btn sm" id="bDefaults">Definition defaults</button></div>
     </details>
-    <p class="hint">Loop City cells use a deformation-dominant urban profile: more wet-wool slack, tension-only length control, much lower straightening, stronger cross-group magnetism and a larger capture range. Original reference values remain available through Definition defaults.</p>
+    <p class="hint">Loop City cells use a balanced scale-adaptive profile: moderate wet-wool slack, soft two-way length control, curvature smoothing and distance-decaying cross-group magnetism. This keeps bundles visible without hard snapping or local over-tightening. Original reference values remain available through Definition defaults.</p>
   </section>
 
   <section>
@@ -741,10 +741,19 @@ function step() {
           if (tj === ti || (!prm.magAll && TG[tj] !== gi)) continue;
           dx = P[2 * j] - px; dy = P[2 * j + 1] - py;
           var d2 = dx * dx + dy * dy;
-          if (d2 >= r2) continue;
-          M[2 * i] += w * 0.5 * dx; M[2 * i + 1] += w * 0.5 * dy;
-          M[2 * j] -= w * 0.5 * dx; M[2 * j + 1] -= w * 0.5 * dy;
-          W[i] += w; W[j] += w;
+          if (d2 >= r2 || d2 < 1e-12) continue;
+
+          // Soft capture: zero force at the edge of the range, increasing smoothly
+          // towards nearby threads. This removes the hard "snap" at magR.
+          var dist = Math.sqrt(d2);
+          var u = 1 - dist / rg;
+          var fall = u * u * (3 - 2 * u); // smoothstep, 0..1
+          var mw = w * fall;
+          if (mw <= 1e-9) continue;
+
+          M[2 * i] += mw * 0.5 * dx; M[2 * i + 1] += mw * 0.5 * dy;
+          M[2 * j] -= mw * 0.5 * dx; M[2 * j + 1] -= mw * 0.5 * dy;
+          W[i] += mw; W[j] += mw;
         }
       }
     }
@@ -3471,15 +3480,16 @@ function ensureRangeContains(id,value){
 function scaleAdaptiveMechanicalProfile(areaM2){
   var refArea=49794;
   var scale=Math.sqrt(Math.max(1,Number(areaM2)||refArea)/refArea);
-  var lg=Math.max(0,Math.min(6,Math.log(scale)/Math.LN2));
+  var lg=Math.max(0,Math.min(5.5,Math.log(scale)/Math.LN2));
 
-  // Urban cells need a deformation-dominant regime rather than the very stiff
-  // reference definition. Keep anchors hard, but let the thread itself move.
-  var len=Math.round(52000/(1+0.08*lg));
-  var ang=Math.round(len*(0.030-0.0025*Math.min(lg,5)));
-  var mag=Math.round(len*(0.55+0.08*lg));
-  var over=Math.round(Math.min(24,12+2.0*lg)*10)/10;
-  var rangeK=Math.min(4.8,3.25+0.28*lg);
+  // Balanced urban profile:
+  // enough surplus length to curve, but not enough magnet force/range to collapse bundles.
+  // Absolute weights are deliberately kept moderate; their ratios matter more than large raw values.
+  var len=Math.round(22000/(1+0.05*lg));
+  var ang=Math.round(len*(0.12+0.010*Math.min(lg,5)));
+  var mag=Math.round(len*(0.22+0.025*lg));
+  var over=Math.round(Math.min(14,7+1.1*lg)*10)/10;
+  var rangeK=Math.min(3.25,2.15+0.18*lg);
 
   return {scale:scale,log2Scale:lg,lenS:len,angS:ang,magS:mag,over:over,rangeK:rangeK};
 }
@@ -3507,10 +3517,10 @@ function applyScaleAdaptiveMechanics(){
   params.magS=p.magS;
   params.over=p.over;
   params.magAll=true;
-  // True = slack is allowed. Length only resists overstretching, so magnet forces
-  // can actually pull the wool into bundles instead of the line solver straightening it back.
-  params.tension=true;
-  params.mom=0.86;
+  // Use a soft two-way length goal. The extra length creates curvature, while compression
+  // resistance prevents MagnetSnap from collapsing neighbouring threads into hard bundles.
+  params.tension=false;
+  params.mom=0.78;
   if(meanSeg>0)params.magR=Math.max(0.01,meanSeg*p.rangeK);
   ensureRangeContains('sMag',params.magS);
   ensureRangeContains('sRange',params.magR);
