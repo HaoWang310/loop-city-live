@@ -3553,15 +3553,15 @@ async function workflowImportParcelsFromWool(input){
   if(!list.length)throw new Error('No valid parcels received.');
 
   let incomingFrames=list.map(workflowFrameFromParcel).filter(Boolean);
-  workflowCoordinateFrame=incomingFrames.length?incomingFrames[0]:null;
+  let incomingFrame=incomingFrames.length?incomingFrames[0]:null;
   if(incomingFrames.length&&incomingFrames.length!==list.length){
     throw new Error('Some selected Loop City parcels are missing their BNG coordinate frame.');
   }
-  if(workflowCoordinateFrame){
+  if(incomingFrame){
     for(const f of incomingFrames){
-      if(f.crs!==workflowCoordinateFrame.crs||
-         Math.abs(f.E0-workflowCoordinateFrame.E0)>1e-6||
-         Math.abs(f.N0-workflowCoordinateFrame.N0)>1e-6){
+      if(f.crs!==incomingFrame.crs||
+         Math.abs(f.E0-incomingFrame.E0)>1e-6||
+         Math.abs(f.N0-incomingFrame.N0)>1e-6){
         throw new Error('Selected parcels do not share one Loop City BNG coordinate frame.');
       }
     }
@@ -3607,6 +3607,10 @@ async function workflowImportParcelsFromWool(input){
     });
   }
   if(!candidates.length)throw new Error('The incoming parcels do not form a valid closed boundary.');
+
+  // Commit the coordinate frame only after the geometry has passed validation, so
+  // a failed import cannot overwrite the frame of the scheme already on screen.
+  workflowCoordinateFrame=incomingFrame;
 
   haltComputation();
   focusedSiteIndex=null;updateSitePreviewBadge();
