@@ -151,17 +151,23 @@ details[open] summary::after{content:"−"}
 #parcelLevelCard{
   position:absolute;left:24px;top:24px;
   width:min(520px,calc(100% - 48px));max-width:calc(100% - 16px);
-  height:auto;max-height:calc(100% - 16px);min-width:300px;min-height:240px;
-  overflow:auto;box-sizing:border-box;container-type:inline-size;
+  height:min(720px,calc(100% - 48px));max-height:calc(100% - 16px);min-width:300px;min-height:240px;
+  overflow:auto;box-sizing:border-box;container-type:inline-size;resize:both;
   pointer-events:auto;
   background:rgba(255,255,255,.985);border:1px solid var(--line);border-radius:12px;
   box-shadow:0 18px 44px rgba(43,40,38,.20);padding:16px 18px
 }
 #parcelLevelCard::after{
-  content:"";position:absolute;right:5px;bottom:5px;
-  width:18px;height:18px;pointer-events:none;z-index:8;
+  content:"";position:absolute;right:4px;bottom:4px;
+  width:28px;height:28px;pointer-events:none;z-index:30;
+  border-right:3px solid rgba(143,95,56,.82);
+  border-bottom:3px solid rgba(143,95,56,.82);
+  border-radius:0 0 8px 0;
   background:
-    linear-gradient(135deg,transparent 0 46%,rgba(143,95,56,.22) 47% 53%,transparent 54% 64%,rgba(143,95,56,.52) 65% 72%,transparent 73%);
+    repeating-linear-gradient(135deg,
+      transparent 0 5px,
+      rgba(143,95,56,.34) 5px 7px,
+      transparent 7px 11px);
 }
 .plResizeHandle{position:absolute;z-index:20;touch-action:none;user-select:none}
 .plResizeHandle[data-edge="n"]{left:12px;right:12px;top:-5px;height:12px;cursor:ns-resize}
@@ -171,10 +177,12 @@ details[open] summary::after{content:"−"}
 .plResizeHandle[data-edge="nw"]{left:-7px;top:-7px;width:20px;height:20px;cursor:nwse-resize}
 .plResizeHandle[data-edge="ne"]{right:-7px;top:-7px;width:20px;height:20px;cursor:nesw-resize}
 .plResizeHandle[data-edge="sw"]{left:-7px;bottom:-7px;width:20px;height:20px;cursor:nesw-resize}
-.plResizeHandle[data-edge="se"]{right:-7px;bottom:-7px;width:28px;height:28px;cursor:nwse-resize}
+.plResizeHandle[data-edge="se"]{
+  right:-2px;bottom:-2px;width:42px;height:42px;cursor:nwse-resize;z-index:40
+}
 .plResizeHandle[data-edge="se"]::after{
-  content:"";position:absolute;right:7px;bottom:7px;width:12px;height:12px;
-  border-right:2px solid rgba(143,95,56,.72);border-bottom:2px solid rgba(143,95,56,.72);
+  content:"";position:absolute;right:7px;bottom:7px;width:18px;height:18px;
+  border-right:3px solid rgba(143,95,56,.88);border-bottom:3px solid rgba(143,95,56,.88);
 }
 #parcelLevelCard .plHead{
   display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-6px -8px 12px;
@@ -4655,10 +4663,15 @@ function openParcelLevelPanel(){
   buildParcelLevelSliders();
   $('parcelLevelModal').classList.add('show');
 
-  // 第一次打开居中；之后保持用户拖动后的位置。
   requestAnimationFrame(function(){
     if(parcelLevelPanelSize){
       setParcelLevelPanelSize(parcelLevelPanelSize.w,parcelLevelPanelSize.h);
+    }else{
+      var stage=$('stage');
+      setParcelLevelPanelSize(
+        Math.min(620,Math.max(340,stage.clientWidth*0.48)),
+        Math.min(720,Math.max(360,stage.clientHeight*0.72))
+      );
     }
     if(parcelLevelPanelPos){
       setParcelLevelPanelPosition(parcelLevelPanelPos.x,parcelLevelPanelPos.y);
