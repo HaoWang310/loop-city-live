@@ -2402,6 +2402,10 @@ function meanSimCellMetres(){
   const n=Number(S.cellN)||meanMapMetresPerPx()*(S.mapH/Math.max(1,S.SH));
   return Math.sqrt(e*n);
 }
+function currentRoadWidthM(){
+  const v=typeof iRoadW!=="undefined"&&iRoadW?Number(iRoadW.value):NaN;
+  return Number.isFinite(v)&&v>0?v:30;
+}
 
 function extractCells(){
   if(!S.trail) return;
@@ -3909,6 +3913,7 @@ function exportPack(){
     bng: iBNG ? iBNG.checked : true,
     roads1: polysToMetres(S.graph ? drawnRoadPolys() : null, S.cellE, S.cellN),
     roads2: [],
+    roadW1: currentRoadWidthM(),
     nodes: (CFG.map.nodes||[]).filter(n => n.inZone),
     rail: typeof railRuns === "function" ? railRuns() : []
   };
@@ -4127,7 +4132,7 @@ function smoothPolys(polys, closed){
    abstraction of the network at a weight you can read; close in you see the carriageway at its
    real width. The switch is at the zoom where a main road first covers about two pixels. */
 function roadPx(widthM){ return widthM/meanMapMetresPerPx()*S.view.k; }
-function trueWidthNow(){ return roadPx(35) >= 2.0; }
+function trueWidthNow(){ return roadPx(currentRoadWidthM()) >= 2.0; }
 
 function drawRoads(polys, cellE, cellN, widthM, ink, dash, minPx){
   if(!polys || !polys.length) return;
@@ -4180,7 +4185,7 @@ function growParcels(){
   const SW = S.SW, SH = S.SH, n = SW*SH;
   if(!S.CITY || !S.roadR1) return null;
   const ROAD = S.roadR1, ROAD2 = S.roadR2, CITY = S.CITY;
-  const maxCells = Math.max(1, parseFloat(iParcelReach.value)*1000/S.cellE);
+  const maxCells = Math.max(1, parseFloat(iParcelReach.value)*1000/meanSimCellMetres());
 
   // label the settlements, four-connected, as the fill downstream is
   const lab = new Int32Array(n).fill(-1), st = new Int32Array(n);
@@ -4267,7 +4272,7 @@ function drawCityEdge(){
     const B = blurField(F, SW, SH, 1.1);
     const k = smoothPasses();
     S.edgeRings = traceRings(B, SW, SH, 0.5).filter(r => r.length > 20)
-      .map(r => { const q = simplifyRing(r, 140/S.cellE); return k ? chaikin(q, k, true) : q; });
+      .map(r => { const q = simplifyRing(r, 140/meanSimCellMetres()); return k ? chaikin(q, k, true) : q; });
     S.edgeFor = S.CITY;
   }
   const sx = S.mapW/SW, sy = S.mapH/SH, k = S.view.k;
@@ -4295,7 +4300,7 @@ function showViewNote(){
     : ("About <b>" + Math.round(mpp) + " m</b> a pixel. " +
        (mode === "true" ? "Carriageway at true width, forced."
         : mode === "auto" ? (real ? "Close enough for the real carriageway."
-                                  : "Too far out for 35 m to read, so the network is abstracted.")
+                                  : "Too far out for "+Math.round(currentRoadWidthM())+" m to read, so the network is abstracted.")
         : ""));
 }
 
@@ -4488,7 +4493,7 @@ function attachWoolInputs(){
     p.corridor = null; p.anchors = [];
     if(!p.stations.length && inside.length){
       const halfW = (parseFloat(typeof iWoolCorr !== "undefined" && iWoolCorr
-                    ? iWoolCorr.value : 1200)/2) / S.cellE;
+                    ? iWoolCorr.value : 1200)/2) / meanSimCellMetres();
       const nAnch = parseInt(typeof iWoolAnch !== "undefined" && iWoolAnch ? iWoolAnch.value : 6);
       // the longest run is the one the corridor follows; a short re-entry is not the spine
       let run = inside[0];
@@ -4646,7 +4651,7 @@ function cellGateways(p){
     found.push(snapToRing(nd.x, nd.y));
   });
   // merge the ones that crowd each other
-  const minC = GATE_SPACING_M / S.cellE, out = [];
+  const minC = GATE_SPACING_M / meanSimCellMetres(), out = [];
   found.forEach(q => {
     if(out.some(r => Math.hypot(r[0]-q[0], r[1]-q[1]) < minC)) return;
     out.push(q);
@@ -4874,7 +4879,11 @@ function attachParcelFigures(){
     f.id = "C" + (p+1);
     // Final-ring metrics were recomputed after smoothing; only fall back for legacy calls.
     if(!Number.isFinite(f.areaKm2)) f.areaKm2 = f.areaCells*cellKm2m;
-    if(!Number.isFinite(f.perimKm)) f.perimKm = f.perimCells*S.cellE/1000;
+    if(!Number.isFinite(f.perimKm)){
+      let pm=0,rr=f.ring||[];
+      for(let i=0,j=rr.length-2;i<rr.length;j=i,i+=2) pm+=Math.hypot((rr[i]-rr[j])*S.cellE,(rr[i+1]-rr[j+1])*S.cellN);
+      f.perimKm=pm/1000;
+    }
     // the label goes at the ring's centroid, which for these shapes is inside it
     let cx = 0, cy = 0, m = 0;
     for(let i=0;i+1<f.ring.length;i+=2){ cx += f.ring[i]; cy += f.ring[i+1]; m++; }
@@ -5057,14 +5066,14 @@ const MAX_CELL_PTS = 400;
 
 function parcelInsetCells(){
   if(typeof iParcelKerb === "undefined" || !iParcelKerb || !iParcelKerb.checked) return 0;
-  return (parseFloat(iRoadW.value)/2) / S.cellE;            // metres -> cells
+  return (currentRoadWidthM()/2) / meanSimCellMetres();           // physical metres -> isotropic computational cells
 }
 
 function smoothParcelRings(){
   Parcels.resetStats();
   const d = parcelInsetCells();
   const R = (typeof iParcelFillet === "undefined" || !iParcelFillet)
-            ? 0 : (parseFloat(iParcelFillet.value)||0) / S.cellE;
+            ? 0 : (parseFloat(iParcelFillet.value)||0) / meanSimCellMetres();
   const curve = (typeof iParcelCurve === "undefined" || !iParcelCurve)
             ? 0 : parseFloat(iParcelCurve.value)||0;
   const iters = (typeof iCellSmoothIt === "undefined" || !iCellSmoothIt)
@@ -5151,8 +5160,8 @@ function smoothParcelRings(){
          instead of a few thousand, so the same cut removes it at a tighter scale. */
       /* With the neck cut on, the long fingers were already cut in the GRAPH and given to a neighbour; cutting them
          here as well only removed ground and left it as road, which was the white gap. The hairpin scale stays. */
-      if(!neckCut) r = Parcels.removeFingers(r, fingerM/S.cellE, (fingerM*2.5)/S.cellE, 0.25);
-      r = Parcels.removeFingers(r, (fingerM*0.35)/S.cellE, (fingerM*0.6)/S.cellE, 0.12);
+      if(!neckCut) r = Parcels.removeFingers(r, fingerM/meanSimCellMetres(), (fingerM*2.5)/meanSimCellMetres(), 0.25);
+      r = Parcels.removeFingers(r, (fingerM*0.35)/meanSimCellMetres(), (fingerM*0.6)/meanSimCellMetres(), 0.12);
       if(r !== before){
         /* The pass that takes the new corner off contains against the CUT ring, which is not the
            same as containing against the face -- so it can bulge back out where the finger was,
@@ -5351,12 +5360,15 @@ function interiorPoint(r){
 }
 // cells -> "2.3 km SE of P4": the nearest station in the zone
 function whereIs(cx, cy){
-  const fx = S.SW/S.mapW, fy = S.SH/S.mapH; let best = null, bd = Infinity;
-  (CFG.map.nodes||[]).filter(n => n.inZone).forEach(n => { const d = Math.hypot(n.x*fx-cx, n.y*fy-cy); if(d < bd){ bd = d; best = n; } });
+  const fx = S.SW/S.mapW, fy = S.SH/S.mapH; let best = null, bdM = Infinity, bestDxM = 0, bestDyNorthM = 0;
+  (CFG.map.nodes||[]).filter(n => n.inZone).forEach(n => {
+    const dxM=(cx-n.x*fx)*S.cellE, dyNorthM=(n.y*fy-cy)*S.cellN, dM=Math.hypot(dxM,dyNorthM);
+    if(dM < bdM){ bdM=dM; best=n; bestDxM=dxM; bestDyNorthM=dyNorthM; }
+  });
   if(!best){ const ex = CFG.map.extentBNG; return "at E " + Math.round(ex.e0+(cx+0.5)*S.cellE) + ", N " + Math.round(ex.n1-(cy+0.5)*S.cellN); }
-  const ang = Math.atan2(best.y*fy - cy, cx - best.x*fx);              // east and north: cell y runs south
+  const ang = Math.atan2(bestDyNorthM, bestDxM);
   const dir = ["E","NE","N","NW","W","SW","S","SE"][((Math.round(ang/(Math.PI/4)) % 8) + 8) % 8];
-  return (bd*S.cellE/1000).toFixed(1) + " km " + dir + " of " + best.id;
+  return (bdM/1000).toFixed(1) + " km " + dir + " of " + best.id;
 }
 // countOverlaps only sees CROSSINGS; this finds a ring sitting whole inside another, which it cannot
 function countNested(rings){
@@ -5823,7 +5835,7 @@ function cutFingersAtNecks(graph, prm){
     g = r.graph; W = W2; srcNext = c.srcNext; out.pieces = c.pieces;
     Object.assign(neckSet, nsTry); neckSet[c.neckSrc] = 1;
     out.cut++; if(r.kind === "merge") out.merged++; else out.outer++;
-    out.necks.push({ src: c.neckSrc, widthM: Math.round(pick.chord*S.cellE), reachM: Math.round(pick.depth*S.cellE),
+    out.necks.push({ src: c.neckSrc, widthM: Math.round(pick.chord*meanSimCellMetres()), reachM: Math.round(pick.depth*meanSimCellMetres()),
                      km2: +(pick.fingerArea*cellKm2Now()).toFixed(2), kind: r.kind,
                      where: whereIs((pick.A.x+pick.B.x)/2, (pick.A.y+pick.B.y)/2) });
   }
@@ -5844,7 +5856,7 @@ function cutFingersAtNecks(graph, prm){
    tried at a half and a quarter of the width before it is left as it was. It is done on a COPY of the graph: the cells
    take their outline from it, and the hand edits and keys stay on the graph as it was. */
 const OUTER_STEP = 0.35, OUTER_MAX_PTS = 400;
-function outerSmoothCells(){ const m = (typeof iOuterSmooth === "undefined" || !iOuterSmooth) ? 0 : parseFloat(iOuterSmooth.value)||0; return m / S.cellE; }
+function outerSmoothCells(){ const m = (typeof iOuterSmooth === "undefined" || !iOuterSmooth) ? 0 : parseFloat(iOuterSmooth.value)||0; return m / meanSimCellMetres(); }
 function graphWithEdges(g, list){
   const edges = list.map((e,i) => ({ id:i, src:e.src, a:e.a, b:e.b, pts:e.pts, rawPts:e.rawPts, lengthCells:e.lengthCells, dangling:false, angA:e.angA, angB:e.angB }));
   const lists = g.nodes.map(() => []), deg = g.nodes.map(() => 0);
@@ -5917,7 +5929,7 @@ function outerCandidate(e, Lc, clear){
   let tol = 0.02, k = 0, q = Roads.simplify(flatOpen(Q), tol);
   while((q.length>>1) > OUTER_MAX_PTS && k++ < 20){ tol *= 1.6; q = Roads.simplify(flatOpen(Q), tol); }
   const p = e.pts; q[0] = p[0]; q[1] = p[1]; q[q.length-2] = p[p.length-2]; q[q.length-1] = p[p.length-1];
-  q.moveM = Math.max(...Q.map((z,i) => Math.hypot(z[0]-P[i][0], z[1]-P[i][1]))) * S.cellE;
+  q.moveM = Math.max(...Q.map((z,i) => Math.hypot(z[0]-P[i][0], z[1]-P[i][1]))) * meanSimCellMetres();
   return q;
 }
 function segHitL(ax,ay,bx,by,cx,cy,dx,dy){ const E = 1e-9, sd = (x1,y1,x2,y2,x3,y3) => { const v = (x2-x1)*(y3-y1)-(y2-y1)*(x3-x1); return v > E ? 1 : (v < -E ? -1 : 0); };
@@ -5969,7 +5981,7 @@ function smoothOuterEdges(g, Lc){
   const outer = {};
   Object.keys(bySrc).forEach(s => { if(bySrc[s].length === 1 && F0.outerSrc && F0.outerSrc[s]) outer[s] = 1; });
   const sp = spliceOuterDeg2(g, outer);
-  const G = sp.graph, clear = Math.max(0.2, parseFloat(iRoadW.value)/S.cellE), I = segIdx(G), newPts = {};
+  const G = sp.graph, clear = Math.max(0.2, currentRoadWidthM()/meanSimCellMetres()), I = segIdx(G), newPts = {};
   const cur = x => newPts[x.src] || x.pts;
   const st = { outer:0, released:sp.n, full:0, half:0, quarter:0, held:0, maxMoveM:0, kmBefore:0, kmAfter:0, withdrawn:false };
   G.edges.filter(e => outer[e.src] && e.a !== e.b).sort((a,b) => (b.lengthCells - a.lengthCells) || (a.src - b.src)).forEach(e => {
@@ -6376,7 +6388,7 @@ function drawnRoadPolys(){
   return list;
 }
 function roadBodiesOf(polys){
-  const halfW = parseFloat(iRoadW.value)/2 / S.cellE, out = [];
+  const halfW = currentRoadWidthM()/2 / meanSimCellMetres(), out = [];
   polys.forEach(p => { const o = RoadGraph.offsetEdge(p, halfW); if(o) out.push(o); });
   return out;
 }
@@ -6438,7 +6450,7 @@ function extractParcelsFromGraph(){
     const lp = lockedF.map(f => interiorPoint(f.ring)), dp = droppedF.map(f => interiorPoint(f.ring));
     const holds = (pts, R) => pts.some(q => pointInFlatRing(q[0], q[1], R.ring));
     const reachM = (typeof iNeckLen !== "undefined" && iNeckLen) ? parseFloat(iNeckLen.value)||600 : 600;
-    const gap = fingerM/S.cellE, depth = reachM/S.cellE;
+    const gap = fingerM/meanSimCellMetres(), depth = reachM/meanSimCellMetres();
     const nk = cutFingersAtNecks(g, { gap, depthMin: depth, alongMin: Math.max(2*depth, 2.5*gap), step:0.5, snap:0.75,
       maxFrac:0.35, restMin: Math.max(1, minCells), floorCells: minCells, maxCuts:60, maxAttempts:160, msBudget:1500,
       outer:true, lockedSrc, refuseInto: R => holds(lp, R) || holds(dp, R), refuseFrom: R => holds(dp, R) || holds(lp, R) });
@@ -6459,7 +6471,7 @@ function extractParcelsFromGraph(){
   const rings = S.parcels.map(p => p.ring);
   if(S.corridor && rings.length){
     const c = Parcels.measureClearance(rings, S.corridor, parcelInsetCells());
-    if(isFinite(c)) clearM = Math.round(c * S.cellE * 2);
+    if(isFinite(c)) clearM = Math.round(c * meanSimCellMetres() * 2);
   }
   note(extractionNote(before, minKm2, clearM));
   updateHandNote();
@@ -6740,7 +6752,7 @@ function buildExistingRoads(){
      agents across the county to whatever fragment happens to be furthest away. */
   const minRun = 12;                    // cells: about 1.1 km of road before a terminus is real
   const reachCells = (typeof iExRoadReach !== "undefined" && iExRoadReach)
-                     ? (parseFloat(iExRoadReach.value)*1000)/S.cellE : Infinity;
+                     ? (parseFloat(iExRoadReach.value)*1000)/meanSimCellMetres() : Infinity;
   const comp = new Int32Array(n).fill(-1);
   function runLength(start){
     if(comp[start] >= 0) return comp[start];
