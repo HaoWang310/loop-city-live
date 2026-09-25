@@ -3055,7 +3055,7 @@ body{display:flex!important;flex-direction:column!important;overflow:hidden!impo
   /* Fail here, loudly, rather than three functions later with an undefined. A module that quietly
      does nothing is the exact failure this app keeps having to design out. */
   if (!window.Roads) {
-    throw new Error('graph.js needs roads.js loaded first: <script src="js/roads.js?v=81fc58a92c84203f4fd2c685cdffc453"> before this one.');
+    throw new Error('graph.js needs roads.js loaded first: <script src="js/roads.js"> before this one.');
   }
   var RD = window.Roads;
 
@@ -15358,5 +15358,5 @@ startImg.onerror = () => fail("The embedded base map could not be decoded.");
 startImg.src = BASEMAP_SRC;
 requestAnimationFrame(frame);
 </script>
-<script src="js/quadrant_resize.js?v=81fc58a92c84203f4fd2c685cdffc453"></script>\n</body>
+<script src="js/quadrant_resize.js?v=d4b100b6ea3f2e1847930e908347cc0a"></script>\n</body>
 </html>
