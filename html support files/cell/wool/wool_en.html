@@ -6663,6 +6663,9 @@ function workflowParcelPayloadAt(index){
     level:level,
     levelName:(typeof parcelLevelName==='function'?parcelLevelName(level):(level+' level')),
     area:areaM2,
+    areaM2:areaM2,
+    areaKm2:areaM2/1e6,
+    areaUnits:'m²',
     points:pts,
     units:'m',
     sourceUnits:'m',
@@ -6688,7 +6691,8 @@ window.WoolWorkflowBridge={
     if(!ids.length)return{ok:false,message:'Select at least one parcel: click, Shift-click or drag a box.'};
     var parcels=ids.map(workflowParcelPayloadAt).filter(Boolean);
     if(!parcels.length)return{ok:false,message:'Selected parcel data is not valid; select again.'};
-    return{ok:true,parcels:parcels,count:parcels.length,totalArea:parcels.reduce(function(a,p){return a+(Number(p.area)||0);},0)};
+    var totalAreaM2=parcels.reduce(function(a,p){return a+(Number(p.areaM2!=null?p.areaM2:p.area)||0);},0);
+    return{ok:true,parcels:parcels,count:parcels.length,totalArea:totalAreaM2,totalAreaM2:totalAreaM2,totalAreaKm2:totalAreaM2/1e6};
   },
   getSelectedParcel:function(){
     var r=this.getSelectedParcels();
