@@ -236,7 +236,7 @@
   // node and to the spine, and the noise fields (those depend on the seed alone).
   function World(cfg) {
     var w = cfg.w, h = cfg.h, C = cfg.cellM, N = w * h, i, r, c;
-    this.w = w; this.h = h; this.C = C; this.N = N; this.cellKm2 = (C * C) / 1e6;
+    this.w = w; this.h = h; this.C = C; this.N = N; this.cellM2 = C * C; this.cellKm2 = this.cellM2 / 1e6;
     this.build = cfg.build; this.soil = cfg.soil; this.zone = cfg.zone;
     this.x0 = cfg.x0; this.y0 = cfg.y0;                    // the window's top-left in display pixels
 
@@ -574,7 +574,7 @@
         return { sid: st.sid, kind: st.kind, id: st.node ? st.node.id : ("ribbon " + st.zone), zone: st.zone,
                  H: st.H, M: st.M, L: st.L, reach: st.reach }; }),
       farmCells: farmCells, tier: tier, yB: yB, yM: yM, yH: yH, yFarm: yFarm, prog: prog, yP: yP,
-      stats: stats, done: false, pass: 1, year: Y0, timing: T, cellKm2: CELLKM2 };
+      stats: stats, done: false, pass: 1, year: Y0, timing: T, cellM2: world.cellM2, cellKm2: CELLKM2 };
 
     function takeSnapshot() {
       snap = { tier: tier.slice(), own: own.slice(), B: B.slice(), yB: yB.slice(), yM: yM.slice(), yH: yH.slice(),
