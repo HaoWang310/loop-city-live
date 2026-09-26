@@ -8,6 +8,8 @@
   var $ = function (id) { return document.getElementById(id); };
   var fmt = function (v) { return Math.round(v).toLocaleString("en-GB"); };
   var km2 = function (v) { return (Math.round(v * 10) / 10).toLocaleString("en-GB"); };
+  var M2_PER_KM2 = 1000000;
+  var km2ToM2 = function (v) { return v * M2_PER_KM2; };
 
   // ---------------------------------------------------------------- the model's own numbers (v3 build_all.py ZONEDEF)
   var ZONEDEF = {
@@ -537,7 +539,7 @@
     var lastMode = viewMode;
     viewMode = mode; viewWhich = which;
     if (mode === "loop") { view = LOOPVIEW; viewNote = "the whole loop · " +
-      Math.round(LOOPVIEW.w * PX / 1000) + " x " + Math.round(LOOPVIEW.h * PX / 1000) + " km"; }
+      (LOOPVIEW.w * PX / 1000).toFixed(1) + " × " + (LOOPVIEW.h * PX / 1000).toFixed(1) + " km"; }
     else if (mode === "quadrant") {
       if (which === "NW") { var q = D.views.quadrant; view = { x: q[0], y: q[1], w: q[2], h: q[3] };
         viewNote = "north-west · Zones 05 + 06"; }
@@ -1197,22 +1199,31 @@
   }
   function mouldRun(years) {
     var s = out && out.stats.length ? out.stats[out.stats.length - 1] : null, cell = out ? out.cellKm2 : 0;
+    var cellM2 = out ? out.cellM2 : km2ToM2(cell), frameM2 = W * PX * H * PX;
     return {
       written_by: "GrowthExport.forMould() in the Growth Simulator v9 page",
       year_on_screen_when_written: year,
       model: "Growth Simulator v9, js/sim.js - v8's model (the Variation Catalogue's sandbox) on a rectangle",
       zones: zonesNow(), scope: scope, years: years, params: params,
-      grid: { frame_px: [W, H], frame_px_m: PX, model_px: [Math.floor(W / STEP), Math.floor(H / STEP)],
-              model_px_m: PX * STEP, window_px: [SIMW, SIMH], window_origin_px: [SIMX / STEP, SIMY / STEP] },
+      grid: { frame_px: [W, H], frame_px_m: PX,
+              frame_size_m: [W * PX, H * PX], frame_size_km: [W * PX / 1000, H * PX / 1000],
+              frame_area_m2: frameM2, frame_area_km2: frameM2 / M2_PER_KM2,
+              model_px: [Math.floor(W / STEP), Math.floor(H / STEP)], model_px_m: PX * STEP,
+              model_cell_area_m2: cellM2, model_cell_area_km2: cell,
+              window_px: [SIMW, SIMH], window_origin_px: [SIMX / STEP, SIMY / STEP],
+              unit_contract: "length m; area m²; 1 km² = 1,000,000 m²" },
       corner_bng: { e0: D.cornerBNG[0], n1: D.cornerBNG[1] }, crs: D.crs,
       codes: { 1: "low rise", 2: "mid rise", 3: "high rise", 4: "horizontal farming", 5: "vertical farming",
                6: "commercial and public", 7: "institutional" },
       people_per_cell: { low: Math.round(S.PPK[1] * cell), mid: Math.round(S.PPK[2] * cell),
                          high: Math.round(S.PPK[3] * cell) },
       people_per_km2: { low: S.PPK[1], mid: S.PPK[2], high: S.PPK[3] }, people_per_home: 2.30,
-      totals_2100: s ? { people: Math.round(s.people), high_km2: +(s.H * cell).toFixed(1),
-        mid_km2: +(s.M * cell).toFixed(1), low_km2: +(s.L * cell).toFixed(1),
-        horizontal_farming_km2: +(s.field * cell).toFixed(1), vertical_farming_km2: +(s.vfarm * cell).toFixed(1) } : null
+      totals_2100: s ? { people: Math.round(s.people),
+        high_km2: +(s.H * cell).toFixed(1), high_m2: Math.round(s.H * cellM2),
+        mid_km2: +(s.M * cell).toFixed(1), mid_m2: Math.round(s.M * cellM2),
+        low_km2: +(s.L * cell).toFixed(1), low_m2: Math.round(s.L * cellM2),
+        horizontal_farming_km2: +(s.field * cell).toFixed(1), horizontal_farming_m2: Math.round(s.field * cellM2),
+        vertical_farming_km2: +(s.vfarm * cell).toFixed(1), vertical_farming_m2: Math.round(s.vfarm * cellM2) } : null
     };
   }
   function give(url, name, revoke) {
