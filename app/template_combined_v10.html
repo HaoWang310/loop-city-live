@@ -2736,7 +2736,7 @@ function cellsGeoJSON(){
     if(a < 0) ring.reverse();                   // exterior rings anticlockwise
     ring.push(ring[0].slice());
     return {type:"Feature",
-            properties:{id:c.id, area_km2:+c.areaKm2.toFixed(3), perimeter_km:+c.perimKm.toFixed(3),
+            properties:{id:c.id, area_km2:+c.areaKm2.toFixed(3), area_m2:Math.round(c.areaKm2*1e6), perimeter_km:+c.perimKm.toFixed(3),
                         room_km:+c.roomKm.toFixed(2), stations:c.stations.join(" "), step:S.cells.step},
             geometry:{type:"Polygon", coordinates:[ring]}};
   });
@@ -2746,11 +2746,11 @@ function cellsGeoJSON(){
 
 function cellsCSV(){
   const bng = iBNG.checked;
-  const rows = [["id","area_km2","perimeter_km","room_km", bng ? "label_easting" : "label_x_m",
+  const rows = [["id","area_km2","area_m2","perimeter_km","room_km", bng ? "label_easting" : "label_x_m",
                  bng ? "label_northing" : "label_y_m", "stations"].join(",")];
   S.cells.list.forEach(c => {
     const p = worldXY(c.lx, c.ly, bng);
-    rows.push([c.id, c.areaKm2.toFixed(3), c.perimKm.toFixed(3), c.roomKm.toFixed(2),
+    rows.push([c.id, c.areaKm2.toFixed(3), Math.round(c.areaKm2*1e6), c.perimKm.toFixed(3), c.roomKm.toFixed(2),
                p[0].toFixed(1), p[1].toFixed(1), c.stations.join(" ")].join(","));
   });
   return rows.join("\r\n") + "\r\n";
@@ -7490,13 +7490,19 @@ function buildCellPack(p){
     .filter(o => o.ring.some(q => q[0] >= nbBox.E0 && q[0] <= nbBox.E1 && q[1] >= nbBox.N0 && q[1] <= nbBox.N1));
 
   return {
-    kind:"loopcity.cell", version:1, crs:"EPSG:27700", units:"m",
+    kind:"loopcity.cell", version:1, crs:"EPSG:27700", units:"m", areaUnits:"m²",
+    unitContract:"coordinates/lengths in m; areas in m²; legacy *Km2 fields use km²; 1 km² = 1,000,000 m²",
     id:p.id, label:p.id + (stations.length ? " · " + stations.map(s => s.id).join("/") : ""),
     year:S.showY == null ? YEAR1 : S.showY,
     made:{ app:"Loop City v8 · combined app", at:new Date().toISOString(), cellsInRun:S.parcels.length },
-    figures:{ areaKm2:p.areaKm2 || 0, perimKm:p.perimKm || 0, people:p.people || 0,
-              builtKm2:p.builtKm2 || 0, tiers:p.tiers || null, fieldKm2:p.fieldKm2 || 0,
-              vfarmKm2:p.vfarmKm2 || 0, railKm:p.railKm || 0 },
+    figures:{ areaKm2:p.areaKm2 || 0, areaM2:(p.areaKm2 || 0)*1e6,
+              perimKm:p.perimKm || 0, perimM:(p.perimKm || 0)*1000, people:p.people || 0,
+              builtKm2:p.builtKm2 || 0, builtM2:(p.builtKm2 || 0)*1e6,
+              tiers:p.tiers || null,
+              tiersM2:p.tiers ? {highM2:(p.tiers.highKm2||0)*1e6,midM2:(p.tiers.midKm2||0)*1e6,lowM2:(p.tiers.lowKm2||0)*1e6} : null,
+              fieldKm2:p.fieldKm2 || 0, fieldM2:(p.fieldKm2 || 0)*1e6,
+              vfarmKm2:p.vfarmKm2 || 0, vfarmM2:(p.vfarmKm2 || 0)*1e6,
+              railKm:p.railKm || 0, railM:(p.railKm || 0)*1000 },
     ring:ring, bbox:{ E0:bE0, N0:bN0, E1:bE1, N1:bN1 }, context:box,
     stations:stations, centre:stations[0] || null,
     spine:spine, railNear:railNear,
