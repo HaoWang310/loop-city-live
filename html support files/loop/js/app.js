@@ -60,11 +60,9 @@
   var view = { x: 0, y: 0, w: W, h: H }, viewMode = "loop", viewWhich = "NW", viewNote = "the whole loop";
   function viewTitle() { return viewNote.split(" · click")[0].split(" · outside")[0]; }
   var NODE_KM = [40, 20, 10, 5], nodeLevel = 0, nodeId = "P1", inWindow = [];
-  var LOOPVIEW = (function () {                              // the loop with even air round it, inside the frame
-    var xs = D.spine.map(function (p) { return p[0]; }), ys = D.spine.map(function (p) { return p[1]; });
-    var pad = 150, x0 = Math.max(0, Math.min.apply(null, xs) - pad), y0 = Math.max(0, Math.min.apply(null, ys) - pad);
-    return { x: x0, y: y0, w: Math.min(W, Math.max.apply(null, xs) + pad) - x0,
-             h: Math.min(H, Math.max.apply(null, ys) + pad) - y0 };
+  var LOOPVIEW = (function () {                              // authoritative whole-loop frame: 129.2 × 123.0 km
+    var q = (D.views && D.views.loop) ? D.views.loop : [0, 0, W, H];
+    return { x:q[0], y:q[1], w:q[2], h:q[3] };
   })();
   var year = S.Y0, playing = false, timer = null, params = {}, speed = 90;
   var growthCv = document.createElement("canvas"), growthCtx = null, growthYear = -1;
