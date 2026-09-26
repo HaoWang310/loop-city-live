@@ -2,7 +2,7 @@
 """Growth Simulator v9 - the data bundle: every layer the app draws or the model reads, on one grid.
 
 THE GRID. 35 m a pixel on the slime mould quadrant's own registration (British National Grid, top-left corner
-E 452754.1, N 246493.2), carried across the whole study frame: 4286 x 3514 pixels, 150.0 x 123.0 km. The slime
+E 452754.1, N 246493.2), carried across the whole-loop study frame: 3691 x 3514 pixels, 129.2 x 123.0 km. The slime
 mould's Zones 05-06 sheet (2513 x 2288) is then the top-left window of this grid, so the two apps lie on top of
 each other with no offset (the slime sheet's own extent runs 31 m further east and south, under one pixel).
 
@@ -51,7 +51,7 @@ ABS = os.path.join(CC, "03_Growth Simulator", "02_Booklet Corrections", "_build"
 
 # ---------------------------------------------------------------- the grid
 E0, N1, MPP = 452754.1, 246493.2, 35.0          # the slime mould quadrant's own corner and cell
-W, H = 4286, 3514                                # the whole study frame at that cell, 150.0 x 123.0 km
+W, H = 3691, 3514                                # whole-loop frame: 129.185 x 122.990 km ≈ 129.2 x 123.0 km
 QUAD = [0, 0, 2513, 2288]                        # the Zones 05-06 window inside it (x, y, w, h)
 SIM_STEP = 2                                     # the model runs at 70 m, two display pixels
 SW, SH = W // SIM_STEP, H // SIM_STEP
@@ -240,6 +240,11 @@ def main():
 
     meta = {"crs": "EPSG:27700", "mPerPx": MPP, "size": [W, H],
             "cornerBNG": [E0, N1], "simStep": SIM_STEP, "simSize": [SW, SH],
+            "frame": {"widthM": W * MPP, "heightM": H * MPP,
+                      "widthKm": W * MPP / 1e3, "heightKm": H * MPP / 1e3,
+                      "areaM2": W * H * MPP * MPP, "areaKm2": W * H * MPP * MPP / 1e6},
+            "units": {"distance": "m", "area": "m²", "displayArea": "km²",
+                      "areaConversion": "1 km² = 1,000,000 m²"},
             "views": {"loop": [0, 0, W, H], "quadrant": QUAD,
                       "quadrants": {"NW": [0, 0, W // 2, H // 2], "NE": [W // 2, 0, W - W // 2, H // 2],
                                     "SW": [0, H // 2, W // 2, H - H // 2], "SE": [W // 2, H // 2, W - W // 2, H - H // 2]}},
