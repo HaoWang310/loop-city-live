@@ -734,7 +734,7 @@
                   corridor: M.corridor && M.corridor.source === "green" ? { source: M.corridor.sourceFile, year: M.corridor.year } : "fixed widths" }
     };
     var st = M.stats;
-    st.areaKm2 = cellA / 1e6; st.across = Math.sqrt(cellA); st.threads = threads; st.groups = groups.length;
+    st.areaM2 = cellA; st.areaKm2 = cellA / 1e6; st.across = Math.sqrt(cellA); st.threads = threads; st.groups = groups.length;
     st.scaleUp = 1 / f; st.gridM = pp.cell / f; st.magRM = params.magR / f;
     return { ok: true, kind: M.kind, settings: settings, frame: { E0: E0, N0: N0 }, opt: X.opt, corridor: M.corridor, stats: st };
   }
