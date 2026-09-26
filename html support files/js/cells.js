@@ -1108,16 +1108,18 @@
             id: c.id,
             layer: c.layer || (rec && rec.layer) || "",
             area_km2: +c.areaKm2.toFixed(3),
+            area_m2: Math.round(c.areaKm2 * 1e6),
             perimeter_km: +c.perimKm.toFixed(3),
             room_km: +c.roomKm.toFixed(2),
             stations: (c.stations || []).join(" "),
             built_km2: +(c.builtKm2 || 0).toFixed(3),
-            high_km2: +t.highKm2.toFixed(3),
-            mid_km2: +t.midKm2.toFixed(3),
-            low_km2: +t.lowKm2.toFixed(3),
+            built_m2: Math.round((c.builtKm2 || 0) * 1e6),
+            high_km2: +t.highKm2.toFixed(3), high_m2: Math.round(t.highKm2 * 1e6),
+            mid_km2: +t.midKm2.toFixed(3), mid_m2: Math.round(t.midKm2 * 1e6),
+            low_km2: +t.lowKm2.toFixed(3), low_m2: Math.round(t.lowKm2 * 1e6),
             people: Math.round(c.people || 0),
-            vfarm_km2: +(c.vfarmKm2 || 0).toFixed(3),
-            field_km2: +(c.fieldKm2 || 0).toFixed(3),
+            vfarm_km2: +(c.vfarmKm2 || 0).toFixed(3), vfarm_m2: Math.round((c.vfarmKm2 || 0) * 1e6),
+            field_km2: +(c.fieldKm2 || 0).toFixed(3), field_m2: Math.round((c.fieldKm2 || 0) * 1e6),
             road_km: +(c.roadKm || 0).toFixed(3),
             blobs: c.blobs || 0,
             year_set: c.yearSet || 0,
@@ -1143,10 +1145,10 @@
   function cellsCSV(o) {
     o = o || {};
     var bng = o.bng !== false;
-    var rows = [["id", "layer", "area_km2", "perimeter_km", "room_km",
+    var rows = [["id", "layer", "area_km2", "area_m2", "perimeter_km", "room_km",
                  bng ? "label_easting" : "label_x_m", bng ? "label_northing" : "label_y_m",
-                 "built_km2", "high_km2", "mid_km2", "low_km2", "people",
-                 "vfarm_km2", "field_km2", "road_km", "blobs", "year_set", "edge",
+                 "built_km2", "built_m2", "high_km2", "high_m2", "mid_km2", "mid_m2", "low_km2", "low_m2", "people",
+                 "vfarm_km2", "vfarm_m2", "field_km2", "field_m2", "road_km", "blobs", "year_set", "edge",
                  "stations"].join(",")];
 
     function addAll(rec) {
@@ -1155,11 +1157,14 @@
         var c = L[j], p = worldXY(c.lx, c.ly, bng);
         var t = c.tiers || { highKm2: 0, midKm2: 0, lowKm2: 0 };
         rows.push([c.id, c.layer || (rec && rec.layer) || "",
-                   c.areaKm2.toFixed(3), c.perimKm.toFixed(3), c.roomKm.toFixed(2),
+                   c.areaKm2.toFixed(3), Math.round(c.areaKm2 * 1e6), c.perimKm.toFixed(3), c.roomKm.toFixed(2),
                    p[0].toFixed(1), p[1].toFixed(1),
-                   (c.builtKm2 || 0).toFixed(3), t.highKm2.toFixed(3), t.midKm2.toFixed(3),
-                   t.lowKm2.toFixed(3), Math.round(c.people || 0),
-                   (c.vfarmKm2 || 0).toFixed(3), (c.fieldKm2 || 0).toFixed(3),
+                   (c.builtKm2 || 0).toFixed(3), Math.round((c.builtKm2 || 0) * 1e6),
+                   t.highKm2.toFixed(3), Math.round(t.highKm2 * 1e6),
+                   t.midKm2.toFixed(3), Math.round(t.midKm2 * 1e6),
+                   t.lowKm2.toFixed(3), Math.round(t.lowKm2 * 1e6), Math.round(c.people || 0),
+                   (c.vfarmKm2 || 0).toFixed(3), Math.round((c.vfarmKm2 || 0) * 1e6),
+                   (c.fieldKm2 || 0).toFixed(3), Math.round((c.fieldKm2 || 0) * 1e6),
                    (c.roadKm || 0).toFixed(3), c.blobs || 0, c.yearSet || 0,
                    c.edge ? 1 : 0,
                    (c.stations || []).join(" ")].join(","));
